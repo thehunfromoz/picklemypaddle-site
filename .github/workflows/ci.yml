@@ -1,6 +1,8 @@
 # Checks every pull request and every push to main.
 # On main, publishes the tested image to GHCR as :staging and :<sha>;
-# home-server pulls :staging automatically (SCRUM-16).
+# home-server pulls :staging automatically (SCRUM-16). The smoke-test image
+# (same tests, packaged) is published as picklemypaddle-site-smoke:<sha> so
+# home-server can test each staging update and report back (SCRUM-17).
 name: CI
 
 on:
@@ -18,6 +20,7 @@ concurrency:
 
 env:
   IMAGE: ghcr.io/${{ github.repository }}
+  SMOKE_IMAGE: ghcr.io/${{ github.repository }}-smoke
 
 jobs:
   test:
@@ -88,6 +91,15 @@ jobs:
         env:
           BASE_URL: http://localhost:8080
         run: pnpm test:e2e
+      - name: Build the smoke-test image (same Playwright and axe versions as above)
+        run: |
+          PW_VERSION=$(node -p "require('@playwright/test/package.json').version")
+          AXE_VERSION=$(node -p "require('@axe-core/playwright/package.json').version")
+          docker build -f tests/smoke/Dockerfile -t picklemypaddle-site-smoke:test \
+            --build-arg PW_VERSION=$PW_VERSION --build-arg AXE_VERSION=$AXE_VERSION \
+            --label org.opencontainers.image.revision=${{ github.sha }} .
+      - name: Smoke-test image passes against the container
+        run: docker run --rm --network host --shm-size=1g -e BASE_URL=http://127.0.0.1:8080 picklemypaddle-site-smoke:test
       - name: Scan image for vulnerabilities
         uses: aquasecurity/trivy-action@v0.36.0
         with:
@@ -105,6 +117,9 @@ jobs:
       - name: Publish :staging and :sha
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
+          # Smoke image first, so it exists before home-server sees the new site image.
+          docker tag picklemypaddle-site-smoke:test $SMOKE_IMAGE:${{ github.sha }}
+          docker push $SMOKE_IMAGE:${{ github.sha }}
           docker tag picklemypaddle-site:test $IMAGE:staging
           docker tag picklemypaddle-site:test $IMAGE:${{ github.sha }}
           docker push $IMAGE:staging
