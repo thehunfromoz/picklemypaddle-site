@@ -26,7 +26,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: ${{ hashFiles('pnpm-lock.yaml') != '' && 'pnpm' || '' }}
@@ -79,7 +79,7 @@ jobs:
       - name: Run image
         run: docker run -d --name site -p 8080:80 picklemypaddle-site:test && sleep 3
       - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
       - name: Install test tools
