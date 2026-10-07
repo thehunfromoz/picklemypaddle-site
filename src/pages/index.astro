@@ -1,0 +1,30 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/sections/Hero.astro';
+import HowItWorks from '../components/sections/HowItWorks.astro';
+import Pricing from '../components/sections/Pricing.astro';
+import Gallery from '../components/sections/Gallery.astro';
+import Testimonials from '../components/sections/Testimonials.astro';
+import OrderForm from '../components/sections/OrderForm.astro';
+import { brand } from '../config/brand';
+import { siteData } from '../data/siteData';
+---
+
+<BaseLayout
+  schema={{
+    '@context': 'https://schema.org',
+    '@type': 'LocalBusiness',
+    name: brand.name,
+    description: brand.description,
+    email: siteData.contact.email,
+    areaServed: 'AU',
+    url: Astro.site?.toString(),
+  }}
+>
+  <Hero />
+  <HowItWorks />
+  <Pricing />
+  <Gallery />
+  <Testimonials />
+  <OrderForm />
+</BaseLayout>

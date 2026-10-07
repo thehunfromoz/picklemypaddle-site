@@ -1,0 +1,11 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Banner from '../components/Banner.astro';
+import LegalPage from '../components/LegalPage.astro';
+import { privacyPolicy } from '../data/privacy';
+---
+
+<BaseLayout title="Privacy" description="How Pickle My Paddle collects, uses and protects your personal information.">
+  <Banner title="Privacy policy" />
+  <LegalPage effectiveDate={privacyPolicy.effectiveDate} sections={privacyPolicy.sections} />
+</BaseLayout>

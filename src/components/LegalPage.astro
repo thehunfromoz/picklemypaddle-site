@@ -1,0 +1,25 @@
+---
+import Ph from './Ph.astro';
+
+interface Props {
+  effectiveDate: string;
+  sections: readonly { readonly heading: string; readonly content: readonly string[] }[];
+}
+const { effectiveDate, sections } = Astro.props;
+---
+
+<section class="py-section">
+  <div class="mx-auto max-w-3xl px-4 sm:px-6">
+    <p class="mb-10 text-sm text-text-muted">Effective date: <Ph text={effectiveDate} /></p>
+    <div class="space-y-10">
+      {sections.map(({ heading, content }) => (
+        <div>
+          <h2 class="font-heading text-h3 font-bold">{heading}</h2>
+          <div class="mt-3 space-y-4">
+            {content.map((p) => <p class="leading-relaxed text-text-muted"><Ph text={p} /></p>)}
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

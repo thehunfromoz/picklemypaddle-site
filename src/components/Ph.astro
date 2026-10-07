@@ -1,0 +1,16 @@
+---
+/**
+ * Renders text, highlighting any "[To confirm: …]" placeholders so they are
+ * easy to spot on staging. scripts/check-placeholders.mjs blocks release
+ * builds while any remain.
+ */
+interface Props {
+  text: string;
+}
+const { text } = Astro.props;
+const parts = text.split(/(\[To confirm:[^\]]*\])/g).filter(Boolean);
+---
+
+{parts.map((part) =>
+  part.startsWith('[To confirm:') ? <span class="placeholder">{part}</span> : part,
+)}

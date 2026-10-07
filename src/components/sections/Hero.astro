@@ -1,0 +1,35 @@
+---
+import { Image } from 'astro:assets';
+import { brand } from '../../config/brand';
+import { siteData } from '../../data/siteData';
+import { heroImage } from '../../config/images';
+import Logo from '../Logo.astro';
+---
+
+<section class="py-12 sm:py-16 lg:py-20">
+  <div class="mx-auto grid max-w-site grid-cols-1 items-center gap-10 px-4 sm:px-6 lg:grid-cols-2 lg:gap-14">
+    <div class="space-y-6">
+      <p class="topper">Pickleball paddle re-gritting</p>
+      <h1 class="font-heading text-display font-bold leading-[1.05] tracking-tight text-text">{brand.tagline}</h1>
+      <p class="max-w-xl text-lead leading-relaxed text-text-muted">
+        A worn paddle face stops gripping the ball. We re-grit it so your spin comes back, and your
+        favourite paddle stays in the game. Post it in, or hand it to your club for the next pickup.
+      </p>
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <a href={siteData.orderCta.href} class="btn-primary">{siteData.orderCta.label}</a>
+        <a href="/#how-it-works" class="btn-secondary">How it works</a>
+      </div>
+      <p class="text-sm text-text-muted">
+        A${siteData.pricing.regritPerPaddle} per paddle &middot; plus return postage
+      </p>
+    </div>
+
+    <div class="flex aspect-4/3 items-center justify-center overflow-hidden rounded-lg bg-tint-green">
+      {heroImage ? (
+        <Image src={heroImage} alt="A freshly re-gritted pickleball paddle face, close up" width={900} height={675} loading="eager" class="size-full object-cover" />
+      ) : (
+        <Logo variant="full" class="h-4/5 w-auto" title="Pickle My Paddle logo: a paddle preserved in a jar" />
+      )}
+    </div>
+  </div>
+</section>

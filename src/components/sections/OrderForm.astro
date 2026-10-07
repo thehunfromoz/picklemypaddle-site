@@ -1,0 +1,278 @@
+---
+import { siteData } from '../../data/siteData';
+import { AU_STATES, MAX_PADDLES } from '../../lib/order';
+
+const price = siteData.pricing.regritPerPaddle;
+// Set PUBLIC_ORDER_API_URL at build time once picklemypaddle-integrations is running.
+const endpoint = import.meta.env.PUBLIC_ORDER_API_URL ?? '';
+const field = 'mt-1 block w-full rounded-md border border-border bg-surface px-3 py-2.5 text-base text-text';
+const label = 'block text-sm font-semibold';
+const err = 'mt-1 text-sm font-medium text-[#A12B2B]';
+---
+
+<section id="order" class="bg-tint-blue py-section">
+  <div class="mx-auto max-w-3xl px-4 sm:px-6">
+    <p class="topper">Order</p>
+    <h2 class="mt-2 font-heading text-h2 font-bold">Send in your paddle</h2>
+    <p class="mt-3 leading-relaxed text-text-muted">
+      Tell us about each paddle and add a photo of its front and back. We'll check the photos and email you
+      within <span class="placeholder">[To confirm: response time, e.g. 1 business day]</span> to confirm and send a payment link.
+      You don't pay anything now.
+    </p>
+
+    {!endpoint && (
+      <p class="mt-6 rounded-md border border-primary bg-surface p-4 text-sm" data-testid="ordering-closed">
+        Online ordering opens soon. In the meantime, email
+        <a class="font-semibold text-primary underline" href={`mailto:${siteData.contact.email}`}>{siteData.contact.email}</a>.
+      </p>
+    )}
+
+    <form
+      id="order-form"
+      class="mt-8 space-y-8 rounded-lg bg-surface p-6 sm:p-8"
+      method="post"
+      enctype="multipart/form-data"
+      action={endpoint || undefined}
+      data-endpoint={endpoint}
+      data-price={price}
+      data-max={MAX_PADDLES}
+      novalidate
+    >
+      <div id="form-status" role="status" aria-live="polite" class="hidden rounded-md p-4 text-sm"></div>
+
+      <fieldset class="space-y-4">
+        <legend class="font-heading text-h3 font-bold">Your details</legend>
+        <div>
+          <label for="name" class={label}>Full name</label>
+          <input id="name" name="name" autocomplete="name" required class={field} aria-describedby="name-error" />
+          <p id="name-error" class={err} hidden></p>
+        </div>
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div>
+            <label for="email" class={label}>Email</label>
+            <input id="email" name="email" type="email" autocomplete="email" required class={field} aria-describedby="email-error" />
+            <p id="email-error" class={err} hidden></p>
+          </div>
+          <div>
+            <label for="phone" class={label}>Phone <span class="font-normal text-text-muted">(optional)</span></label>
+            <input id="phone" name="phone" type="tel" autocomplete="tel" class={field} aria-describedby="phone-error" />
+            <p id="phone-error" class={err} hidden></p>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset class="space-y-4">
+        <legend class="font-heading text-h3 font-bold">Return address</legend>
+        <div>
+          <label for="street" class={label}>Street address</label>
+          <input id="street" name="street" autocomplete="street-address" required class={field} aria-describedby="street-error" />
+          <p id="street-error" class={err} hidden></p>
+        </div>
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div>
+            <label for="suburb" class={label}>Suburb</label>
+            <input id="suburb" name="suburb" autocomplete="address-level2" required class={field} aria-describedby="suburb-error" />
+            <p id="suburb-error" class={err} hidden></p>
+          </div>
+          <div>
+            <label for="state" class={label}>State</label>
+            <select id="state" name="state" autocomplete="address-level1" required class={field} aria-describedby="state-error">
+              <option value="">Choose…</option>
+              {AU_STATES.map((s) => <option value={s}>{s}</option>)}
+            </select>
+            <p id="state-error" class={err} hidden></p>
+          </div>
+          <div>
+            <label for="postcode" class={label}>Postcode</label>
+            <input id="postcode" name="postcode" inputmode="numeric" autocomplete="postal-code" maxlength="4" required class={field} aria-describedby="postcode-error" />
+            <p id="postcode-error" class={err} hidden></p>
+          </div>
+        </div>
+      </fieldset>
+
+      <div class="space-y-4">
+        <h3 class="font-heading text-h3 font-bold">Your paddles</h3>
+        <p id="paddles-error" class={err} hidden></p>
+        <div id="paddle-list" class="space-y-4"></div>
+        <button type="button" id="add-paddle" class="btn-secondary">+ Add another paddle</button>
+        <p class="text-sm text-text-muted">
+          Estimate: <strong id="estimate">A${price}</strong> for re-gritting, plus return postage.
+        </p>
+      </div>
+
+      <div>
+        <div class="flex items-start gap-3">
+          <input id="consent" name="consent" type="checkbox" value="yes" required class="mt-1 size-5 shrink-0 accent-primary" aria-describedby="consent-error" />
+          <label for="consent" class="text-sm leading-relaxed">
+            I agree to Pickle My Paddle storing my details and paddle photos to process this order, as described in the
+            <a href="/privacy" class="font-semibold text-primary underline">privacy policy</a>.
+          </label>
+        </div>
+        <p id="consent-error" class={err} hidden></p>
+      </div>
+
+      <button type="submit" class="btn-primary w-full sm:w-auto">Submit for review</button>
+    </form>
+
+    <template id="paddle-template">
+      <fieldset class="paddle rounded-md border border-border p-4" data-index="__i__">
+        <legend class="px-1 font-semibold">Paddle <span class="paddle-number">__n__</span></legend>
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div>
+            <label for="paddles-__i__-brand" class={label}>Brand</label>
+            <input id="paddles-__i__-brand" name="paddles[__i__][brand]" required class={field} aria-describedby="paddles-__i__-brand-error" />
+            <p id="paddles-__i__-brand-error" class={err} hidden></p>
+          </div>
+          <div>
+            <label for="paddles-__i__-model" class={label}>Model <span class="font-normal text-text-muted">(optional)</span></label>
+            <input id="paddles-__i__-model" name="paddles[__i__][model]" class={field} />
+          </div>
+          <div>
+            <label for="paddles-__i__-front" class={label}>Photo of the front</label>
+            <input id="paddles-__i__-front" name="paddles[__i__][front]" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" required class={field} aria-describedby="paddles-__i__-front-error" />
+            <p id="paddles-__i__-front-error" class={err} hidden></p>
+          </div>
+          <div>
+            <label for="paddles-__i__-back" class={label}>Photo of the back</label>
+            <input id="paddles-__i__-back" name="paddles[__i__][back]" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" required class={field} aria-describedby="paddles-__i__-back-error" />
+            <p id="paddles-__i__-back-error" class={err} hidden></p>
+          </div>
+        </div>
+        <button type="button" class="remove-paddle mt-3 text-sm font-semibold text-primary underline">Remove this paddle</button>
+      </fieldset>
+    </template>
+  </div>
+</section>
+
+<script>
+  import { validateOrder, type OrderInput, type PhotoInfo } from '../../lib/order';
+
+  const form = document.getElementById('order-form') as HTMLFormElement | null;
+  const list = document.getElementById('paddle-list');
+  const tpl = document.getElementById('paddle-template') as HTMLTemplateElement | null;
+  const addBtn = document.getElementById('add-paddle') as HTMLButtonElement | null;
+  const estimate = document.getElementById('estimate');
+  const status = document.getElementById('form-status');
+
+  if (form && list && tpl && addBtn && estimate && status) {
+    const price = Number(form.dataset.price);
+    const max = Number(form.dataset.max);
+    let next = 0;
+
+    const paddles = () => [...list.querySelectorAll<HTMLFieldSetElement>('fieldset.paddle')];
+
+    const refresh = () => {
+      const items = paddles();
+      items.forEach((fs, i) => {
+        fs.querySelector('.paddle-number')!.textContent = String(i + 1);
+        (fs.querySelector('.remove-paddle') as HTMLElement).hidden = items.length === 1;
+      });
+      addBtn.hidden = items.length >= max;
+      estimate.textContent = `A$${items.length * price}`;
+    };
+
+    const addPaddle = (focus: boolean) => {
+      const i = next++;
+      const html = tpl.innerHTML.replaceAll('__i__', String(i)).replaceAll('__n__', String(i + 1));
+      const wrap = document.createElement('div');
+      wrap.innerHTML = html;
+      const fs = wrap.firstElementChild as HTMLFieldSetElement;
+      fs.querySelector('.remove-paddle')!.addEventListener('click', () => {
+        fs.remove();
+        refresh();
+        addBtn.focus();
+      });
+      list.appendChild(fs);
+      refresh();
+      if (focus) (fs.querySelector('input') as HTMLInputElement).focus();
+    };
+
+    addBtn.addEventListener('click', () => addPaddle(true));
+    addPaddle(false);
+
+    const photo = (input: HTMLInputElement | null): PhotoInfo | null => {
+      const f = input?.files?.[0];
+      return f ? { name: f.name, size: f.size, type: f.type } : null;
+    };
+
+    const collect = (): { input: OrderInput; idx: string[] } => {
+      const v = (n: string) => (form.elements.namedItem(n) as HTMLInputElement | null)?.value ?? '';
+      const items = paddles();
+      return {
+        idx: items.map((fs) => fs.dataset.index!),
+        input: {
+          name: v('name'),
+          email: v('email'),
+          phone: v('phone'),
+          street: v('street'),
+          suburb: v('suburb'),
+          state: v('state'),
+          postcode: v('postcode'),
+          consent: (form.elements.namedItem('consent') as HTMLInputElement).checked,
+          paddles: items.map((fs) => {
+            const i = fs.dataset.index!;
+            return {
+              brand: (fs.querySelector(`[name="paddles[${i}][brand]"]`) as HTMLInputElement).value,
+              model: (fs.querySelector(`[name="paddles[${i}][model]"]`) as HTMLInputElement).value,
+              front: photo(fs.querySelector(`[name="paddles[${i}][front]"]`)),
+              back: photo(fs.querySelector(`[name="paddles[${i}][back]"]`)),
+            };
+          }),
+        },
+      };
+    };
+
+    const showErrors = (errors: Record<string, string>, idx: string[]) => {
+      form.querySelectorAll<HTMLElement>('[id$="-error"]').forEach((p) => {
+        p.hidden = true;
+        p.textContent = '';
+      });
+      form.querySelectorAll('[aria-invalid]').forEach((el) => el.removeAttribute('aria-invalid'));
+      let first: HTMLElement | null = null;
+      for (const [key, msg] of Object.entries(errors)) {
+        // paddles.<position>.<field> → element ids use the stable data-index
+        const id = key.startsWith('paddles.')
+          ? (() => { const [, pos, f] = key.split('.'); return `paddles-${idx[Number(pos)]}-${f}`; })()
+          : key;
+        const p = document.getElementById(`${id}-error`);
+        if (p) { p.textContent = msg; p.hidden = false; }
+        const input = document.getElementById(id);
+        if (input) { input.setAttribute('aria-invalid', 'true'); first ??= input; }
+      }
+      first?.focus();
+    };
+
+    const say = (msg: string, ok: boolean) => {
+      status.textContent = msg;
+      status.className = `rounded-md p-4 text-sm ${ok ? 'bg-tint-green' : 'bg-tint-blue'}`;
+    };
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const { input, idx } = collect();
+      const errors = validateOrder(input);
+      showErrors(errors, idx);
+      if (Object.keys(errors).length > 0) {
+        say(`Please fix ${Object.keys(errors).length} item(s) highlighted below.`, false);
+        return;
+      }
+      const endpoint = form.dataset.endpoint;
+      if (!endpoint) {
+        say('Thanks! Online ordering opens soon. Please email us in the meantime.', false);
+        return;
+      }
+      say('Sending your order…', true);
+      try {
+        const res = await fetch(endpoint, { method: 'POST', body: new FormData(form) });
+        if (!res.ok) throw new Error(String(res.status));
+        const data = (await res.json().catch(() => ({}))) as { reference?: string };
+        form.reset();
+        list.innerHTML = '';
+        addPaddle(false);
+        say(`Thanks! We've received your order${data.reference ? ` (reference ${data.reference})` : ''}. Check your email for confirmation.`, true);
+      } catch {
+        say('Sorry, something went wrong sending your order. Please try again, or email us.', false);
+      }
+    });
+  }
+</script>

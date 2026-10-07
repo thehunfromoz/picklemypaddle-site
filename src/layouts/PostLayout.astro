@@ -1,0 +1,41 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import { siteData } from '../data/siteData';
+
+interface Props {
+  title: string;
+  description: string;
+  date: Date;
+  author?: string;
+}
+
+const { title, description, date, author = 'Pickle My Paddle' } = Astro.props;
+const formattedDate = date.toLocaleDateString('en-AU', { year: 'numeric', month: 'long', day: 'numeric' });
+---
+
+<BaseLayout title={title} description={description}>
+  <section class="bg-tint-blue py-12 sm:py-14 lg:py-16">
+    <div class="mx-auto max-w-3xl px-4 sm:px-6">
+      <nav aria-label="Breadcrumb" class="mb-4 text-sm">
+        <a href="/blog" class="font-medium text-primary hover:text-primary-dark">&larr; Blog</a>
+      </nav>
+      <h1 class="font-heading text-h1 font-bold text-text">{title}</h1>
+      <p class="mt-3 text-sm text-text-muted">
+        {author} &middot; <time datetime={date.toISOString()}>{formattedDate}</time>
+      </p>
+    </div>
+  </section>
+
+  <section class="py-section">
+    <div class="mx-auto max-w-3xl px-4 sm:px-6">
+      <article class="prose prose-lg max-w-none prose-headings:font-heading prose-a:text-primary">
+        <slot />
+      </article>
+      <div class="mt-12 rounded-lg bg-tint-green p-6 sm:p-8">
+        <p class="font-heading text-h3 font-bold">Is your paddle losing its grip?</p>
+        <p class="mt-2 text-text-muted">We re-grit pickleball paddles for A${siteData.pricing.regritPerPaddle} each.</p>
+        <a href={siteData.orderCta.href} class="btn-primary mt-4">{siteData.orderCta.label}</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

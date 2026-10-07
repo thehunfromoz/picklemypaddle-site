@@ -1,0 +1,56 @@
+/*
+ * ─────────────────────────────────────────────────────────────────────────────
+ * THEME — Pickle My Paddle brand, direction C3b "Court colours, clean"
+ * (locked 7 Oct 2026, recorded on Jira SCRUM-7).
+ *
+ * Single source of truth for colours, radius, type scale and spacing.
+ * Tailwind v4 reads this @theme block and generates utilities
+ * (bg-primary, text-ink, bg-tint-green, rounded-lg …).
+ *
+ * Accessibility: text colours below meet WCAG AA (4.5:1) on the page
+ * background. Court green (#78A472) is for fills, icons and accents only —
+ * use green-text (#3F6B3E) when green text is needed.
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
+
+@theme {
+  /* ── Brand colours ──────────────────────────────────────────────── */
+  --color-primary: #4565a6;        /* court blue: buttons, links */
+  --color-primary-dark: #35508a;   /* hover state */
+  --color-primary-fg: #ffffff;
+  --color-accent: #78a472;         /* court green: icons, fills */
+  --color-green-text: #3f6b3e;     /* green for text */
+  --color-tint-blue: #e3e9f5;      /* section background */
+  --color-tint-green: #e6f0e2;     /* section background */
+
+  /* ── Neutrals ───────────────────────────────────────────────────── */
+  --color-background: #fbfaf6;     /* line white */
+  --color-surface: #ffffff;
+  --color-border: #dce2ea;
+  --color-text: #1e2e52;           /* deep ink */
+  --color-text-muted: #3a4a68;
+  --color-dark: #1e2e52;
+
+  /* ── Border radius ──────────────────────────────────────────────── */
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1.25rem;
+  --radius-full: 9999px;
+
+  /* ── Fluid type scale ───────────────────────────────────────────── */
+  --text-topper: clamp(0.75rem, 1.4vw, 0.875rem);
+  --text-body: 1rem;
+  --text-lead: clamp(1.0625rem, 1.8vw, 1.25rem);
+  --text-h3: clamp(1.25rem, 2.2vw, 1.5rem);
+  --text-h2: clamp(1.75rem, 3vw, 2.25rem);
+  --text-h1: clamp(2.25rem, 5vw, 3.25rem);
+  --text-display: clamp(2.5rem, 5.5vw, 4rem);
+
+  /* ── Spacing / container ────────────────────────────────────────── */
+  --container-site: 76rem;
+  --spacing-section: clamp(3.5rem, 7vw, 6rem);
+
+  /* ── Fonts (self-hosted via @fontsource, see global.css) ────────── */
+  --font-heading: "Sora", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Work Sans", ui-sans-serif, system-ui, sans-serif;
+}

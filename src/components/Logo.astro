@@ -1,0 +1,71 @@
+---
+/**
+ * Brand mark: an elongated pickleball paddle preserved in a jar.
+ *   variant="full"  detailed mark for large sizes (hero, about)
+ *   variant="icon"  simplified, heavier strokes for header / small sizes
+ * Generic paddle silhouette only (no third-party paddle branding).
+ */
+interface Props {
+  variant?: 'full' | 'icon';
+  class?: string;
+  title?: string;
+}
+const { variant = 'icon', class: className, title } = Astro.props;
+const uid = `pmp${Math.random().toString(36).slice(2, 8)}`;
+const paddle =
+  'M0 18 Q 0 0 18 0 L 56 0 Q 74 0 74 18 L 74 92 Q 74 104 62 108 L 44 110 L 30 110 L 12 108 Q 0 104 0 92 Z';
+const jar =
+  'M42 24 L42 34 C 26 38 20 48 20 62 L20 176 C 20 188 28 194 42 194 L108 194 C 122 194 130 188 130 176 L130 62 C 130 48 124 38 108 34 L108 24';
+---
+
+{variant === 'full' ? (
+  <svg
+    viewBox="0 0 150 200"
+    class={className}
+    role={title ? 'img' : undefined}
+    aria-label={title}
+    aria-hidden={title ? undefined : 'true'}
+  >
+    <defs>
+      <radialGradient id={`${uid}-brine`} cx="45%" cy="60%" r="70%">
+        <stop offset="0%" stop-color="#CCE0C5" />
+        <stop offset="100%" stop-color="#78A472" stop-opacity="0.55" />
+      </radialGradient>
+      <radialGradient id={`${uid}-face`} cx="40%" cy="35%" r="75%">
+        <stop offset="0%" stop-color="#8FA6D6" />
+        <stop offset="100%" stop-color="#4565A6" />
+      </radialGradient>
+    </defs>
+    <rect x="38" y="6" width="74" height="18" rx="5" fill="#4565A6" stroke="#1E2E52" stroke-width="2.5" />
+    <path d="M44 12 L44 22 M56 12 L56 22 M68 12 L68 22 M80 12 L80 22 M92 12 L92 22 M104 12 L104 22" stroke="#B4C4E6" stroke-width="1.5" />
+    <path d={jar} fill="#FFFFFF" stroke="#1E2E52" stroke-width="2.5" />
+    <path d="M23 66 C 44 58 60 72 80 64 C 98 58 114 62 127 66 L127 176 C 127 186 120 191 108 191 L42 191 C 30 191 23 186 23 176 Z" fill={`url(#${uid}-brine)`} />
+    <g transform="translate(75 110) rotate(-10) scale(0.92) translate(-37 -83)">
+      <path d={paddle} fill={`url(#${uid}-face)`} stroke="#1E2E52" stroke-width="2.5" />
+      <path d="M8 22 Q 8 8 22 8 L 52 8 Q 66 8 66 22" fill="none" stroke="#FBFAF6" stroke-width="1.5" opacity="0.7" />
+      <circle cx="22" cy="34" r="1.8" fill="#FBFAF6" /><circle cx="37" cy="30" r="1.8" fill="#FBFAF6" />
+      <circle cx="52" cy="34" r="1.8" fill="#FBFAF6" /><circle cx="28" cy="52" r="1.8" fill="#FBFAF6" />
+      <circle cx="46" cy="52" r="1.8" fill="#FBFAF6" /><circle cx="37" cy="70" r="1.8" fill="#FBFAF6" />
+      <rect x="30" y="108" width="14" height="56" rx="5" fill="#1E2E52" />
+      <path d="M30 122 L44 118 M30 132 L44 128 M30 142 L44 138 M30 152 L44 148" stroke="#78A472" stroke-width="1.5" />
+    </g>
+    <circle cx="112" cy="84" r="3" fill="none" stroke="#1E2E52" stroke-width="1.2" />
+    <circle cx="34" cy="120" r="2.4" fill="none" stroke="#1E2E52" stroke-width="1.2" />
+    <circle cx="114" cy="150" r="1.8" fill="none" stroke="#1E2E52" stroke-width="1.2" />
+  </svg>
+) : (
+  <svg
+    viewBox="0 0 150 200"
+    class={className}
+    role={title ? 'img' : undefined}
+    aria-label={title}
+    aria-hidden={title ? undefined : 'true'}
+  >
+    <rect x="38" y="6" width="74" height="18" rx="5" fill="#4565A6" stroke="#1E2E52" stroke-width="7" />
+    <path d={jar} fill="#CCE0C5" stroke="#1E2E52" stroke-width="7" />
+    <g transform="translate(75 110) rotate(-10) scale(0.92) translate(-37 -83)">
+      <path d={paddle} fill="#4565A6" stroke="#1E2E52" stroke-width="7" />
+      <rect x="29" y="108" width="16" height="56" rx="5" fill="#1E2E52" />
+    </g>
+  </svg>
+)}

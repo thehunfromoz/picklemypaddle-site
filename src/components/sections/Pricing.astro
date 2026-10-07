@@ -1,0 +1,43 @@
+---
+import { siteData } from '../../data/siteData';
+const { pricing } = siteData;
+---
+
+<section id="pricing" class="py-section">
+  <div class="mx-auto max-w-site px-4 sm:px-6">
+    <div class="max-w-2xl">
+      <p class="topper">Pricing</p>
+      <h2 class="mt-2 font-heading text-h2 font-bold">One simple price per paddle</h2>
+    </div>
+
+    <div class="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <div class="rounded-lg border border-border bg-surface p-8">
+        <h3 class="font-heading text-h3 font-bold">Re-grit by post</h3>
+        <p class="mt-4 flex items-baseline gap-2">
+          <span class="font-heading text-5xl font-bold text-primary">A${pricing.regritPerPaddle}</span>
+          <span class="text-text-muted">per paddle</span>
+        </p>
+        <ul class="mt-6 space-y-3 text-text-muted" role="list">
+          <li class="flex gap-3"><span class="font-bold text-green-text" aria-hidden="true">&check;</span>Photo check before you pay, so there are no surprises</li>
+          <li class="flex gap-3"><span class="font-bold text-green-text" aria-hidden="true">&check;</span>Fresh grip across the paddle face</li>
+          <li class="flex gap-3"><span class="font-bold text-green-text" aria-hidden="true">&check;</span>Private link to track your paddle</li>
+          <li class="flex gap-3"><span class="font-bold text-green-text" aria-hidden="true">&check;</span>Secure card payment</li>
+        </ul>
+        <p class="mt-6 text-sm text-text-muted">{pricing.returnPostageNote}</p>
+        <a href={siteData.orderCta.href} class="btn-primary mt-6">{siteData.orderCta.label}</a>
+      </div>
+
+      <div class="rounded-lg bg-tint-green p-8">
+        <h3 class="font-heading text-h3 font-bold">For clubs</h3>
+        <p class="mt-4 text-text-muted leading-relaxed">
+          Collect paddles from your members and we'll pick up the batch and drop it back re-gritted.
+          No postage, and your club earns a share of every paddle.
+        </p>
+        <a href="/clubs" class="btn-secondary mt-6">How club pickups work</a>
+      </div>
+    </div>
+    <p class="mt-6 text-sm text-text-muted">
+      Prices in Australian dollars.{!pricing.gstRegistered && ' We are not registered for GST, so no GST is charged.'}
+    </p>
+  </div>
+</section>

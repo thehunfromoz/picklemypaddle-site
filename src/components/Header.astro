@@ -1,0 +1,109 @@
+---
+import { brand } from '../config/brand';
+import { siteData } from '../data/siteData';
+import Logo from './Logo.astro';
+
+const { nav, orderCta } = siteData;
+const strip = (p: string) => (p.length > 1 && p.endsWith('/') ? p.slice(0, -1) : p);
+const currentPath = strip(Astro.url.pathname);
+const isActive = (href: string) => !href.includes('#') && href !== '/' && currentPath.startsWith(href);
+---
+
+<header class="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur-sm">
+  <div class="mx-auto flex max-w-site items-center justify-between gap-4 px-4 py-3 sm:px-6">
+    <a href="/" class="flex items-center gap-2.5 rounded-md" aria-label={`${brand.name} home`}>
+      <Logo variant="icon" class="h-10 w-auto" />
+      <span class="font-heading text-xl font-bold tracking-tight text-text">{brand.wordmark}</span>
+    </a>
+
+    <nav class="hidden items-center gap-1 lg:flex" aria-label="Primary navigation">
+      {nav.map(({ label, href }) => (
+        <a
+          href={href}
+          aria-current={isActive(href) ? 'page' : undefined}
+          class:list={[
+            'rounded-md px-3 py-2 text-sm font-medium transition-colors',
+            isActive(href) ? 'bg-tint-blue text-text' : 'text-text-muted hover:text-text',
+          ]}
+        >
+          {label}
+        </a>
+      ))}
+    </nav>
+
+    <div class="hidden lg:block">
+      <a href={orderCta.href} class="btn-primary text-sm">{orderCta.label}</a>
+    </div>
+
+    <button
+      id="menu-toggle"
+      type="button"
+      aria-expanded="false"
+      aria-controls="mobile-menu"
+      class="inline-flex min-h-11 min-w-11 items-center justify-center rounded-md text-text hover:bg-tint-blue lg:hidden"
+    >
+      <span class="sr-only">Menu</span>
+      <span class="hamburger-box" aria-hidden="true">
+        <span class="hamburger-bar"></span>
+        <span class="hamburger-bar"></span>
+        <span class="hamburger-bar"></span>
+      </span>
+    </button>
+  </div>
+
+  <div id="mobile-menu" class="mobile-drawer" inert>
+    <div class="border-t border-border bg-background">
+      <nav class="flex flex-col gap-1 px-3 pt-3" aria-label="Mobile navigation">
+        {nav.map(({ label, href }) => (
+          <a
+            href={href}
+            aria-current={isActive(href) ? 'page' : undefined}
+            class="rounded-md px-3 py-3 text-base font-medium text-text hover:bg-tint-blue"
+          >
+            {label}
+          </a>
+        ))}
+      </nav>
+      <div class="px-6 pt-3 pb-6">
+        <a href={orderCta.href} class="btn-primary w-full">{orderCta.label}</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<style>
+  .hamburger-box { display: flex; flex-direction: column; justify-content: center; gap: 5px; width: 22px; height: 22px; }
+  .hamburger-bar { display: block; width: 100%; height: 2px; border-radius: 9999px; background-color: currentColor; transition: transform 0.3s ease, opacity 0.3s ease; }
+  [aria-expanded='true'] .hamburger-bar:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  [aria-expanded='true'] .hamburger-bar:nth-child(2) { opacity: 0; }
+  [aria-expanded='true'] .hamburger-bar:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+  .mobile-drawer { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.3s ease; }
+  .mobile-drawer.is-open { grid-template-rows: 1fr; }
+  .mobile-drawer > div { min-height: 0; overflow: hidden; }
+  @media (min-width: 1024px) { .mobile-drawer { display: none; } }
+</style>
+
+<script>
+  const btn = document.getElementById('menu-toggle') as HTMLButtonElement | null;
+  const menu = document.getElementById('mobile-menu');
+  if (btn && menu) {
+    const setOpen = (open: boolean) => {
+      btn.setAttribute('aria-expanded', String(open));
+      menu.toggleAttribute('inert', !open);
+      menu.classList.toggle('is-open', open);
+    };
+    btn.addEventListener('click', () => setOpen(btn.getAttribute('aria-expanded') !== 'true'));
+    menu.addEventListener('click', (e) => {
+      if ((e.target as Element).closest('a[href]')) setOpen(false);
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && btn.getAttribute('aria-expanded') === 'true') {
+        setOpen(false);
+        btn.focus();
+      }
+    });
+    window.matchMedia('(min-width: 1024px)').addEventListener('change', (e) => {
+      if (e.matches) setOpen(false);
+    });
+  }
+</script>
