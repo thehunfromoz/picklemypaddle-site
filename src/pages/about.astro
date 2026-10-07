@@ -1,0 +1,48 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Banner from '../components/Banner.astro';
+import Logo from '../components/Logo.astro';
+import { aboutImage } from '../config/images';
+import { siteData } from '../data/siteData';
+---
+
+<BaseLayout title="About" description="Why Pickle My Paddle exists: keeping good pickleball paddles in the game for longer.">
+  <Banner title="About Pickle My Paddle" intro="Why we pickle paddles, and who does the work." />
+
+  <section class="py-section">
+    <div class="mx-auto grid max-w-site grid-cols-1 items-center gap-10 px-4 sm:px-6 lg:grid-cols-2 lg:gap-14">
+      <div class="flex aspect-4/3 items-center justify-center overflow-hidden rounded-lg bg-tint-green">
+        {aboutImage ? (
+          <Image src={aboutImage} alt="The person behind Pickle My Paddle" width={800} height={600} class="size-full object-cover" />
+        ) : (
+          <span class="placeholder">[To confirm: photo of you at a court or the workbench]</span>
+        )}
+      </div>
+      <div class="space-y-5 leading-relaxed text-text-muted">
+        <h2 class="font-heading text-h2 font-bold text-text">Why "pickle"?</h2>
+        <p>
+          Pickling preserves. That's what we do for paddles: a good paddle doesn't need replacing just because its
+          face has worn smooth. Re-gritting restores the surface texture that grips the ball, so a paddle you already
+          know and trust stays in play for longer.
+        </p>
+        <p>
+          It's better for your game, kinder to your wallet than a new paddle, and keeps one more paddle out of landfill.
+        </p>
+        <h2 class="pt-4 font-heading text-h2 font-bold text-text">Who we are</h2>
+        <p>
+          <span class="placeholder">[To confirm: a few sentences in your own words: who you are, how you got into pickleball, and why you started re-gritting paddles]</span>
+        </p>
+        <p>Based in {siteData.contact.area}, serving players by post across Australia and clubs locally.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-tint-blue py-section">
+    <div class="mx-auto flex max-w-site flex-col items-center gap-6 px-4 text-center sm:px-6">
+      <Logo variant="full" class="h-40 w-auto" title="Pickle My Paddle logo" />
+      <p class="max-w-xl text-lead">Ready to give your paddle a second life?</p>
+      <a href={siteData.orderCta.href} class="btn-primary">{siteData.orderCta.label}</a>
+    </div>
+  </section>
+</BaseLayout>

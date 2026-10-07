@@ -1,0 +1,29 @@
+---
+import { siteData } from '../../data/siteData';
+import Ph from '../Ph.astro';
+const { testimonials } = siteData;
+---
+
+{testimonials.length > 0 && (
+  <section id="testimonials" class="py-section">
+    <div class="mx-auto max-w-site px-4 sm:px-6">
+      <div class="max-w-2xl">
+        <p class="topper">Players and clubs</p>
+        <h2 class="mt-2 font-heading text-h2 font-bold">What customers say</h2>
+      </div>
+      <ul class="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2" role="list">
+        {testimonials.map((t) => (
+          <li>
+            <figure class="h-full rounded-lg border border-border bg-surface p-6">
+              <blockquote class="text-lg leading-relaxed">&ldquo;<Ph text={t.quote} />&rdquo;</blockquote>
+              <figcaption class="mt-4 text-sm">
+                <span class="font-semibold"><Ph text={t.name} /></span>,{' '}
+                <span class="text-text-muted"><Ph text={t.context} /></span>
+              </figcaption>
+            </figure>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+)}

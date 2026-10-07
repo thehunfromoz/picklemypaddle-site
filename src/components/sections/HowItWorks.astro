@@ -1,0 +1,23 @@
+---
+import { siteData } from '../../data/siteData';
+import Ph from '../Ph.astro';
+---
+
+<section id="how-it-works" class="bg-tint-blue py-section">
+  <div class="mx-auto max-w-site px-4 sm:px-6">
+    <div class="max-w-2xl">
+      <p class="topper">How it works</p>
+      <h2 class="mt-2 font-heading text-h2 font-bold">From worn to gripping again in five steps</h2>
+    </div>
+    <ol class="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-5">
+      {siteData.howItWorks.map((step, i) => (
+        <li class="rounded-lg bg-surface p-6">
+          <span class="flex size-10 items-center justify-center rounded-full bg-primary font-heading text-lg font-bold text-primary-fg" aria-hidden="true">{i + 1}</span>
+          <h3 class="mt-4 font-heading text-lg font-bold">{step.title}</h3>
+          <p class="mt-2 text-sm leading-relaxed text-text-muted">{step.body}</p>
+        </li>
+      ))}
+    </ol>
+    <p class="mt-6 text-sm text-text-muted">Turnaround: <Ph text={siteData.pricing.turnaround} /></p>
+  </div>
+</section>

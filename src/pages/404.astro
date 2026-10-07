@@ -1,0 +1,17 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { siteData } from '../data/siteData';
+---
+
+<BaseLayout title="Page not found">
+  <section class="py-section">
+    <div class="mx-auto max-w-2xl px-4 text-center sm:px-6">
+      <h1 class="font-heading text-h1 font-bold">That page has gone missing</h1>
+      <p class="mt-4 text-lead text-text-muted">It may have moved, or the link may be wrong.</p>
+      <div class="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+        <a href="/" class="btn-secondary">Go to the home page</a>
+        <a href={siteData.orderCta.href} class="btn-primary">{siteData.orderCta.label}</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

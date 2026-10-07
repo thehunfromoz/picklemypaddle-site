@@ -1,0 +1,54 @@
+---
+import { Image } from 'astro:assets';
+import { galleryPairs } from '../../config/images';
+
+// Placeholders until real before-and-after photos are added to
+// src/assets/images/gallery/ (see src/config/images.ts).
+const showPlaceholders = galleryPairs.length === 0;
+const placeholderCount = 3;
+---
+
+<section id="gallery" class="bg-tint-green py-section">
+  <div class="mx-auto max-w-site px-4 sm:px-6">
+    <div class="max-w-2xl">
+      <p class="topper">Before and after</p>
+      <h2 class="mt-2 font-heading text-h2 font-bold">See the difference</h2>
+      <p class="mt-3 leading-relaxed text-text-muted">
+        Each pair is the same paddle face, photographed before and after re-gritting.
+      </p>
+    </div>
+
+    <ul class="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3" role="list">
+      {showPlaceholders
+        ? Array.from({ length: placeholderCount }).map((_, i) => (
+            <li class="rounded-lg bg-surface p-4">
+              <div class="grid grid-cols-2 gap-3">
+                {['Before', 'After'].map((label) => (
+                  <div class="flex aspect-3/4 items-center justify-center rounded-md border-2 border-dashed border-border bg-background p-3 text-center text-sm text-text-muted">
+                    <span class="placeholder">[To confirm: {label.toLowerCase()} photo {i + 1}]</span>
+                  </div>
+                ))}
+              </div>
+              <p class="mt-3 text-sm font-medium">Paddle {i + 1}</p>
+            </li>
+          ))
+        : galleryPairs.map((pair) => (
+            <li class="rounded-lg bg-surface p-4">
+              <div class="grid grid-cols-2 gap-3">
+                {(['before', 'after'] as const).map((side) =>
+                  pair[side] ? (
+                    <figure>
+                      <Image src={pair[side]!} alt={`${pair.caption}, ${side} re-gritting`} width={400} height={533} loading="lazy" class="aspect-3/4 w-full rounded-md object-cover" />
+                      <figcaption class="mt-1 text-xs font-semibold uppercase tracking-wider text-text-muted">{side}</figcaption>
+                    </figure>
+                  ) : (
+                    <div class="aspect-3/4 rounded-md bg-background" />
+                  ),
+                )}
+              </div>
+              <p class="mt-3 text-sm font-medium">{pair.caption}</p>
+            </li>
+          ))}
+    </ul>
+  </div>
+</section>

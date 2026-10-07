@@ -1,0 +1,36 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Banner from '../../components/Banner.astro';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
+);
+---
+
+<BaseLayout title="Blog" description="Pickleball paddle care, re-gritting and news from Pickle My Paddle.">
+  <Banner title="Blog" intro="Paddle care, re-gritting and news from the workbench." />
+
+  <section class="py-section">
+    <div class="mx-auto max-w-site px-4 sm:px-6">
+      {posts.length === 0 ? (
+        <p class="text-text-muted">No posts yet. Check back soon.</p>
+      ) : (
+        <ul class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3" role="list">
+          {posts.map((post) => (
+            <li class="relative flex flex-col rounded-lg border border-border bg-surface p-6 transition-shadow hover:shadow-md">
+              <time class="text-sm text-text-muted" datetime={post.data.date.toISOString()}>
+                {post.data.date.toLocaleDateString('en-AU', { year: 'numeric', month: 'long', day: 'numeric' })}
+              </time>
+              <h2 class="mt-2 font-heading text-h3 font-bold">
+                <a href={`/blog/${post.id}`} class="after:absolute after:inset-0">{post.data.title}</a>
+              </h2>
+              <p class="mt-2 flex-1 text-sm leading-relaxed text-text-muted">{post.data.description}</p>
+              <span class="mt-4 text-sm font-semibold text-primary" aria-hidden="true">Read more &rarr;</span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  </section>
+</BaseLayout>

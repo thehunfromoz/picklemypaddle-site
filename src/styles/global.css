@@ -1,0 +1,61 @@
+/* Fonts are self-hosted (no requests to Google at runtime). */
+@import "@fontsource/sora/600.css";
+@import "@fontsource/sora/700.css";
+@import "@fontsource/work-sans/400.css";
+@import "@fontsource/work-sans/500.css";
+@import "@fontsource/work-sans/600.css";
+
+@import "tailwindcss";
+@import "./theme.css";
+@plugin "@tailwindcss/typography";
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    /* keep anchored sections clear of the sticky header */
+    scroll-padding-top: 5.5rem;
+  }
+
+  body {
+    font-family: var(--font-body);
+    color: var(--color-text);
+    background-color: var(--color-background);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    line-height: 1.15;
+    color: var(--color-text);
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex min-h-11 items-center justify-center rounded-full bg-primary px-6 py-3 text-base font-semibold text-primary-fg transition-colors hover:bg-primary-dark;
+  }
+  .btn-secondary {
+    @apply inline-flex min-h-11 items-center justify-center rounded-full border border-primary bg-surface px-6 py-3 text-base font-semibold text-text transition-colors hover:bg-tint-blue;
+  }
+  .topper {
+    @apply text-topper font-semibold uppercase tracking-widest text-green-text;
+  }
+  /* Content still to be supplied or confirmed before launch.
+     scripts/check-placeholders.mjs fails the release build if any remain. */
+  .placeholder {
+    @apply rounded-sm bg-tint-blue px-1 font-medium text-primary-dark;
+  }
+}

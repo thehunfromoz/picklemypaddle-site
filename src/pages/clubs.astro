@@ -1,0 +1,57 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Banner from '../components/Banner.astro';
+import { siteData } from '../data/siteData';
+
+const steps = [
+  { title: 'Agree the arrangement', body: 'We meet, walk through how it works, and sign a short written club agreement covering vetting, custody, payment and pickups.' },
+  { title: 'Collect from members', body: "Members hand in paddles at the club. Your club checks they're suitable, records who owns each one, and takes payment." },
+  { title: 'Request a pickup', body: "When a batch is ready, request a pickup from your club's private link. We collect the batch and leave a receipt." },
+  { title: 'Re-gritted and returned', body: 'We bring the batch back re-gritted, invoice the club, and your club hands the paddles back to members.' },
+];
+---
+
+<BaseLayout title="For clubs" description="Pickleball clubs: batch paddle re-gritting with pickup and drop-off, no postage, and a share of every paddle for your club.">
+  <Banner
+    title="Re-gritting for clubs"
+    intro="Offer your members a re-grit service without anyone posting a paddle. We pick up and drop off batches, and your club earns a share of every paddle."
+  />
+
+  <section class="py-section">
+    <div class="mx-auto max-w-site px-4 sm:px-6">
+      <h2 class="font-heading text-h2 font-bold">How club pickups work</h2>
+      <ol class="mt-8 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-4">
+        {steps.map((s, i) => (
+          <li class="rounded-lg bg-tint-blue p-6">
+            <span class="flex size-10 items-center justify-center rounded-full bg-primary font-heading text-lg font-bold text-primary-fg" aria-hidden="true">{i + 1}</span>
+            <h3 class="mt-4 font-heading text-lg font-bold">{s.title}</h3>
+            <p class="mt-2 text-sm leading-relaxed text-text-muted">{s.body}</p>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <section class="bg-tint-green py-section">
+    <div class="mx-auto grid max-w-site grid-cols-1 gap-10 px-4 sm:px-6 lg:grid-cols-2">
+      <div class="space-y-4 leading-relaxed text-text-muted">
+        <h2 class="font-heading text-h2 font-bold text-text">What your club gets</h2>
+        <ul class="space-y-3" role="list">
+          <li class="flex gap-3"><span class="font-bold text-green-text" aria-hidden="true">&check;</span>A service members value, with no postage for anyone</li>
+          <li class="flex gap-3"><span class="font-bold text-green-text" aria-hidden="true">&check;</span>A share of every paddle your club puts through</li>
+          <li class="flex gap-3"><span class="font-bold text-green-text" aria-hidden="true">&check;</span>Pickups when your batch is ready, or on a regular schedule</li>
+          <li class="flex gap-3"><span class="font-bold text-green-text" aria-hidden="true">&check;</span>Pay by PayID, card or cash when each batch is returned</li>
+          <li class="flex gap-3"><span class="font-bold text-green-text" aria-hidden="true">&check;</span>A private link to request pickups and see batches and invoices</li>
+        </ul>
+      </div>
+      <div class="rounded-lg bg-surface p-8">
+        <h2 class="font-heading text-h3 font-bold">Talk to us</h2>
+        <p class="mt-3 leading-relaxed text-text-muted">
+          We're currently looking for a pilot club in the {siteData.contact.area} area. Book a short chat to see if it suits your club.
+        </p>
+        <p class="mt-4"><span class="placeholder">[To confirm: meeting booking link (HubSpot Meetings) goes here]</span></p>
+        <a href={`mailto:${siteData.contact.email}?subject=Club%20re-gritting`} class="btn-primary mt-6">Email us about your club</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
