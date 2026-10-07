@@ -93,11 +93,17 @@ jobs:
         run: pnpm test:e2e
       - name: Build the smoke-test image (same Playwright and axe versions as above)
         run: |
-          PW_VERSION=$(node -p "require('@playwright/test/package.json').version")
-          AXE_VERSION=$(node -p "require('@axe-core/playwright/package.json').version")
-          docker build -f tests/smoke/Dockerfile -t picklemypaddle-site-smoke:test \
-            --build-arg PW_VERSION=$PW_VERSION --build-arg AXE_VERSION=$AXE_VERSION \
-            --label org.opencontainers.image.revision=${{ github.sha }} .
+          ver() { node -p "JSON.parse(require('fs').readFileSync('node_modules/$1/package.json','utf8')).version"; }
+          PW_VERSION=$(ver @playwright/test)
+          AXE_VERSION=$(ver @axe-core/playwright)
+          echo "Playwright $PW_VERSION, axe $AXE_VERSION"
+          if ! docker build -f tests/smoke/Dockerfile -t picklemypaddle-site-smoke:test \
+              --build-arg PW_VERSION=$PW_VERSION --build-arg AXE_VERSION=$AXE_VERSION \
+              --label org.opencontainers.image.revision=${{ github.sha }} . > smoke-build.log 2>&1; then
+            out="$(tail -n 25 smoke-build.log)"
+            echo "::error title=smoke image build::${out//$'\n'/%0A}"
+            exit 1
+          fi
       - name: Smoke-test image passes against the container
         run: docker run --rm --network host --shm-size=1g -e BASE_URL=http://127.0.0.1:8080 picklemypaddle-site-smoke:test
       - name: Scan image for vulnerabilities
