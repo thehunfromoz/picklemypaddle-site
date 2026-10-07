@@ -37,7 +37,7 @@ Gallery photos are paired by name: `my-paddle-before.jpg` + `my-paddle-after.jpg
 ```bash
 pnpm test:unit                         # order-form rules, pricing, gallery pairing (Vitest)
 pnpm test:e2e                          # builds, then functional + accessibility tests (Playwright)
-BASE_URL=http://home-server pnpm test:e2e   # same tests plus security headers, against staging
+BASE_URL=http://home-server:8088 pnpm test:e2e   # same tests plus security headers, against staging
 ```
 
 ## Deploy
@@ -45,7 +45,7 @@ BASE_URL=http://home-server pnpm test:e2e   # same tests plus security headers, 
 Every merge to `main` runs CI (`.github/workflows/ci.yml`): unit tests, functional and
 accessibility tests, secret scan, Docker build, header/CSP tests against the container and an
 image vulnerability scan. It then publishes `ghcr.io/thehunfromoz/picklemypaddle-site:staging`,
-which home-server picks up automatically.
+which home-server picks up automatically within about 2 minutes (see `picklemypaddle-infra/runbooks/staging-home-server.md`).
 
 The image serves the static site with Caddy (`deploy/Caddyfile`) and sets a strict
 Content-Security-Policy and other security headers. Runtime settings: `SITE_ADDRESS`,

@@ -3,7 +3,7 @@ import { defineConfig, devices } from '@playwright/test';
 /**
  * BASE_URL unset  → builds the site and tests `astro preview` (functional tests).
  * BASE_URL set    → tests an already-running server, e.g. the Docker image in CI
- *                   or staging at http://home-server (also runs header tests).
+ *                   or staging at http://home-server:8088 (also runs header tests).
  */
 const baseURL = process.env.BASE_URL ?? 'http://localhost:4321';
 

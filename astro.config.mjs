@@ -4,7 +4,7 @@ import tailwindcss from '@tailwindcss/vite';
 import sitemap from '@astrojs/sitemap';
 import robotsTxt from 'astro-robots-txt';
 
-// SITE_URL is set per environment (staging: http://home-server, production:
+// SITE_URL is set per environment (staging: http://home-server:8088, production:
 // https://www.picklemypaddle.com). It drives canonical URLs, sitemap and OG tags.
 const site = process.env.SITE_URL ?? 'https://www.picklemypaddle.com';
 
