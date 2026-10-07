@@ -29,3 +29,9 @@ test('health check responds', async ({ request }) => {
   const res = await request.get('/healthz');
   expect(res.status()).toBe(200);
 });
+
+test('version.txt names the live commit', async ({ request }) => {
+  const res = await request.get('/version.txt');
+  expect(res.status()).toBe(200);
+  expect((await res.text()).trim()).toMatch(/^([0-9a-f]{40}|dev)$/);
+});

@@ -17,6 +17,9 @@ LABEL org.opencontainers.image.source="https://github.com/thehunfromoz/picklemyp
       org.opencontainers.image.licenses="MIT"
 COPY deploy/Caddyfile /etc/caddy/Caddyfile
 COPY --from=build /app/dist /srv
+# Which commit is live: http://<host>/version.txt (set by CI; "dev" for local builds).
+ARG GIT_SHA=dev
+RUN printf '%s\n' "$GIT_SHA" > /srv/version.txt
 # Runtime settings (see deploy/Caddyfile):
 #   SITE_ADDRESS  ":80" on staging, "www.picklemypaddle.com" in production (auto HTTPS)
 #   ORDER_API_ORIGIN  origin of the integrations service, allowed in connect-src
