@@ -73,7 +73,7 @@ jobs:
           load: true
           tags: picklemypaddle-site:test
           build-args: |
-            SITE_URL=http://home-server
+            SITE_URL=http://home-server:8088
           labels: |
             org.opencontainers.image.revision=${{ github.sha }}
       - name: Run image
