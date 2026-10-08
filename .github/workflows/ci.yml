@@ -49,7 +49,7 @@ jobs:
         run: pnpm check:secrets
       - name: No broken internal links (SCRUM-14)
         run: pnpm check:links > links.log 2>&1 || { out="$(cat links.log | head -40)"; echo "::error title=broken links::${out//$'\n'/%0A}"; exit 1; }
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         if: failure()
         with:
           name: playwright-report
