@@ -41,6 +41,8 @@ jobs:
         run: pnpm exec playwright install --with-deps chromium
       - name: Functional tests (build + preview)
         run: pnpm test:e2e
+      - name: No private keys in the built pages (SCRUM-18)
+        run: pnpm check:secrets
       - uses: actions/upload-artifact@v4
         if: failure()
         with:

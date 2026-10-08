@@ -20,7 +20,8 @@
     "test:e2e": "playwright test",
     "test:report": "playwright show-report",
     "check:placeholders": "node scripts/check-placeholders.mjs",
-    "brand:og": "node scripts/make-og-image.mjs"
+    "brand:og": "node scripts/make-og-image.mjs",
+    "check:secrets": "node scripts/check-no-secrets-in-build.mjs dist"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.4",
