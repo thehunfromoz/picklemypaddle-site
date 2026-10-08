@@ -35,6 +35,10 @@ jobs:
           cache: ${{ hashFiles('pnpm-lock.yaml') != '' && 'pnpm' || '' }}
       - name: Install
         run: pnpm install --frozen-lockfile=${{ hashFiles('pnpm-lock.yaml') != '' }}
+      - name: Lint
+        run: pnpm lint > lint.log 2>&1 || { out="$(tail -n 40 lint.log)"; echo "::error title=lint::${out//$'\n'/%0A}"; exit 1; }
+      - name: Type-check (astro check)
+        run: pnpm check > check.log 2>&1 || { out="$(grep -E 'error|Error' check.log | head -40)"; echo "::error title=astro check::${out//$'\n'/%0A}"; exit 1; }
       - name: Unit tests
         run: pnpm test:unit
       - name: Install Playwright browser
@@ -43,6 +47,8 @@ jobs:
         run: pnpm test:e2e
       - name: No private keys in the built pages (SCRUM-18)
         run: pnpm check:secrets
+      - name: No broken internal links (SCRUM-14)
+        run: pnpm check:links > links.log 2>&1 || { out="$(cat links.log | head -40)"; echo "::error title=broken links::${out//$'\n'/%0A}"; exit 1; }
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
