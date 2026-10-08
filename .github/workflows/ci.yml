@@ -1,8 +1,6 @@
-# Checks every pull request and every push to main.
-# On main, publishes the tested image to GHCR as :staging and :<sha>;
-# home-server pulls :staging automatically (SCRUM-16). The smoke-test image
-# (same tests, packaged) is published as picklemypaddle-site-smoke:<sha> so
-# home-server can test each staging update and report back (SCRUM-17).
+# Checks every pull request and push to main using the shared workflows in
+# picklemypaddle-infra (SCRUM-13/15). On main, the image job publishes
+# :staging and :<sha> (plus the smoke-test image); home-server pulls :staging.
 name: CI
 
 on:
@@ -18,124 +16,27 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
-env:
-  IMAGE: ghcr.io/${{ github.repository }}
-  SMOKE_IMAGE: ghcr.io/${{ github.repository }}-smoke
-
 jobs:
-  test:
-    name: Unit, build and functional tests
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: ${{ hashFiles('pnpm-lock.yaml') != '' && 'pnpm' || '' }}
-      - name: Install
-        run: pnpm install --frozen-lockfile=${{ hashFiles('pnpm-lock.yaml') != '' }}
-      - name: Lint
-        run: pnpm lint > lint.log 2>&1 || { out="$(tail -n 40 lint.log)"; echo "::error title=lint::${out//$'\n'/%0A}"; exit 1; }
-      - name: Type-check (astro check)
-        run: pnpm check > check.log 2>&1 || { out="$(grep -E 'error|Error' check.log | head -40)"; echo "::error title=astro check::${out//$'\n'/%0A}"; exit 1; }
-      - name: Unit tests
-        run: pnpm test:unit
-      - name: Install Playwright browser
-        run: pnpm exec playwright install --with-deps chromium
-      - name: Functional tests (build + preview)
-        run: pnpm test:e2e
-      - name: No private keys in the built pages (SCRUM-18)
-        run: pnpm check:secrets
-      - name: No broken internal links (SCRUM-14)
-        run: pnpm check:links > links.log 2>&1 || { out="$(cat links.log | head -40)"; echo "::error title=broken links::${out//$'\n'/%0A}"; exit 1; }
-      - uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: playwright-report
-          path: playwright-report
-          retention-days: 7
+  checks:
+    uses: thehunfromoz/picklemypaddle-infra/.github/workflows/node-checks.yml@main
+    with:
+      scripts: lint check test:unit test:e2e check:secrets check:links
+      playwright: true
+      report-path: playwright-report
 
-  secrets-scan:
-    name: Secret scan
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: gitleaks/gitleaks-action@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  secrets:
+    uses: thehunfromoz/picklemypaddle-infra/.github/workflows/secret-scan.yml@main
 
   image:
-    name: Container image + header tests
-    needs: [test, secrets-scan]
-    runs-on: ubuntu-latest
+    needs: [checks, secrets]
+    uses: thehunfromoz/picklemypaddle-infra/.github/workflows/image.yml@main
     permissions:
       contents: read
       packages: write
-    steps:
-      - uses: actions/checkout@v4
-      - uses: docker/setup-buildx-action@v3
-      - name: Build image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          load: true
-          tags: picklemypaddle-site:test
-          build-args: |
-            SITE_URL=http://home-server:8088
-            GIT_SHA=${{ github.sha }}
-          labels: |
-            org.opencontainers.image.revision=${{ github.sha }}
-      - name: Run image
-        run: docker run -d --name site -p 8080:80 picklemypaddle-site:test && sleep 3
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-      - name: Install test tools
-        run: pnpm install --frozen-lockfile=${{ hashFiles('pnpm-lock.yaml') != '' }} && pnpm exec playwright install --with-deps chromium
-      - name: Tests against the container (headers, CSP, 404, pages)
-        env:
-          BASE_URL: http://localhost:8080
-        run: pnpm test:e2e
-      - name: Build the smoke-test image (same Playwright and axe versions as above)
-        run: |
-          ver() { node -p "JSON.parse(require('fs').readFileSync('node_modules/$1/package.json','utf8')).version"; }
-          PW_VERSION=$(ver @playwright/test)
-          AXE_VERSION=$(ver @axe-core/playwright)
-          echo "Playwright $PW_VERSION, axe $AXE_VERSION"
-          if ! docker build -f tests/smoke/Dockerfile -t picklemypaddle-site-smoke:test \
-              --build-arg PW_VERSION=$PW_VERSION --build-arg AXE_VERSION=$AXE_VERSION \
-              --label org.opencontainers.image.revision=${{ github.sha }} . > smoke-build.log 2>&1; then
-            out="$(tail -n 25 smoke-build.log)"
-            echo "::error title=smoke image build::${out//$'\n'/%0A}"
-            exit 1
-          fi
-      - name: Smoke-test image passes against the container
-        run: docker run --rm --network host --shm-size=1g -e BASE_URL=http://127.0.0.1:8080 picklemypaddle-site-smoke:test
-      - name: Scan image for vulnerabilities
-        uses: aquasecurity/trivy-action@v0.36.0
-        with:
-          image-ref: picklemypaddle-site:test
-          severity: CRITICAL,HIGH
-          ignore-unfixed: true
-          exit-code: '1'
-      - name: Log in to GHCR
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Publish :staging and :sha
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: |
-          # Smoke image first, so it exists before home-server sees the new site image.
-          docker tag picklemypaddle-site-smoke:test $SMOKE_IMAGE:${{ github.sha }}
-          docker push $SMOKE_IMAGE:${{ github.sha }}
-          docker tag picklemypaddle-site:test $IMAGE:staging
-          docker tag picklemypaddle-site:test $IMAGE:${{ github.sha }}
-          docker push $IMAGE:staging
-          docker push $IMAGE:${{ github.sha }}
+    with:
+      build-args: |
+        SITE_URL=http://home-server:8088
+      container-test: ci/container-test.sh
+      setup-node: true
+      extra-images: |
+        picklemypaddle-site-smoke:test=ghcr.io/thehunfromoz/picklemypaddle-site-smoke
