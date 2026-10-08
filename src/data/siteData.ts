@@ -21,7 +21,11 @@ export const siteData = {
     regritPerPaddle: 60,
     gstRegistered: false,
     returnPostageNote: 'Return postage is added at payment and depends on how many paddles you send.',
-    turnaround: '[To confirm: turnaround time, e.g. 5 business days from receipt]',
+    /** Shown on the landing page and in the FAQ. */
+    turnaround: 'within 10 business days of it reaching us, plus postage time each way',
+    /** How quickly we reply to an order with the photo check and payment link. */
+    replyTime: '1 business day',
+    covers: 'both faces',
   },
 
   socials: {
@@ -30,7 +34,10 @@ export const siteData = {
     google: '',
   },
 
-  /** Header navigation. Hash links jump to sections on the landing page. */
+  /**
+   * Header navigation. Hash links jump to sections on the landing page.
+   * The Gallery link only shows once the gallery itself is visible (Header.astro).
+   */
   nav: [
     { label: 'How it works', href: '/#how-it-works' },
     { label: 'Pricing', href: '/#pricing' },
@@ -53,32 +60,24 @@ export const siteData = {
       body: 'We review the photos and email you to confirm, or to ask a question if anything is unclear.',
     },
     {
-      title: 'Pay and post it in',
-      body: 'Pay securely by card through the link in our email, then post your paddle to the address we send you.',
+      title: 'Pay and send it in',
+      body: 'Pay securely by card through the link in our email, then post your paddle to us. Club members can hand it in for their club\'s next pickup instead.',
     },
     {
       title: 'We re-grit it',
-      body: 'Your paddle joins the queue. Your private status link shows where it is and when to expect it back.',
+      body: 'We clean and prep both faces, then apply and cure a fresh textured grit coat. Your private status link shows where it\'s up to.',
     },
     {
       title: 'Back in the game',
-      body: 'We post your paddle back with fresh grip on the face, ready for your next session.',
+      body: 'We post your paddle back with fresh grip on both faces, ready for your next session.',
     },
   ],
 
-  /** Leave empty to hide the testimonials section. Real quotes only, with permission. */
-  testimonials: [
-    {
-      quote: '[To confirm: first customer testimonial, used with permission]',
-      name: '[To confirm: customer first name]',
-      context: '[To confirm: suburb or club]',
-    },
-    {
-      quote: '[To confirm: second customer testimonial, used with permission]',
-      name: '[To confirm: customer first name]',
-      context: '[To confirm: suburb or club]',
-    },
-  ] as { quote: string; name: string; context: string }[],
+  /**
+   * Real quotes only, from the review request after each job, with the customer's
+   * permission (SCRUM-33). The section stays hidden until there are at least 3.
+   */
+  testimonials: [] as { quote: string; name: string; context: string }[],
 
   footerNav: [
     {

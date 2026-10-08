@@ -1,0 +1,50 @@
+---
+/**
+ * Mobile-only order button, fixed to the bottom of the screen so ordering is always
+ * one tap away (SCRUM-29). It slides away while the order form itself is on screen,
+ * and the page has bottom padding so the bar never covers content.
+ */
+import { siteData } from '../data/siteData';
+const { orderCta, pricing } = siteData;
+---
+
+<div id="mobile-order-bar" class="mobile-order-bar lg:hidden" data-testid="mobile-order-bar">
+  <div class="mx-auto flex max-w-site items-center justify-between gap-3 px-4 py-3">
+    <p class="text-sm leading-tight text-text-muted">
+      <span class="block font-heading text-base font-bold text-text">A${pricing.regritPerPaddle} per paddle</span>
+      {pricing.covers}, plus return postage
+    </p>
+    <a href={orderCta.href} class="btn-primary shrink-0 text-sm">{orderCta.label}</a>
+  </div>
+</div>
+
+<style>
+  .mobile-order-bar {
+    position: fixed;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 40;
+    border-top: 1px solid var(--color-border);
+    background-color: color-mix(in srgb, var(--color-background) 96%, transparent);
+    backdrop-filter: blur(4px);
+    padding-bottom: env(safe-area-inset-bottom);
+    transition: transform 0.25s ease;
+  }
+  .mobile-order-bar.is-hidden { transform: translateY(110%); }
+  @media (prefers-reduced-motion: reduce) { .mobile-order-bar { transition: none; } }
+</style>
+
+<script>
+  const bar = document.getElementById('mobile-order-bar');
+  const order = document.getElementById('order');
+  if (bar && order && 'IntersectionObserver' in window) {
+    new IntersectionObserver(
+      (entries) => {
+        const hide = entries.some((e) => e.isIntersecting);
+        bar.classList.toggle('is-hidden', hide);
+        bar.toggleAttribute('inert', hide);
+      },
+      { threshold: 0.1 },
+    ).observe(order);
+  }
+</script>

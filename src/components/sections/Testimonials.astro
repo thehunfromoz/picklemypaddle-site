@@ -1,10 +1,11 @@
 ---
 import { siteData } from '../../data/siteData';
 import Ph from '../Ph.astro';
+import { showTestimonials } from '../../lib/visibility';
 const { testimonials } = siteData;
 ---
 
-{testimonials.length > 0 && (
+{showTestimonials(testimonials) && (
   <section id="testimonials" class="py-section">
     <div class="mx-auto max-w-site px-4 sm:px-6">
       <div class="max-w-2xl">

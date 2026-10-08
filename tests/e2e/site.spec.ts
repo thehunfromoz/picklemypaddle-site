@@ -38,7 +38,31 @@ test.describe('Landing page', () => {
   test('shows every section in order', async ({ page }) => {
     await page.goto('/');
     const ids = await page.locator('main section[id]').evaluateAll((els) => els.map((e) => e.id));
-    expect(ids).toEqual(['how-it-works', 'pricing', 'gallery', 'testimonials', 'order']);
+    // Gallery and testimonials stay hidden until there's real content (3+ each).
+    expect(ids).toEqual(['how-it-works', 'pricing', 'order']);
+  });
+
+  test('shows no placeholders to visitors', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('.placeholder')).toHaveCount(0);
+    await expect(page.locator('main')).not.toContainText('[To confirm');
+  });
+
+  test('states the turnaround, reply time and what the price covers', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('#pricing')).toContainText('per paddle, both faces');
+    await expect(page.locator('#how-it-works')).toContainText('within 10 business days');
+    await expect(page.locator('#order')).toContainText('within 1 business day');
+  });
+
+  test('tells tournament players re-gritted paddles are not tournament-approved', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByTestId('tournament-note')).toContainText('sanctioned tournaments');
+  });
+
+  test('hides nav links to sections that are not shown yet', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('header a[href="/#gallery"]')).toHaveCount(0);
   });
 
   test('order call-to-action jumps to the order form', async ({ page }) => {
@@ -51,6 +75,30 @@ test.describe('Landing page', () => {
   test('shows the A$60 price', async ({ page }) => {
     await page.goto('/');
     await expect(page.locator('#pricing')).toContainText('A$60');
+  });
+});
+
+test.describe('Mobile order bar', () => {
+  test('is one tap away on phones and steps aside at the order form', async ({ page, isMobile }) => {
+    await page.goto('/');
+    const bar = page.getByTestId('mobile-order-bar');
+    if (!isMobile) {
+      await expect(bar).toBeHidden();
+      return;
+    }
+    await expect(bar).toBeVisible();
+    await expect(bar.getByRole('link', { name: 'Send in your paddle' })).toBeInViewport();
+    await page.locator('#order').scrollIntoViewIfNeeded();
+    await expect(bar).toHaveClass(/is-hidden/);
+  });
+
+  test('does not cover the end of the page on phones', async ({ page, isMobile }) => {
+    test.skip(!isMobile, 'mobile only');
+    await page.goto('/faq');
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    const footerBottom = await page.locator('footer').evaluate((f) => f.getBoundingClientRect().bottom);
+    const barTop = await page.getByTestId('mobile-order-bar').evaluate((b) => b.getBoundingClientRect().top);
+    expect(footerBottom).toBeLessThanOrEqual(barTop + 1);
   });
 });
 

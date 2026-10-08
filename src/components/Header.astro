@@ -2,8 +2,12 @@
 import { brand } from '../config/brand';
 import { siteData } from '../data/siteData';
 import Logo from './Logo.astro';
+import { galleryPairs } from '../config/images';
+import { showGallery } from '../lib/visibility';
 
-const { nav, orderCta } = siteData;
+const { orderCta } = siteData;
+// Hide links to landing-page sections that aren't shown yet.
+const nav = siteData.nav.filter((l) => l.href !== '/#gallery' || showGallery(galleryPairs));
 const strip = (p: string) => (p.length > 1 && p.endsWith('/') ? p.slice(0, -1) : p);
 const currentPath = strip(Astro.url.pathname);
 const isActive = (href: string) => !href.includes('#') && href !== '/' && currentPath.startsWith(href);
