@@ -58,4 +58,12 @@
   .placeholder {
     @apply rounded-sm bg-tint-blue px-1 font-medium text-primary-dark;
   }
+  /* Staging-only elements (SCRUM-38): [hidden] keeps them off the live site;
+     the staging gateway's /env.css reveals them. */
+  .preview-ribbon {
+    @apply bg-[#F2C14E] px-4 py-1 text-center text-sm text-text;
+  }
+  .test-order-notice {
+    @apply mt-6 rounded-md border-2 border-[#A12B2B] bg-surface p-4 text-sm text-text;
+  }
 }
