@@ -1,0 +1,28 @@
+# Trivy findings deliberately accepted for a limited time. Each line expires on its
+# exp: date, after which the image check fails again until it is fixed or re-reviewed.
+# Approved by Attila Madarasz, 12 Oct 2026 (SCRUM-38).
+#
+# Base image caddy:2-alpine: Caddy's binary is built with Go 1.26.8 and
+# golang.org/x/net v0.59.0. The Go security release of 11 Oct 2026 fixes these in
+# Go 1.26.9 / 1.27.2 and x/net 0.60.0; no Caddy release is built with them yet.
+# Exposure is low until launch: staging is reached only on the LAN and the tailnet,
+# and the site's Caddy sits behind the staging gateway on plain HTTP/1.1.
+# Remove this block once a Caddy release built with Go >= 1.26.9 is out (rebuild,
+# and the scan should pass without it).
+
+# HTTP/2 (x/net and stdlib): GO-2026-6603, 6610, 6611, 6612, 6617
+CVE-2026-78659 exp:2026-10-26
+CVE-2026-78660 exp:2026-10-26
+CVE-2026-78663 exp:2026-10-26
+CVE-2026-78669 exp:2026-10-26
+CVE-2026-97032 exp:2026-10-26
+
+# stdlib only: GO-2026-6599, 6600, 6604, 6605, 6607, 6608, 6609, 6613
+CVE-2026-94448 exp:2026-10-26
+CVE-2026-97030 exp:2026-10-26
+CVE-2026-56857 exp:2026-10-26
+CVE-2026-56866 exp:2026-10-26
+CVE-2026-97031 exp:2026-10-26
+CVE-2026-94440 exp:2026-10-26
+CVE-2026-78667 exp:2026-10-26
+CVE-2026-94439 exp:2026-10-26
