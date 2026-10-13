@@ -59,7 +59,7 @@ const imageURL = new URL(image, Astro.site);
     <slot name="head" />
   </head>
 
-  <body class="bg-background pb-20 font-body text-text antialiased lg:pb-0">
+  <body class="bg-background pb-[calc(6rem+env(safe-area-inset-bottom))] font-body text-text antialiased lg:pb-0">
     <div class="preview-ribbon" data-env="staging-only" data-testid="preview-ribbon" role="note" hidden>
       <strong>Preview</strong> · not the live site. Orders here are tests; no payment is taken.
     </div>
