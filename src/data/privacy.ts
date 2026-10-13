@@ -3,6 +3,10 @@
  * Principles and GDPR-aligned practice. Not legal advice: have it reviewed
  * before launch. Lines marked [To confirm: …] need decisions.
  */
+import { siteData } from './siteData';
+
+const contactEmail = siteData.contact.email;
+
 export const privacyPolicy = {
   effectiveDate: '[To confirm: date of launch]',
 
@@ -10,7 +14,7 @@ export const privacyPolicy = {
     {
       heading: 'Who we are',
       content: [
-        'Pickle My Paddle ("we", "us") provides pickleball paddle re-gritting from Sydney, NSW. [To confirm: business name and ABN once registered.] You can contact us about privacy at hello@picklemypaddle.com.',
+        `Pickle My Paddle ("we", "us") provides pickleball paddle re-gritting from Sydney, NSW. [To confirm: business name and ABN once registered.] You can contact us about privacy at ${contactEmail}.`,
       ],
     },
     {
@@ -50,7 +54,7 @@ export const privacyPolicy = {
     {
       heading: 'Your choices and rights',
       content: [
-        'You can ask to see the information we hold about you, ask us to correct it, or ask us to delete it (unless we must keep it by law). Email hello@picklemypaddle.com and we will respond within 30 days.',
+        `You can ask to see the information we hold about you, ask us to correct it, or ask us to delete it (unless we must keep it by law). Email ${contactEmail} and we will respond within 30 days.`,
         'If you are not satisfied with how we handle a privacy concern, you can contact the Office of the Australian Information Commissioner at oaic.gov.au.',
       ],
     },

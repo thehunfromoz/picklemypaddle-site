@@ -103,8 +103,27 @@ test.describe('Mobile order bar', () => {
 });
 
 test.describe('Order form (client-side)', () => {
+  test('submit is disabled until both boxes are ticked', async ({ page }) => {
+    await page.goto('/#order');
+    const submit = page.getByRole('button', { name: 'Submit for review' });
+    await expect(submit).toBeDisabled();
+    await expect(page.locator('#submit-hint')).toBeVisible();
+    await page.check('#consent');
+    await expect(submit).toBeDisabled();
+    await page.uncheck('#consent');
+    await page.check('#tournamentAck');
+    await expect(submit).toBeDisabled();
+    await page.check('#consent');
+    await expect(submit).toBeEnabled();
+    await expect(page.locator('#submit-hint')).toBeHidden();
+    await page.uncheck('#tournamentAck');
+    await expect(submit).toBeDisabled();
+  });
+
   test('empty submit lists errors and focuses the first field', async ({ page }) => {
     await page.goto('/#order');
+    await page.check('#consent');
+    await page.check('#tournamentAck');
     await page.getByRole('button', { name: 'Submit for review' }).click();
     await expect(page.locator('#form-status')).toContainText('Please fix');
     await expect(page.locator('#name')).toBeFocused();
@@ -136,6 +155,7 @@ test.describe('Order form (client-side)', () => {
     await page.setInputFiles('#paddles-0-front', png);
     await page.setInputFiles('#paddles-0-back', png);
     await page.check('#consent');
+    await page.check('#tournamentAck');
     await page.getByRole('button', { name: 'Submit for review' }).click();
     await expect(page.locator('#form-status')).not.toContainText('Please fix');
     await expect(page.locator('[aria-invalid="true"]')).toHaveCount(0);
