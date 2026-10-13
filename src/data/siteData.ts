@@ -12,7 +12,7 @@ export const siteData = {
   name: 'Pickle My Paddle',
 
   contact: {
-    email: 'hello@picklemypaddle.com',
+    email: 'sales@picklemypaddle.com',
     area: 'Sydney, NSW',
   },
 
@@ -61,11 +61,11 @@ export const siteData = {
     },
     {
       title: 'Pay and send it in',
-      body: 'Pay securely by card through the link in our email, then post your paddle to us. Club members can hand it in for their club\'s next pickup instead.',
+      body: 'Pay securely by card through the link in our email, then post your paddle to us. Members of participating clubs can hand it in for their club\'s next pickup instead.',
     },
     {
       title: 'We re-grit it',
-      body: 'We clean and prep both faces, then apply and cure a fresh textured grit coat. Your private status link shows where it\'s up to.',
+      body: 'We clean and prep both faces, then apply and cure a fresh textured grit coat. You\'ll get a private status link to check where it\'s up to.',
     },
     {
       title: 'Back in the game',

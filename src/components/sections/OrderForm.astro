@@ -113,9 +113,21 @@ const err = 'mt-1 text-sm font-medium text-[#A12B2B]';
           </label>
         </div>
         <p id="consent-error" class={err} hidden></p>
+
+        <div class="mt-4 flex items-start gap-3">
+          <input id="tournamentAck" name="tournamentAck" type="checkbox" value="yes" required class="mt-1 size-5 shrink-0 accent-primary" aria-describedby="tournamentAck-error" />
+          <label for="tournamentAck" class="text-sm leading-relaxed">
+            I understand that once my paddle is re-gritted, it can no longer be used in sanctioned competitions or
+            tournaments.
+          </label>
+        </div>
+        <p id="tournamentAck-error" class={err} hidden></p>
       </div>
 
-      <button type="submit" class="btn-primary w-full sm:w-auto">Submit for review</button>
+      <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
+        <button type="submit" id="order-submit" class="btn-primary w-full disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto" aria-describedby="submit-hint">Submit for review</button>
+        <p id="submit-hint" class="text-sm text-text-muted" hidden>Tick both boxes above to submit.</p>
+      </div>
     </form>
 
     <template id="paddle-template">
@@ -191,6 +203,19 @@ const err = 'mt-1 text-sm font-medium text-[#A12B2B]';
       if (focus) (fs.querySelector('input') as HTMLInputElement).focus();
     };
 
+    // Submit stays disabled until both boxes are ticked. Set here rather than in the HTML,
+    // so the form still works (with validation) if this script doesn't load.
+    const submitBtn = document.getElementById('order-submit') as HTMLButtonElement;
+    const submitHint = document.getElementById('submit-hint')!;
+    const ticks = ['consent', 'tournamentAck'].map((id) => document.getElementById(id) as HTMLInputElement);
+    const syncSubmit = () => {
+      const ready = ticks.every((t) => t.checked);
+      submitBtn.disabled = !ready;
+      submitHint.hidden = ready;
+    };
+    ticks.forEach((t) => t.addEventListener('change', syncSubmit));
+    syncSubmit();
+
     addBtn.addEventListener('click', () => addPaddle(true));
     addPaddle(false);
 
@@ -213,6 +238,7 @@ const err = 'mt-1 text-sm font-medium text-[#A12B2B]';
           state: v('state'),
           postcode: v('postcode'),
           consent: (form.elements.namedItem('consent') as HTMLInputElement).checked,
+          tournamentAck: (form.elements.namedItem('tournamentAck') as HTMLInputElement).checked,
           paddles: items.map((fs) => {
             const i = fs.dataset.index!;
             return {

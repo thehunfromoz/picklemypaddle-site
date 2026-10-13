@@ -13,6 +13,7 @@ const valid = (): OrderInput => ({
   state: 'NSW',
   postcode: '2000',
   consent: true,
+  tournamentAck: true,
   paddles: [{ brand: 'Any brand', front: photo, back: photo }],
 });
 
@@ -22,8 +23,8 @@ describe('validateOrder', () => {
   });
 
   it('requires name, valid email, address and consent', () => {
-    const e = validateOrder({ ...valid(), name: ' ', email: 'nope', street: '', suburb: '', state: 'XX', postcode: '200', consent: false });
-    expect(Object.keys(e).sort()).toEqual(['consent', 'email', 'name', 'postcode', 'state', 'street', 'suburb']);
+    const e = validateOrder({ ...valid(), name: ' ', email: 'nope', street: '', suburb: '', state: 'XX', postcode: '200', consent: false, tournamentAck: false });
+    expect(Object.keys(e).sort()).toEqual(['consent', 'email', 'name', 'postcode', 'state', 'street', 'suburb', 'tournamentAck']);
   });
 
   it('allows a blank phone but rejects a malformed one', () => {
