@@ -7,40 +7,94 @@ import { aboutImage } from '../config/images';
 import { siteData } from '../data/siteData';
 ---
 
-<BaseLayout title="About" description="Why Pickle My Paddle exists: keeping good pickleball paddles in the game for longer.">
-  <Banner title="About Pickle My Paddle" intro="Why we pickle paddles, and who does the work." />
+<BaseLayout title="About" description="Why PickleMyPaddle exists: keeping good pickleball paddles in the game for longer.">
+  <Banner title="About PickleMyPaddle" intro="Why we pickle paddles, and who does the work." />
 
   <section class="py-section">
     <div class="mx-auto grid max-w-site grid-cols-1 items-center gap-10 px-4 sm:px-6 lg:grid-cols-2 lg:gap-14">
       <div class="flex aspect-4/3 items-center justify-center overflow-hidden rounded-lg bg-tint-green">
         {aboutImage ? (
-          <Image src={aboutImage} alt="The person behind Pickle My Paddle" width={800} height={600} class="size-full object-cover" />
+          <Image src={aboutImage} alt="The person behind PickleMyPaddle" width={800} height={600} class="size-full object-cover" />
         ) : (
           <span class="placeholder">[To confirm: photo of you at a court or the workbench]</span>
         )}
       </div>
       <div class="space-y-5 leading-relaxed text-text-muted">
-        <h2 class="font-heading text-h2 font-bold text-text">Why "pickle"?</h2>
+        <h2 class="font-heading text-h2 font-bold text-text">Pickled, not retired.</h2>
         <p>
-          Pickling preserves. That's what we do for paddles: a good paddle doesn't need replacing just because its
-          face has worn smooth. Re-gritting restores the surface texture that grips the ball, so a paddle you already
-          know and trust stays in play for longer.
+          The name is a play on words. To pickle something is to preserve it, and that's what we do for paddles. A
+          good paddle doesn't need retiring just because its face has worn smooth. Re-gritting restores the surface
+          texture that grips the ball, so a paddle you already know and trust stays in play for longer.
         </p>
         <p>
           It's better for your game, kinder to your wallet than a new paddle, and keeps one more paddle out of landfill.
         </p>
-        <h2 class="pt-4 font-heading text-h2 font-bold text-text">Who we are</h2>
-        <p>
-          <span class="placeholder">[To confirm: a few sentences in your own words: who you are, how you got into pickleball, and why you started re-gritting paddles]</span>
-        </p>
-        <p>Based in {siteData.contact.area}, serving players by post across Australia and clubs locally.</p>
       </div>
+    </div>
+  </section>
+
+  <section class="pb-section">
+    <div class="mx-auto max-w-3xl space-y-5 px-4 leading-relaxed text-text-muted sm:px-6">
+      <h2 class="font-heading text-h2 font-bold text-text">Who we are</h2>
+      <p>
+        <strong class="text-text">I’m an engineer who fell into the world of pickleball in 2026.</strong>
+        Before that, I spent over four decades playing tennis—and the last three decades restringing my own racquets.
+        When I went to buy my first pickleball paddle, I was blown away by how expensive they are. Compared to a
+        tennis racquet, which I can quickly re-string whenever needed, it felt crazy to throw a paddle away just
+        because the face wore down.
+      </p>
+      <p>
+        If you consider re-stringing a tennis racquet functionally equivalent to re-gritting a pickleball paddle, it
+        stands to reason we should be able to restore them, right?
+      </p>
+      <p>
+        Now, a quick disclaimer: pickleball officials haven’t listed re-gritting as a permitted alteration. For now,
+        if you re-grit your paddle, you can only use it for social and practice play. A refurbished paddle will almost
+        certainly not be permitted in official tournaments.
+      </p>
+
+      <h3 class="pt-4 font-heading text-h3 font-bold text-text">Rescuing your trusted paddle from landfill</h3>
+      <p>
+        Anyway, legalities aside, you likely have a paddle you paid good money for. There’s nothing wrong with it
+        structurally; it’s just lost its bite on the ball. Being a problem solver by nature, I figured my fellow
+        pickleballers would love a way to put the spin back into their favourite paddle instead of buying a new one.
+      </p>
+      <p>
+        I looked at what others were doing online. I saw a few YouTube videos where people DIY’d a fix using
+        hardware-store Gorilla Glue and skateboard targeted gritting solution. While it technically works, even the
+        finest skateboard grit is way too coarse. It gives the paddle too much bite, completely changing how it plays
+        compared to a factory-standard paddle.
+      </p>
+      {/*
+        REVIEW (SCRUM-30), early Nov 2026: the ~20 g figure is an estimate. Replace it with measured grams once the
+        application methods have been evaluated, and keep the matching FAQ answer in src/data/faq.ts in line.
+      */}
+      <p>
+        So, I engineered a better way. I found a process to re-grit a paddle to get it as close to "factory legal"
+        specs as possible. It restores the surface friction to maximum allowed levels while keeping the additional
+        weight of the bonding agent and grit as low as I can. The process adds about 20 grams across both faces,
+        adding slightly more weight than what a 50c coin weighs to the paddle.
+      </p>
+
+      <h3 class="pt-4 font-heading text-h3 font-bold text-text">A premium service for fellow players</h3>
+      <p>
+        It typically costs between $50 and $70 to restring a tennis racquet, and it’s a pretty straightforward job.
+        Re-gritting a paddle is a bit more of an art form. It requires applying an incredibly thin, perfectly even
+        layer of bonding agent and distributing the grit uniformly to get that "good as new" feel.
+      </p>
+      <p>
+        I’ve streamlined the process to keep the costs down so you can give your favourite paddle a second lease on
+        life. Use your refurbished paddle to crush it in social play and drills, and save the grit on your expensive
+        tournament paddle for competition day!
+      </p>
+
+      <p class="pt-4">Based in {siteData.contact.area}, serving players by post across Australia and clubs locally.</p>
     </div>
   </section>
 
   <section class="bg-tint-blue py-section">
     <div class="mx-auto flex max-w-site flex-col items-center gap-6 px-4 text-center sm:px-6">
-      <Logo variant="full" class="h-40 w-auto" title="Pickle My Paddle logo" />
+      <Logo variant="full" class="h-40 w-auto" title="PickleMyPaddle logo" />
       <p class="max-w-xl text-lead">Ready to give your paddle a second life?</p>
       <a href={siteData.orderCta.href} class="btn-primary">{siteData.orderCta.label}</a>
     </div>
