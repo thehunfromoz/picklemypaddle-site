@@ -1,7 +1,7 @@
 ---
 title: Why your paddle loses its grip (and what to do about it)
 description: Paddle faces wear smooth with play. Here's how to tell, and why re-gritting can bring a favourite paddle back.
-author: Pickle My Paddle
+author: PickleMyPaddle
 date: 2026-10-07
 tags: [paddle care]
 draft: false
@@ -21,7 +21,7 @@ With every rally, the ball rubs against that surface. Over months of regular pla
 
 You can live with it, buy a new paddle, or have the face re-gritted. If you like how your paddle plays (its weight, balance and feel), re-gritting keeps all of that and restores the texture.
 
-That's the idea behind Pickle My Paddle: preserve a good paddle rather than retire it.
+That's the idea behind PickleMyPaddle: preserve a good paddle rather than retire it.
 
 ## How to get started
 

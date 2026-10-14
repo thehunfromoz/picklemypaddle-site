@@ -9,7 +9,7 @@
  */
 
 export const siteData = {
-  name: 'Pickle My Paddle',
+  name: 'PickleMyPaddle',
 
   contact: {
     email: 'sales@picklemypaddle.com',

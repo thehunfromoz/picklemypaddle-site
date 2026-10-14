@@ -27,7 +27,7 @@ const og = `<!doctype html><html><head><style>${css}
   p.tag { color: #4565A6; }
 </style></head><body><div class="wrap">
   <div class="mark">${icon}</div>
-  <div class="text"><h1>pickle my paddle</h1><p>Pickleball paddle re-gritting</p><p class="tag">Pickled, not retired.</p></div>
+  <div class="text"><h1>PickleMyPaddle</h1><p>Pickleball paddle re-gritting</p><p class="tag">Pickled, not retired.</p></div>
 </div></body></html>`;
 
 const touch = `<!doctype html><html><head><style>${css}
