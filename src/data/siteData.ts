@@ -14,6 +14,11 @@ export const siteData = {
   contact: {
     email: 'sales@picklemypaddle.com',
     area: 'Sydney, NSW',
+    /**
+     * HubSpot Meetings link for club intro chats. Leave empty until it exists:
+     * the Clubs page then shows only the email button.
+     */
+    clubBookingUrl: '',
   },
 
   pricing: {
