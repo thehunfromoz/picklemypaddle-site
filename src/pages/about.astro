@@ -7,14 +7,14 @@ import { aboutImage } from '../config/images';
 import { siteData } from '../data/siteData';
 ---
 
-<BaseLayout title="About" description="Why Pickle My Paddle exists: keeping good pickleball paddles in the game for longer.">
-  <Banner title="About Pickle My Paddle" intro="Why we pickle paddles, and who does the work." />
+<BaseLayout title="About" description="Why PickleMyPaddle exists: keeping good pickleball paddles in the game for longer.">
+  <Banner title="About PickleMyPaddle" intro="Why we pickle paddles, and who does the work." />
 
   <section class="py-section">
     <div class="mx-auto grid max-w-site grid-cols-1 items-center gap-10 px-4 sm:px-6 lg:grid-cols-2 lg:gap-14">
       <div class="flex aspect-4/3 items-center justify-center overflow-hidden rounded-lg bg-tint-green">
         {aboutImage ? (
-          <Image src={aboutImage} alt="The person behind Pickle My Paddle" width={800} height={600} class="size-full object-cover" />
+          <Image src={aboutImage} alt="The person behind PickleMyPaddle" width={800} height={600} class="size-full object-cover" />
         ) : (
           <span class="placeholder">[To confirm: photo of you at a court or the workbench]</span>
         )}
@@ -94,7 +94,7 @@ import { siteData } from '../data/siteData';
 
   <section class="bg-tint-blue py-section">
     <div class="mx-auto flex max-w-site flex-col items-center gap-6 px-4 text-center sm:px-6">
-      <Logo variant="full" class="h-40 w-auto" title="Pickle My Paddle logo" />
+      <Logo variant="full" class="h-40 w-auto" title="PickleMyPaddle logo" />
       <p class="max-w-xl text-lead">Ready to give your paddle a second life?</p>
       <a href={siteData.orderCta.href} class="btn-primary">{siteData.orderCta.label}</a>
     </div>
