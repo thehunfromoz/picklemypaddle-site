@@ -35,12 +35,15 @@ export const siteData = {
   },
 
   /**
-   * Who operates the business, as named in the privacy policy and terms.
-   * Write it as one sentence. Update it once the ABN is issued.
+   * How the business is described in the privacy policy and terms: "PickleMyPaddle, <description>".
+   * It is a small business, so the pages do not name its owner.
+   * abnNote is a placeholder until the ABN is issued (not applied for yet: planned after the end of
+   * November, ahead of a launch before the new year). Then replace it with "ABN 00 000 000 000."
    */
   business: {
-    operator:
-      '[To confirm: who operates the business and its ABN once issued, as one sentence, for example "Pickle My Paddle is operated by your full name, ABN 00 000 000 000."]',
+    description: 'a small business operated out of Sydney, NSW',
+    abnNote:
+      '[To confirm: ABN, to be applied for after the end of November, ahead of a launch before the new year]',
   },
 
   /**

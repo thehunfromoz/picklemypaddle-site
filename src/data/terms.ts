@@ -19,7 +19,7 @@ export const termsOfService = {
     {
       heading: 'About these terms',
       content: [
-        `These terms apply when you use picklemypaddle.com or send us a paddle to re-grit. They are between you and Pickle My Paddle, ${siteData.contact.area}. ${siteData.business.operator}`,
+        `These terms apply when you use picklemypaddle.com or send us a paddle to re-grit. They are between you and PickleMyPaddle, ${siteData.business.description}. ${siteData.business.abnNote}`,
         'By submitting an order you agree to them. Nothing in these terms limits your rights under the Australian Consumer Law.',
       ],
     },

@@ -19,7 +19,7 @@ export const privacyPolicy = {
     {
       heading: 'Who we are',
       content: [
-        `Pickle My Paddle ("we", "us") provides pickleball paddle re-gritting from ${siteData.contact.area}. ${siteData.business.operator}`,
+        `PickleMyPaddle ("we", "us"), ${siteData.business.description}, provides pickleball paddle re-gritting. ${siteData.business.abnNote}`,
         `You can contact us about privacy at ${contactEmail}.`,
       ],
     },
