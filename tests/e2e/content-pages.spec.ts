@@ -5,6 +5,22 @@ test.describe('About page', () => {
     await page.goto('/about');
     await expect(page.getByRole('heading', { name: 'Pickled, not retired.', level: 2 })).toBeVisible();
   });
+
+  test('tells who runs it, with the sound-bites standing out', async ({ page }) => {
+    await page.goto('/about');
+    await expect(page.getByRole('heading', { name: 'Who we are', level: 2 })).toBeVisible();
+    await expect(
+      page.locator('main strong', { hasText: /engineer who fell into the world of pickleball/ }),
+    ).toHaveCount(1);
+    for (const heading of ['Rescuing your trusted paddle from landfill', 'A premium service for fellow players']) {
+      await expect(page.getByRole('heading', { name: heading, level: 3 })).toBeVisible();
+    }
+  });
+
+  test('keeps the tournament disclaimer', async ({ page }) => {
+    await page.goto('/about');
+    await expect(page.locator('main')).toContainText('official tournaments');
+  });
 });
 
 test.describe('FAQ', () => {
