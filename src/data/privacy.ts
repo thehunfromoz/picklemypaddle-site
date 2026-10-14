@@ -45,9 +45,9 @@ export const privacyPolicy = {
       heading: 'Who we share it with',
       content: [
         'We use a few service providers to run the business. They handle your information on our behalf and only for that purpose.',
-        'HubSpot keeps our customer records. Our HubSpot account stores data in [To confirm: the HubSpot data hosting region shown in your account settings].',
+        'HubSpot keeps our customer records. Our HubSpot account stores data in Australia.',
         'Stripe processes card payments and may handle data in Australia and other countries, including the United States.',
-        'Our website and order system run on a server we rent from OVH in [To confirm: the OVH data centre location]. Orders and paddle photos are stored there.',
+        'Our website and order system run on a server we rent from OVH in Australia. Orders and paddle photos are stored there.',
         'We send and receive email through [To confirm: your email provider and where it stores data].',
         'Our postal carrier receives your name and return address so it can deliver your paddle.',
         'Our analytics run on our own server, so no third party receives them.',
