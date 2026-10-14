@@ -40,6 +40,18 @@ export const siteData = {
   },
 
   /**
+   * How the business is described in the privacy policy and terms: "PickleMyPaddle, <description>".
+   * It is a small business, so the pages do not name its owner.
+   * abnNote is a placeholder until the ABN is issued (not applied for yet: planned after the end of
+   * November, ahead of a launch before the new year). Then replace it with "ABN 00 000 000 000."
+   */
+  business: {
+    description: 'a small business operated out of Sydney, NSW',
+    abnNote:
+      '[To confirm: ABN, to be applied for after the end of November, ahead of a launch before the new year]',
+  },
+
+  /**
    * Header navigation. Hash links jump to sections on the landing page.
    * The Gallery link only shows once the gallery itself is visible (Header.astro).
    */

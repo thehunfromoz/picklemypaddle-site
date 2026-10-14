@@ -5,7 +5,7 @@ import LegalPage from '../components/LegalPage.astro';
 import { termsOfService } from '../data/terms';
 ---
 
-<BaseLayout title="Terms" description="Terms for the Pickle My Paddle website and paddle re-gritting service.">
+<BaseLayout title="Terms" description="Terms for the PickleMyPaddle website and paddle re-gritting service.">
   <Banner title="Terms of service" />
-  <LegalPage effectiveDate={termsOfService.effectiveDate} sections={termsOfService.sections} />
+  <LegalPage lastUpdated={termsOfService.lastUpdated} sections={termsOfService.sections} />
 </BaseLayout>

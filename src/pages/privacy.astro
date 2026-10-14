@@ -5,7 +5,7 @@ import LegalPage from '../components/LegalPage.astro';
 import { privacyPolicy } from '../data/privacy';
 ---
 
-<BaseLayout title="Privacy" description="How Pickle My Paddle collects, uses and protects your personal information.">
+<BaseLayout title="Privacy" description="How PickleMyPaddle collects, uses and protects your personal information.">
   <Banner title="Privacy policy" />
-  <LegalPage effectiveDate={privacyPolicy.effectiveDate} sections={privacyPolicy.sections} />
+  <LegalPage lastUpdated={privacyPolicy.lastUpdated} sections={privacyPolicy.sections} />
 </BaseLayout>
