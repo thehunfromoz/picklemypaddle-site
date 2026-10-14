@@ -13,7 +13,7 @@ test.describe('Every page', () => {
       const res = await page.goto(path);
       expect(res?.status()).toBe(200);
       await expect(page.locator('h1')).toHaveCount(1);
-      await expect(page).toHaveTitle(/Pickle My Paddle/);
+      await expect(page).toHaveTitle(/PickleMyPaddle/);
       await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /.{40,}/);
       expect(errors, errors.join('\n')).toEqual([]);
     });

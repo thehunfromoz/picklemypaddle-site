@@ -1,4 +1,4 @@
-# Pickle My Paddle — static site server with security headers.
+# PickleMyPaddle — static site server with security headers.
 # Values in {$VAR} come from the container environment (see Dockerfile).
 {
 	admin off

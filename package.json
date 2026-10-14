@@ -3,7 +3,7 @@
   "type": "module",
   "version": "0.1.0",
   "private": true,
-  "description": "Pickle My Paddle website: pickleball paddle re-grit service. Built with Astro 7 and Tailwind v4, based on Small Business Starter v2 (MIT).",
+  "description": "PickleMyPaddle website: pickleball paddle re-grit service. Built with Astro 7 and Tailwind v4, based on Small Business Starter v2 (MIT).",
   "license": "MIT",
   "engines": {
     "node": ">=22.12.0"

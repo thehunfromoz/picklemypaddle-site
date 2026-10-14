@@ -10,7 +10,7 @@ FROM mcr.microsoft.com/playwright:v${PW_VERSION}-noble
 ARG PW_VERSION
 ARG AXE_VERSION=4.13.0
 LABEL org.opencontainers.image.source="https://github.com/thehunfromoz/picklemypaddle-site" \
-      org.opencontainers.image.description="Pickle My Paddle site smoke tests" \
+      org.opencontainers.image.description="PickleMyPaddle site smoke tests" \
       org.opencontainers.image.licenses="MIT"
 WORKDIR /smoke
 RUN chown pwuser:pwuser /smoke

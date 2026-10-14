@@ -1,6 +1,6 @@
 # picklemypaddle-site
 
-Website for **Pickle My Paddle**, a pickleball paddle re-grit service: one scrolling landing page
+Website for **PickleMyPaddle**, a pickleball paddle re-grit service: one scrolling landing page
 (how it works, pricing, before-and-after gallery, testimonials, order form) plus About, FAQ, Clubs,
 Blog, Privacy and Terms pages.
 
