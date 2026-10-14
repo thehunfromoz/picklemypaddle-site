@@ -56,7 +56,7 @@ export const termsOfService = {
     {
       heading: 'Our work and your paddle',
       content: [
-        "Re-gritting renews the surface texture of the paddle face. It can slightly change a paddle's weight, balance and feel, and results vary by paddle. We assess your paddle from photos, so we cannot promise in advance that it will suit re-gritting.",
+        "Re-gritting renews the surface texture of the paddle face. It adds some weight and can change a paddle's balance and feel, and results vary by paddle. We assess your paddle from photos, so we cannot promise in advance that it will suit re-gritting.",
         'Re-gritted paddles are not allowed in sanctioned tournaments. Our service is for social, club and practice play, and it is your responsibility to check the equipment rules of any event you enter.',
         "Re-gritting may affect your paddle's manufacturer warranty. Please check with the manufacturer before you send it.",
         'If we find a problem with your paddle after you pay that means we cannot safely re-grit it, we will contact you, refund the re-grit fee in full and post the paddle back to you using the return postage you paid.',
