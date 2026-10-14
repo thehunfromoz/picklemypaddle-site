@@ -23,6 +23,16 @@ test.describe('About page', () => {
   });
 });
 
+test.describe('Added weight estimate', () => {
+  // The figure is an estimate until measured (SCRUM-30 review). Update both pages together.
+  test('About and FAQ quote the same estimate', async ({ page }) => {
+    await page.goto('/about');
+    await expect(page.locator('main')).toContainText('about 20 grams');
+    await page.goto('/faq');
+    await expect(page.locator('details', { hasText: 'about 20 grams' })).toHaveCount(1);
+  });
+});
+
 test.describe('FAQ', () => {
   test('has a question for each thing customers ask before ordering', async ({ page }) => {
     await page.goto('/faq');

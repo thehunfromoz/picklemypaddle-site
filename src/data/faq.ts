@@ -19,9 +19,11 @@ export const faq: { q: string; a: string }[] = [
     q: "What if my paddle can't be re-gritted?",
     a: "We'll tell you before you pay, and you owe nothing. If a problem only shows once the paddle reaches us, we'll contact you, refund the re-grit fee in full and post the paddle back to you using the return postage you've already paid.",
   },
+  // REVIEW (SCRUM-30), early Nov 2026: the ~20 g figure is an estimate. Replace it with measured grams once
+  // the application methods have been evaluated, and keep the About page in line.
   {
     q: 'Will re-gritting change how my paddle plays?',
-    a: 'Re-gritting restores the grip and spin the worn face has lost. [To confirm: effect on weight, balance and feel, in your own words]',
+    a: 'It adds some weight. We estimate the bonding agent and grit add about 20 grams across both faces, slightly more than a 50c coin. The finish is designed to feel close to a factory paddle rather than the extra-coarse bite of DIY grit, and you should notice the grip and spin come back.',
   },
   {
     q: 'Can I use a re-gritted paddle in sanctioned tournaments?',
