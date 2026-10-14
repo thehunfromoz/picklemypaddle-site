@@ -2,15 +2,15 @@
 import Ph from './Ph.astro';
 
 interface Props {
-  effectiveDate: string;
+  lastUpdated: string;
   sections: readonly { readonly heading: string; readonly content: readonly string[] }[];
 }
-const { effectiveDate, sections } = Astro.props;
+const { lastUpdated, sections } = Astro.props;
 ---
 
 <section class="py-section">
   <div class="mx-auto max-w-3xl px-4 sm:px-6">
-    <p class="mb-10 text-sm text-text-muted">Effective date: <Ph text={effectiveDate} /></p>
+    <p class="mb-10 text-sm text-text-muted">Last updated: <Ph text={lastUpdated} /></p>
     <div class="space-y-10">
       {sections.map(({ heading, content }) => (
         <div>

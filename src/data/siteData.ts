@@ -35,6 +35,15 @@ export const siteData = {
   },
 
   /**
+   * Who operates the business, as named in the privacy policy and terms.
+   * Write it as one sentence. Update it once the ABN is issued.
+   */
+  business: {
+    operator:
+      '[To confirm: who operates the business and its ABN once issued, as one sentence, for example "Pickle My Paddle is operated by your full name, ABN 00 000 000 000."]',
+  },
+
+  /**
    * Header navigation. Hash links jump to sections on the landing page.
    * The Gallery link only shows once the gallery itself is visible (Header.astro).
    */
