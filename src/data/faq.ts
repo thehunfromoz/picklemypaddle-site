@@ -23,7 +23,7 @@ export const faq: { q: string; a: string }[] = [
   // the application methods have been evaluated, and keep the About page in line.
   {
     q: 'Will re-gritting change how my paddle plays?',
-    a: 'It adds some weight. We estimate the bonding agent and grit add about 20 grams across both faces, slightly more than a 50c coin. The finish is designed to feel close to a factory paddle rather than the extra-coarse bite of DIY grit, and you should notice the grip and spin come back.',
+    a: 'It adds some weight. The process adds about 20 grams across both faces, slightly more than a 50c coin weighs. The finish is designed to feel close to a factory paddle rather than the extra-coarse bite of DIY grit, and you should notice the grip and spin come back.',
   },
   {
     q: 'Can I use a re-gritted paddle in sanctioned tournaments?',
