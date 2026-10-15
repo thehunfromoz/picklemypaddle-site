@@ -13,7 +13,7 @@ import { siteData } from './siteData';
 const contactEmail = siteData.contact.email;
 
 export const privacyPolicy = {
-  lastUpdated: '14 October 2026',
+  lastUpdated: '15 October 2026',
 
   sections: [
     {
@@ -48,7 +48,7 @@ export const privacyPolicy = {
         'HubSpot keeps our customer records. Our HubSpot account stores data in Australia.',
         'Stripe processes card payments and may handle data in Australia and other countries, including the United States.',
         'Our website and order system run on a server we rent from OVH in Australia. Orders and paddle photos are stored there.',
-        'We send and receive email through [To confirm: your email provider and where it stores data].',
+        'We receive email through Cloudflare, which forwards messages sent to our address to a Gmail mailbox run by Google. Resend sends our automated order emails. Email providers may store messages outside Australia.',
         'Our postal carrier receives your name and return address so it can deliver your paddle.',
         'Our analytics run on our own server, so no third party receives them.',
         'Some of these providers store or access information outside Australia. Before sending information overseas we take reasonable steps to make sure the provider handles it consistently with the Australian Privacy Principles. We may also share information where the law requires it.',
