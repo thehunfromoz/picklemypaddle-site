@@ -4,8 +4,9 @@ import tailwindcss from '@tailwindcss/vite';
 import sitemap from '@astrojs/sitemap';
 import robotsTxt from 'astro-robots-txt';
 
-// SITE_URL is set per environment (staging: http://home-server:8088, production:
-// https://www.picklemypaddle.com). It drives canonical URLs, sitemap and OG tags.
+// SITE_URL drives canonical URLs, the sitemap, robots.txt and OG tags. The published image is
+// built with the production address (ci.yml), because staging and production run the same
+// image; local development sets its own in .env.
 const site = process.env.SITE_URL ?? 'https://www.picklemypaddle.com';
 
 export default defineConfig({

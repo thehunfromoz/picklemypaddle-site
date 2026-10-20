@@ -34,8 +34,12 @@ jobs:
       contents: read
       packages: write
     with:
+      # One image serves staging and production (a release only re-tags it), so it is built
+      # with the PRODUCTION address: canonical links, og:url, the sitemap and robots.txt must
+      # never name staging. On staging (noindex, private) them pointing at the live site is
+      # harmless. SCRUM-19.
       build-args: |
-        SITE_URL=http://home-server:8088
+        SITE_URL=https://www.picklemypaddle.com
       container-test: ci/container-test.sh
       setup-node: true
       extra-images: |
