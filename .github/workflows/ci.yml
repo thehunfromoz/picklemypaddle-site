@@ -36,7 +36,7 @@ jobs:
     with:
       # One image serves staging and production (a release only re-tags it), so it is built
       # with the PRODUCTION address: canonical links, og:url, the sitemap and robots.txt must
-      # never name staging. On staging (noindex, private) them pointing at the live site is
+      # never name staging. On staging (noindex, private) canonicals naming the live site are
       # harmless. SCRUM-19.
       build-args: |
         SITE_URL=https://www.picklemypaddle.com
