@@ -6,7 +6,9 @@ RUN corepack enable
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml* ./
 RUN if [ -f pnpm-lock.yaml ]; then pnpm install --frozen-lockfile; else pnpm install; fi
 COPY . .
-ARG SITE_URL=http://home-server:8088
+# Baked into canonical links, og:url, the sitemap and robots.txt. The same image runs on staging
+# and production, so this is the production address (CI passes it too).
+ARG SITE_URL=https://www.picklemypaddle.com
 ARG PUBLIC_ORDER_API_URL=
 ENV SITE_URL=${SITE_URL} PUBLIC_ORDER_API_URL=${PUBLIC_ORDER_API_URL}
 RUN pnpm build
