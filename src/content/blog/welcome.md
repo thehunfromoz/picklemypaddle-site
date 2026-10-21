@@ -1,5 +1,6 @@
 ---
 title: Why your paddle loses its grip (and what to do about it)
+seoTitle: Why your paddle loses its grip
 description: Paddle faces wear smooth with play. Here's how to tell, and why re-gritting can bring a favourite paddle back.
 author: PickleMyPaddle
 date: 2026-10-07

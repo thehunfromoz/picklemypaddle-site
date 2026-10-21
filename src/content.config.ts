@@ -6,6 +6,8 @@ const blog = defineCollection({
   loader: glob({ pattern: '**/[^_]*.md', base: './src/content/blog' }),
   schema: z.object({
     title: z.string(),
+    /** Shorter title for the browser tab and search results when `title` runs past 43 characters. */
+    seoTitle: z.string().optional(),
     description: z.string(),
     author: z.string().default('Team'),
     date: z.coerce.date(),

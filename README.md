@@ -40,6 +40,16 @@ pnpm test:e2e                          # builds, then functional + accessibility
 BASE_URL=http://home-server:8088 pnpm test:e2e   # same tests plus security headers, against staging
 ```
 
+## Search and sharing
+
+Titles are `<page> · PickleMyPaddle` (60 characters at most; a blog post can set `seoTitle` in its front
+matter) and every page has its own 70 to 160 character description. `/sitemap.xml` and `/robots.txt` are
+generated from `SITE_URL` (`src/pages/sitemap.xml.ts`, `robots.txt.ts`) and a new page is listed
+automatically. Structured data (Organization and Service on the home page, FAQPage from `src/data/faq.ts`)
+is built in `src/lib/schema.ts`, typed with schema-dts so `pnpm check` rejects properties schema.org does
+not have. `tests/e2e/seo.spec.ts` checks all of it. Staging is kept out of search by its gateway, not by
+this image: see the infra repo.
+
 ## Performance budget
 
 `pnpm check:lighthouse` audits the built site (`dist/`, so run `pnpm build` first or let it build) in
