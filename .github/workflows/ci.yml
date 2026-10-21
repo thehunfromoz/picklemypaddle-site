@@ -20,9 +20,12 @@ jobs:
   checks:
     uses: thehunfromoz/picklemypaddle-infra/.github/workflows/node-checks.yml@main
     with:
-      scripts: lint check test:unit test:e2e check:secrets check:links
+      # check:lighthouse audits the dist/ that test:e2e just built (SCRUM-37), so it stays after test:e2e.
+      scripts: lint check test:unit test:e2e check:lighthouse check:secrets check:links
       playwright: true
-      report-path: playwright-report
+      report-path: |
+        playwright-report
+        lighthouse-report
 
   secrets:
     uses: thehunfromoz/picklemypaddle-infra/.github/workflows/secret-scan.yml@main
