@@ -1,8 +1,10 @@
 # syntax=docker/dockerfile:1.7
 # ── Build ────────────────────────────────────────────────────────────────────
-FROM node:22-alpine AS build
+FROM node:26-alpine AS build
 WORKDIR /app
-RUN corepack enable
+# Node 26 no longer ships corepack, so pnpm is installed directly. Keep the version equal to
+# "packageManager" in package.json (pnpm refuses to run on a mismatch).
+RUN npm install --global pnpm@10.18.0
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml* ./
 RUN if [ -f pnpm-lock.yaml ]; then pnpm install --frozen-lockfile; else pnpm install; fi
 COPY . .
