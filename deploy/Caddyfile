@@ -27,6 +27,12 @@
 	@hashed path /_astro/*
 	header @hashed Cache-Control "public, max-age=31536000, immutable"
 
+	# /env.css is empty here (the staging gateway serves its own, so this never reaches staging) but
+	# every page links it and a stylesheet in <head> blocks rendering: cache it so visitors fetch it
+	# once, not on every page view (SCRUM-39).
+	@envcss path /env.css
+	header @envcss Cache-Control "public, max-age=3600"
+
 	file_server
 	handle_errors {
 		rewrite * /404.html
