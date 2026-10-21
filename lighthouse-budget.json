@@ -1,0 +1,28 @@
+{
+  "$comment": "SCRUM-37. Enforced on every pull request by `pnpm check:lighthouse` (scripts/lighthouse-budget.mjs) against the built site, in Lighthouse's mobile emulation (Moto G Power, simulated slow 4G). Scores are 0-100 minimums; metrics and sizes are strict upper limits; each page is run `runs` times and the median is judged.",
+  "runs": 3,
+  "urls": ["/", "/about", "/clubs", "/faq", "/blog/welcome"],
+  "scores": {
+    "performance": 90,
+    "accessibility": 100,
+    "best-practices": 95,
+    "seo": 95
+  },
+  "metrics": {
+    "largest-contentful-paint": 2500,
+    "cumulative-layout-shift": 0.1
+  },
+  "home": {
+    "$comment": "Weight limits for the landing page ('/') only: transferred (compressed) bytes.",
+    "scriptBytes": 51200,
+    "totalBytes": 1048576
+  },
+  "structure": {
+    "$comment": "What a score cannot show. maxRenderBlocking: <head> requests the page must wait for before it can paint or run script (today the site stylesheet and /env.css; a third one fails). maxRequests: whole page. sameOriginOnly keeps fonts and everything else self-hosted (the Content-Security-Policy is 'self').",
+    "maxRequests": 20,
+    "maxRenderBlocking": 2,
+    "sameOriginOnly": true,
+    "fontDisplay": true,
+    "imageDelivery": true
+  }
+}
