@@ -212,8 +212,9 @@ test.describe('structured data', () => {
     // What the markup says is what the page shows (answers still holding a [To confirm: …] are not marked up).
     await page.goto('/faq');
     const norm = (t: string) => t.replace(/\s+/g, ' ').trim();
+    // Scoped to <main>: the header's mobile menu is also a <details> (SCRUM-39) and is not an FAQ item.
     const shown: { q: string; a: string }[] = [];
-    for (const item of await page.locator('details').all()) {
+    for (const item of await page.locator('main details').all()) {
       shown.push({
         q: norm((await item.locator('summary').innerText()).replace(/\+\s*$/, '')),
         a: norm(await item.locator('p').first().textContent().then((t) => t ?? '')),
