@@ -35,3 +35,14 @@ test('version.txt names the live commit', async ({ request }) => {
   expect(res.status()).toBe(200);
   expect((await res.text()).trim()).toMatch(/^([0-9a-f]{40}|dev)$/);
 });
+
+test('/env.css is cacheable on the live site', async ({ request }) => {
+  // Every page links it and a stylesheet in <head> blocks rendering, so it must not be re-fetched on
+  // every page view (SCRUM-39). The staging gateway serves its own copy.
+  test.skip(process.env.EXPECT_STAGING === '1', 'the staging gateway serves its own /env.css');
+  const res = await request.get('/env.css');
+  expect(res.status()).toBe(200);
+  const cc = res.headers()['cache-control'] ?? '';
+  expect(cc).toMatch(/max-age=\d{3,}/);
+  expect(cc).not.toContain('no-store');
+});
