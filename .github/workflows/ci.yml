@@ -23,6 +23,8 @@ jobs:
       # check:lighthouse audits the dist/ that test:e2e just built (SCRUM-37), so it stays after test:e2e.
       scripts: lint check test:unit test:e2e check:lighthouse check:secrets check:links
       playwright: true
+      # The same Node as the Dockerfile's build stage (SCRUM-58).
+      node-version: '26'
       report-path: |
         playwright-report
         lighthouse-report
@@ -45,5 +47,6 @@ jobs:
         SITE_URL=https://www.picklemypaddle.com
       container-test: ci/container-test.sh
       setup-node: true
+      node-version: '26'
       extra-images: |
         picklemypaddle-site-smoke:test=ghcr.io/thehunfromoz/picklemypaddle-site-smoke

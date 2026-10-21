@@ -11,7 +11,7 @@ Jira epic: SCRUM-7 · Platform: SCRUM-6.
 ## Run it on the Mac
 
 ```bash
-corepack enable          # once, provides pnpm
+npm install --global pnpm@10.18.0   # once (Node 25+ has no corepack; on Node 22-24 `corepack enable` also works)
 pnpm install             # first run creates pnpm-lock.yaml: commit it
 pnpm dev                 # http://localhost:4321
 ```
