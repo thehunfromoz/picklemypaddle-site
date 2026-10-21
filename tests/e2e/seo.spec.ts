@@ -1,12 +1,12 @@
-import { readFileSync } from 'node:fs';
 import { test, expect, type APIRequestContext } from '@playwright/test';
-import { faq } from '../../src/data/faq';
-import { siteData } from '../../src/data/siteData';
 
 // SCRUM-36: search and share basics. Titles and descriptions fit what Google shows and are unique, the
 // canonical, sitemap and robots.txt agree with each other and come from SITE_URL, share previews use the
 // rendered og-image.png, and the JSON-LD is the right shape. Staging noindex is a gateway job and is
 // tested in environment.spec.ts; the inverse ("the live site is indexable") is tested here.
+//
+// This file must stay self-contained: the smoke-test image (tests/smoke/Dockerfile) packages only
+// tests/e2e and runs it against staging, so it reads what the page shows, never src/.
 //
 // Schema.org validity of the JSON-LD is enforced at compile time: src/lib/schema.ts is typed with
 // schema-dts (generated from the schema.org vocabulary) and `pnpm check` fails on an unknown property.
@@ -164,8 +164,6 @@ test.describe('share previews', () => {
     const png = await res.body();
     expect(png.subarray(1, 4).toString()).toBe('PNG');
     expect([png.readUInt32BE(16), png.readUInt32BE(20)]).toEqual([1200, 630]);
-    // The file in public/ is what is served: a regenerated image (pnpm brand:og) must keep the size.
-    expect(readFileSync('public/og-image.png').readUInt32BE(16)).toBe(1200);
   });
 });
 
@@ -182,13 +180,13 @@ test.describe('indexing', () => {
 });
 
 test.describe('structured data', () => {
-  test('home page: Organization and Service, tied together and matching the site data', async ({ request }) => {
+  test('home page: Organization and Service, tied together and matching what the page shows', async ({ request }) => {
     const { jsonld, canonical } = await readHead(request, '/');
     const org = ofType(jsonld, 'Organization');
     const service = ofType(jsonld, 'Service');
     for (const j of jsonld) expect(j['@context']).toBe('https://schema.org');
 
-    expect(org.name).toBe(siteData.name);
+    expect(org.name).toBe('PickleMyPaddle');
     expect(org.url).toBe(canonical);
     expect(org['@id']).toBe(new URL('/#organization', canonical).toString());
     expect(org.areaServed).toMatchObject({ '@type': 'Country', name: 'Australia' });
@@ -198,30 +196,38 @@ test.describe('structured data', () => {
     expect(service.serviceType).toBe('Pickleball paddle re-gritting');
     expect(service.provider).toEqual({ '@id': org['@id'] });
     expect(service.areaServed).toMatchObject({ '@type': 'Country', name: 'Australia' });
-    expect(service.offers).toMatchObject({ '@type': 'Offer', price: siteData.pricing.regritPerPaddle, priceCurrency: 'AUD' });
-    expect(service.offers.price).toBe(60);
+    expect(service.offers).toMatchObject({ '@type': 'Offer', price: 60, priceCurrency: 'AUD' });
+    // The marked-up price is the price on the page.
+    expect(await (await request.get('/')).text()).toContain(`A$${service.offers.price}`);
     expect(new URL(service.offers.url).origin).toBe(new URL(canonical).origin);
   });
 
-  test('FAQ page: FAQPage built from the FAQ data, without unconfirmed answers', async ({ request, page }) => {
+  test('FAQ page: FAQPage matches the questions and answers on the page, without unconfirmed ones', async ({ page, request }) => {
     const { jsonld } = await readHead(request, '/faq');
     expect(jsonld).toHaveLength(1);
     const [faqPage] = jsonld;
     expect(faqPage['@context']).toBe('https://schema.org');
     expect(faqPage['@type']).toBe('FAQPage');
 
-    const published = faq.filter((f) => !f.a.includes('[To confirm'));
+    // What the markup says is what the page shows (answers still holding a [To confirm: …] are not marked up).
+    await page.goto('/faq');
+    const norm = (t: string) => t.replace(/\s+/g, ' ').trim();
+    const shown: { q: string; a: string }[] = [];
+    for (const item of await page.locator('details').all()) {
+      shown.push({
+        q: norm((await item.locator('summary').innerText()).replace(/\+\s*$/, '')),
+        a: norm(await item.locator('p').first().textContent().then((t) => t ?? '')),
+      });
+    }
+    const published = shown.filter((f) => !f.a.includes('[To confirm'));
     expect(published.length).toBeGreaterThan(0);
-    expect(faqPage.mainEntity.map((q: JsonLd) => q.name)).toEqual(published.map((f) => f.q));
+    expect(faqPage.mainEntity).toHaveLength(published.length);
     for (const [i, q] of faqPage.mainEntity.entries()) {
       expect(q['@type']).toBe('Question');
-      expect(q.acceptedAnswer).toEqual({ '@type': 'Answer', text: published[i].a });
+      expect(q.acceptedAnswer['@type']).toBe('Answer');
+      expect(norm(q.name)).toBe(published[i].q);
+      expect(norm(q.acceptedAnswer.text)).toBe(published[i].a);
     }
-
-    // What the markup says is what the page shows.
-    await page.goto('/faq');
-    const shown = await page.locator('details > summary').allInnerTexts();
-    for (const q of published) expect(shown.some((s) => s.replace(/\s*\+\s*$/, '').trim() === q.q), q.q).toBe(true);
   });
 
   test('pages other than home and FAQ carry no stray structured data', async ({ request }) => {
