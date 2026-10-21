@@ -6,21 +6,12 @@ import Pricing from '../components/sections/Pricing.astro';
 import Gallery from '../components/sections/Gallery.astro';
 import Testimonials from '../components/sections/Testimonials.astro';
 import OrderForm from '../components/sections/OrderForm.astro';
-import { brand } from '../config/brand';
-import { siteData } from '../data/siteData';
+import { organizationSchema, serviceSchema } from '../lib/schema';
+
+const site = Astro.site!;
 ---
 
-<BaseLayout
-  schema={{
-    '@context': 'https://schema.org',
-    '@type': 'LocalBusiness',
-    name: brand.name,
-    description: brand.description,
-    email: siteData.contact.email,
-    areaServed: 'AU',
-    url: Astro.site?.toString(),
-  }}
->
+<BaseLayout schema={[organizationSchema(site), serviceSchema(site)]}>
   <Hero />
   <HowItWorks />
   <Pricing />

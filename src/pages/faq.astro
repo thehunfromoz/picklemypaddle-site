@@ -3,19 +3,14 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Banner from '../components/Banner.astro';
 import Ph from '../components/Ph.astro';
 import { faq } from '../data/faq';
+import { faqSchema } from '../lib/schema';
 import { siteData } from '../data/siteData';
 ---
 
 <BaseLayout
   title="FAQ"
   description="Answers to common questions about pickleball paddle re-gritting: cost, turnaround, payment and tracking."
-  schema={{
-    '@context': 'https://schema.org',
-    '@type': 'FAQPage',
-    mainEntity: faq
-      .filter((f) => !f.a.includes('[To confirm'))
-      .map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
-  }}
+  schema={faqSchema()}
 >
   <Banner title="Frequently asked questions" />
 
