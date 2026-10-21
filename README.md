@@ -40,6 +40,24 @@ pnpm test:e2e                          # builds, then functional + accessibility
 BASE_URL=http://home-server:8088 pnpm test:e2e   # same tests plus security headers, against staging
 ```
 
+## Performance budget
+
+`pnpm check:lighthouse` audits the built site (`dist/`, so run `pnpm build` first or let it build) in
+Lighthouse's mobile emulation and fails if the median of three runs breaks `lighthouse-budget.json`:
+Performance ≥90, Accessibility 100, Best practices ≥95, SEO ≥95, LCP <2.5 s, CLS <0.1, and on `/`
+under 50 KB of JavaScript and under 1 MB in total. It also caps the page structure (at most 2
+render-blocking requests, 20 requests, nothing from another origin, fonts with `font-display`,
+responsive images), which a score alone does not show. CI runs it on every pull request; on failure the
+full HTML reports are attached to the run as the `report` artifact.
+
+```bash
+pnpm check:lighthouse                         # all pages, 3 runs each
+pnpm check:lighthouse --runs=1 --only=/,/faq  # a quicker look
+```
+
+It needs Node 22.19 or newer (Lighthouse 13). A score cannot see script-gated behaviour such as a menu
+that only works once JavaScript has loaded (SCRUM-39); `tests/e2e/mobile-menu.spec.ts` guards that.
+
 ## Deploy
 
 Every merge to `main` runs CI (`.github/workflows/ci.yml`): unit tests, functional and
