@@ -22,13 +22,14 @@ import Logo from '../Logo.astro';
       <p class="text-sm text-text-muted">
         A${siteData.pricing.regritPerPaddle} per paddle &middot; plus return postage
       </p>
+      <img src="/big-photo.jpg" alt="A paddle" width="900" height="675" class="w-full rounded-lg" />
     </div>
 
     <div class="flex aspect-4/3 items-center justify-center overflow-hidden rounded-lg bg-tint-green">
       {heroImage ? (
         <Image src={heroImage} alt="A freshly re-gritted pickleball paddle face, close up" width={900} height={675} loading="eager" class="size-full object-cover" />
       ) : (
-        <img src="/big-photo.jpg" alt="A paddle" width="900" height="675" class="size-full object-cover" />
+        <Logo variant="full" class="h-4/5 w-auto" title="PickleMyPaddle logo: a paddle preserved in a jar" />
       )}
     </div>
   </div>
