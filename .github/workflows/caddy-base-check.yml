@@ -1,0 +1,54 @@
+# Weekly check of the Caddy base image (SCRUM-60).
+#
+# Scans caddy:2-alpine the way the image check does (HIGH/CRITICAL, fixed findings only) but
+# WITHOUT .trivyignore: this job does not check the repo out, so Trivy sees no ignore file.
+# It then leaves one annotation on the job:
+#   caddy-base-clean       nothing is left to ignore: the .trivyignore block can be removed
+#   caddy-base-vulnerable  the base image still has findings
+# The job passes either way and fails only if the scan itself could not run.
+#
+# Keep IMAGE in step with the serve stage of the Dockerfile. Delete this workflow in the same PR
+# that removes the .trivyignore block.
+name: Caddy base image check
+
+on:
+  schedule:
+    - cron: '30 21 * * 0' # Sunday 21:30 UTC, Monday 08:30 in Sydney
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - .github/workflows/caddy-base-check.yml
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    name: Scan caddy:2-alpine
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      IMAGE: caddy:2-alpine
+    steps:
+      - name: Scan the base image (no ignore file)
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: ${{ env.IMAGE }}
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: '0'
+          format: json
+          output: trivy.json
+
+      - name: Report
+        run: |
+          set -euo pipefail
+          count="$(jq '[.Results[]?.Vulnerabilities[]?] | length' trivy.json)"
+          ids="$(jq -r '[.Results[]?.Vulnerabilities[]?.VulnerabilityID] | unique | join(", ")' trivy.json)"
+          go="$(docker run --rm "$IMAGE" caddy build-info 2>/dev/null | grep -m1 -E '^go[[:space:]]' || true)"
+          go="${go:-go version unknown}"
+          if [ "$count" = 0 ]; then
+            echo "::notice title=caddy-base-clean::$IMAGE has no fixable HIGH/CRITICAL findings ($go). The .trivyignore block can be removed."
+          else
+            echo "::warning title=caddy-base-vulnerable::$IMAGE still has $count fixable HIGH/CRITICAL findings ($go): $ids"
+          fi
