@@ -1,3 +1,11 @@
 allowBuilds:
   esbuild: true
   sharp: true
+
+# Refuse package versions published less than 3 days ago (4320 minutes).
+# Dependabot's npm updater applies the same 3-day gate to every entry in
+# pnpm-lock.yaml and fails when the lockfile pins anything newer (SCRUM-59).
+# Holding our own installs to the same rule means a regenerated lockfile always
+# passes it. To use a newer release sooner, add the package to
+# minimumReleaseAgeExclude below.
+minimumReleaseAge: 4320
