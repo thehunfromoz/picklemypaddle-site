@@ -7,8 +7,9 @@
 # Go 1.26.9 / 1.27.2 and x/net 0.60.0; no Caddy release is built with them yet.
 # Exposure is low until launch: staging is reached only on the LAN and the tailnet,
 # and the site's Caddy sits behind the staging gateway on plain HTTP/1.1.
-# Remove this block once a Caddy release built with Go >= 1.26.9 is out (rebuild,
-# and the scan should pass without it).
+# Remove this block once a Caddy release built with Go >= 1.26.10 is out (rebuild,
+# and the scan should pass without it). A weekly workflow, caddy-base-check.yml,
+# scans the base image without this file and says when that has happened (SCRUM-60).
 
 # HTTP/2 (x/net and stdlib): GO-2026-6603, 6610, 6611, 6612, 6617
 CVE-2026-78659 exp:2026-10-26
@@ -26,3 +27,9 @@ CVE-2026-97031 exp:2026-10-26
 CVE-2026-94440 exp:2026-10-26
 CVE-2026-78667 exp:2026-10-26
 CVE-2026-94439 exp:2026-10-26
+
+# Added 22 Oct 2026 (SCRUM-60), approved by Attila Madarasz.
+# Go 1.26.10 / 1.27.3 (20 Oct 2026) add a fixed denylist of eight intermediate CA keys to
+# crypto/x509. Caddy in caddy:2-alpine is still built with Go 1.26.8, so Trivy flags stdlib.
+# Same expiry as the block above; the same Go >= 1.26.10 Caddy build clears it.
+CVE-2026-111943 exp:2026-10-26
