@@ -55,7 +55,14 @@ describe('blog frontmatter', () => {
     }
   });
 
-  const base = { title: 'T', description: 'D', date: '2026-10-23' };
+  it.each(posts.map((f) => [relative(blogDir, f), f]))('%s has no top-level (#) heading in its body', (_rel, file) => {
+    // The title is the page's <h1>; a "# " line in the body would make a second one.
+    const body = readFileSync(file, 'utf8').replace(/^---\n[\s\S]*?\n---\n/, '').replace(/```[\s\S]*?```/g, '');
+    const h1 = body.split('\n').filter((line) => /^#\s/.test(line));
+    expect(h1, 'start body headings at ## (Heading 2 in the editor)').toEqual([]);
+  });
+
+  const base = { title: 'T', description: 'Paddle faces wear smooth with play, and re-gritting can bring them back.', date: '2026-10-23' };
 
   it('accepts the fields the editor writes, including an empty SEO title', () => {
     const r = schema.safeParse({ ...base, seoTitle: '', tags: [], draft: false, cover: null, coverAlt: '' });
@@ -66,6 +73,13 @@ describe('blog frontmatter', () => {
     expect(schema.safeParse({ ...base, cover: 'x.jpg' }).success).toBe(false);
     expect(schema.safeParse({ ...base, cover: 'x.jpg', coverAlt: '  ' }).success).toBe(false);
     expect(schema.safeParse({ ...base, cover: 'x.jpg', coverAlt: 'A re-gritted paddle' }).success).toBe(true);
+  });
+
+  it('requires a 70 to 160 character summary, like every other page', () => {
+    expect(schema.safeParse({ ...base, description: 'Launch of the PickleMyPaddle service' }).success).toBe(false);
+    expect(schema.safeParse({ ...base, description: 'x'.repeat(70) }).success).toBe(true);
+    expect(schema.safeParse({ ...base, description: 'x'.repeat(160) }).success).toBe(true);
+    expect(schema.safeParse({ ...base, description: 'x'.repeat(161) }).success).toBe(false);
   });
 
   it('requires a title, summary and date', () => {

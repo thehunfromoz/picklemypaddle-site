@@ -10,6 +10,7 @@
 // The fields match src/lib/blog-schema.ts; tests/unit/keystatic-config.test.ts checks they agree.
 import { collection, config, fields } from '@keystatic/core';
 import { enabledLangs, languages, type Lang } from './src/config/i18n';
+import { bodyHeadingLevels, summaryLength } from './src/lib/blog-schema';
 
 // Images are stored next to the site's other images, one folder per post, and referenced
 // relative to src/content/blog/<lang>/<slug>.md so Astro optimises them.
@@ -38,9 +39,10 @@ const posts = (lang: Lang) =>
       }),
       description: fields.text({
         label: 'Summary',
-        description: 'One or two sentences. Shown on the blog page, in search results and in the RSS feed.',
+        description:
+          'One or two sentences, 70 to 160 characters. Shown on the blog page, in search results and in the RSS feed.',
         multiline: true,
-        validation: { length: { min: 1, max: 160 } },
+        validation: { length: { min: summaryLength.min, max: summaryLength.max } },
       }),
       date: fields.date({ label: 'Date', defaultValue: { kind: 'today' }, validation: { isRequired: true } }),
       author: fields.text({ label: 'Author', defaultValue: 'PickleMyPaddle' }),
@@ -58,7 +60,8 @@ const posts = (lang: Lang) =>
       body: fields.markdoc({
         label: 'Body',
         extension: 'md',
-        options: { image: images },
+        // The title is the page's only top-level heading, so the body starts at Heading 2.
+        options: { image: images, heading: bodyHeadingLevels },
       }),
     },
   });
