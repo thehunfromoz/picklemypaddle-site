@@ -40,8 +40,10 @@ Write posts in a browser from any device on the tailnet:
 - Saving works on a `blog/…` branch (`main` is protected). When a post is ready, open a pull
   request from the editor; CI checks it, and merging publishes it to staging (and to production
   with the next release).
-- Fields: title (and the web address made from it), short SEO title, summary, date, author,
-  tags, optional cover image (its alt text is required; the build fails without it), draft, body.
+- Fields: title (and the web address made from it), short SEO title, summary (70 to 160
+  characters, the search-result description), date, author, tags, optional cover image (its
+  alt text is required; the build fails without it), draft, body. The body's headings start at
+  Heading 2: the title is the page's only top-level heading.
 - English posts are at `/blog/<slug>`, as before. Languages are listed in
   `src/config/i18n.ts`; adding one gives it `src/content/blog/<lang>/`, its own editor
   collection, and `/<lang>/blog/<slug>` pages with `hreflang` links between translations.

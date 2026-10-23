@@ -23,6 +23,14 @@ describe('Keystatic editor config', () => {
     expect(collections[`blog-${lang}`].format).toEqual({ contentField: 'body' });
   });
 
+  it.each(enabledLangs)('blog-%s refuses a summary outside 70 to 160 characters while writing', (lang) => {
+    // The same rule the site's SEO test applies, so a post can't fail CI on it (site PR #42).
+    const summary = collections[`blog-${lang}`].schema.description as unknown as { validate: (v: string) => unknown };
+    expect(() => summary.validate('Launch of the PickleMyPaddle service')).toThrow(/at least 70/);
+    expect(() => summary.validate('x'.repeat(161))).toThrow(/no longer than 160/);
+    expect(() => summary.validate('x'.repeat(70))).not.toThrow();
+  });
+
   it('stores posts in GitHub on blog/ branches of the site repo only', () => {
     expect(keystatic.storage).toEqual({
       kind: 'github',
