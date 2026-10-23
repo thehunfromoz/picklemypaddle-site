@@ -9,7 +9,7 @@ tags:
   - Launch
 draft: false
 ---
-# **🚀 Big News: PickleMyPaddle Launches This December (Plus, Get Your Paddle Re-Gritted for Free!)**
+## **🚀 Big News: PickleMyPaddle Launches This December (Plus, Get Your Paddle Re-Gritted for Free!)**
 
 We are thrilled to announce that the brand-new **PickleMyPaddle** paddle pickling (re-gritting) service is officially **launching this December 2026**—just in time for Christmas! If your paddle has lost its spin and needs that fresh-out-of-the-box texture, we are here to bring it back to life.
 
