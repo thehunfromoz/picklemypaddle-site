@@ -1,19 +1,13 @@
 import { defineCollection } from 'astro:content';
-import { z } from 'astro/zod';
 import { glob } from 'astro/loaders';
+import { blogSchema } from './lib/blog-schema';
 
+// Posts sit in a language folder: src/content/blog/<lang>/<slug>.md (SCRUM-34), so an
+// entry's id is "<lang>/<slug>". A file outside a language folder is not picked up
+// (and tests/unit/blog-content.test.ts fails on it).
 const blog = defineCollection({
-  loader: glob({ pattern: '**/[^_]*.md', base: './src/content/blog' }),
-  schema: z.object({
-    title: z.string(),
-    /** Shorter title for the browser tab and search results when `title` runs past 43 characters. */
-    seoTitle: z.string().optional(),
-    description: z.string(),
-    author: z.string().default('Team'),
-    date: z.coerce.date(),
-    tags: z.array(z.string()).default([]),
-    draft: z.boolean().default(false),
-  }),
+  loader: glob({ pattern: '*/[^_]*.md', base: './src/content/blog' }),
+  schema: ({ image }) => blogSchema(image),
 });
 
 export const collections = { blog };

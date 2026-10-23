@@ -1,4 +1,6 @@
 ---
+import type { ImageMetadata } from 'astro';
+import { Image, getImage } from 'astro:assets';
 import BaseLayout from './BaseLayout.astro';
 import { siteData } from '../data/siteData';
 
@@ -8,17 +10,34 @@ interface Props {
   description: string;
   date: Date;
   author?: string;
+  /** Optional cover image; the content schema requires coverAlt whenever it is set (SCRUM-34). */
+  cover?: ImageMetadata;
+  coverAlt?: string;
+  lang?: string;
+  /** The blog index in the post's language, for the breadcrumb. */
+  indexHref?: string;
+  alternates?: { hreflang: string; href: string }[];
 }
 
-const { title, seoTitle, description, date, author = 'PickleMyPaddle' } = Astro.props;
-const formattedDate = date.toLocaleDateString('en-AU', { year: 'numeric', month: 'long', day: 'numeric' });
+const { title, seoTitle, description, date, author = 'PickleMyPaddle', cover, coverAlt, lang = 'en-AU', indexHref = '/blog', alternates = [] } =
+  Astro.props;
+const formattedDate = date.toLocaleDateString(lang, { year: 'numeric', month: 'long', day: 'numeric' });
+// The cover doubles as the share image (1200 wide is what social cards use).
+const shareImage = cover ? (await getImage({ src: cover, width: 1200, format: 'jpg' })).src : undefined;
 ---
 
-<BaseLayout title={seoTitle ?? title} description={description}>
+<BaseLayout
+  title={seoTitle ?? title}
+  description={description}
+  lang={lang}
+  alternates={alternates}
+  image={shareImage}
+  imageAlt={cover ? coverAlt : undefined}
+>
   <section class="bg-tint-blue py-12 sm:py-14 lg:py-16">
     <div class="mx-auto max-w-3xl px-4 sm:px-6">
       <nav aria-label="Breadcrumb" class="mb-4 text-sm">
-        <a href="/blog" class="font-medium text-primary hover:text-primary-dark">&larr; Blog</a>
+        <a href={indexHref} class="font-medium text-primary hover:text-primary-dark">&larr; Blog</a>
       </nav>
       <h1 class="font-heading text-h1 font-bold text-text">{title}</h1>
       <p class="mt-3 text-sm text-text-muted">
@@ -29,6 +48,18 @@ const formattedDate = date.toLocaleDateString('en-AU', { year: 'numeric', month:
 
   <section class="py-section">
     <div class="mx-auto max-w-3xl px-4 sm:px-6">
+      {
+        cover && (
+          <Image
+            src={cover}
+            alt={coverAlt ?? ''}
+            widths={[400, 800, 1200]}
+            sizes="(min-width: 768px) 768px, 100vw"
+            class="mb-10 w-full rounded-lg"
+            data-testid="post-cover"
+          />
+        )
+      }
       <article class="prose prose-lg max-w-none prose-headings:font-heading prose-a:text-primary">
         <slot />
       </article>

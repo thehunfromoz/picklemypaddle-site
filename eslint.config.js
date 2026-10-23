@@ -5,7 +5,7 @@ import astro from 'eslint-plugin-astro';
 import globals from 'globals';
 
 export default [
-  { ignores: ['dist/', '.astro/', 'node_modules/', 'playwright-report/', 'test-results/', 'lighthouse-report/'] },
+  { ignores: ['dist/', 'dist-editor/', '.astro/', 'node_modules/', 'playwright-report/', 'test-results/', 'lighthouse-report/'] },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   ...astro.configs.recommended,

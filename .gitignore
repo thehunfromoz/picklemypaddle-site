@@ -48,3 +48,6 @@ pnpm-debug.log*
 playwright-report/
 test-results/
 lighthouse-report/
+
+# ── Keystatic editor build (SCRUM-34) ─────────────────────────────────────────
+dist-editor/

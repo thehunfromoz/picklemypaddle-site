@@ -1,25 +1,15 @@
 ---
-import { getCollection, render } from 'astro:content';
-import PostLayout from '../../layouts/PostLayout.astro';
+// Default-language posts keep their original URL, /blog/<slug> (SCRUM-34).
+import BlogPost from '../../components/blog/BlogPost.astro';
+import { defaultLang } from '../../config/i18n';
+import { publishedPosts, type PostInfo } from '../../lib/blog';
 
 export async function getStaticPaths() {
-  const posts = await getCollection('blog', ({ data }) => !data.draft);
-  return posts.map((post) => ({
-    params: { slug: post.id },
-    props: { post },
-  }));
+  const posts = await publishedPosts(defaultLang);
+  return posts.map((current) => ({ params: { slug: current.slug }, props: { current } }));
 }
 
-const { post } = Astro.props;
-const { Content } = await render(post);
+const { current } = Astro.props as { current: PostInfo };
 ---
 
-<PostLayout
-  title={post.data.title}
-  seoTitle={post.data.seoTitle}
-  description={post.data.description}
-  date={post.data.date}
-  author={post.data.author}
->
-  <Content />
-</PostLayout>
+<BlogPost current={current} />
