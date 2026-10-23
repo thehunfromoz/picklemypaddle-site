@@ -1,6 +1,8 @@
 ---
 title: PickleMyPaddle Launch
-description: Launch of the PickleMyPaddle service
+description: >-
+  PickleMyPaddle launches in December 2026, and the first 10 paddles are
+  re-gritted free: you only pay return postage.
 date: 2026-10-23
 author: PickleMyPaddle
 tags:
