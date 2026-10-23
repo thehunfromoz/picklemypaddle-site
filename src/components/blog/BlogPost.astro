@@ -1,0 +1,31 @@
+---
+// One blog post page (SCRUM-34). Used by /blog/<slug> and /<lang>/blog/<slug>.
+import { render } from 'astro:content';
+import PostLayout from '../../layouts/PostLayout.astro';
+import { blogPath, languages } from '../../config/i18n';
+import { alternatesFor, publishedPosts, type PostInfo } from '../../lib/blog';
+
+interface Props {
+  current: PostInfo;
+}
+
+const { current } = Astro.props;
+const { post, lang } = current;
+const { Content } = await render(post);
+const alternates = alternatesFor(current, await publishedPosts());
+---
+
+<PostLayout
+  title={post.data.title}
+  seoTitle={post.data.seoTitle}
+  description={post.data.description}
+  date={post.data.date}
+  author={post.data.author}
+  cover={post.data.cover ?? undefined}
+  coverAlt={post.data.coverAlt ?? undefined}
+  lang={languages[lang].htmlLang}
+  indexHref={blogPath(lang)}
+  alternates={alternates}
+>
+  <Content />
+</PostLayout>

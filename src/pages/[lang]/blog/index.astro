@@ -1,0 +1,14 @@
+---
+// Blog index for each enabled language other than the default: /<lang>/blog (SCRUM-34).
+// Only English is enabled today, so this builds no pages yet.
+import BlogIndex from '../../../components/blog/BlogIndex.astro';
+import { defaultLang, enabledLangs, type Lang } from '../../../config/i18n';
+
+export function getStaticPaths() {
+  return enabledLangs.filter((lang) => lang !== defaultLang).map((lang) => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params as { lang: Lang };
+---
+
+<BlogIndex lang={lang} />

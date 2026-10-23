@@ -50,3 +50,7 @@ jobs:
       node-version: '26'
       extra-images: |
         picklemypaddle-site-smoke:test=ghcr.io/thehunfromoz/picklemypaddle-site-smoke
+      # SCRUM-34: the Keystatic blog editor, staging only (Dockerfile.editor). Also tagged :staging so
+      # home-server's updater keeps it current. Never part of a release or of production.
+      staging-extra-images: |
+        picklemypaddle-site-editor:test=ghcr.io/thehunfromoz/picklemypaddle-site-editor

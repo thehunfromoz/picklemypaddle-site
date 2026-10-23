@@ -23,7 +23,7 @@ pnpm dev                 # http://localhost:4321
 | Prices, how-it-works steps, nav, testimonials | `src/data/siteData.ts` |
 | FAQ | `src/data/faq.ts` |
 | Privacy policy / terms (drafts, need legal review) | `src/data/privacy.ts`, `src/data/terms.ts` |
-| Blog posts | `src/content/blog/*.md` |
+| Blog posts | `src/content/blog/<lang>/<slug>.md` (only `en/` today), or the blog editor below |
 | Colours, fonts, spacing (brand C3b) | `src/styles/theme.css` |
 | Photos | `src/assets/images/{hero,about,gallery}/` (see `src/config/images.ts`) |
 
@@ -31,6 +31,25 @@ Text written as `[To confirm: …]` is a placeholder. It shows highlighted on st
 `pnpm check:placeholders` (run on release) fails while any remain.
 
 Gallery photos are paired by name: `my-paddle-before.jpg` + `my-paddle-after.jpg`.
+
+### Blog editor (Keystatic, staging only; SCRUM-34)
+
+Write posts in a browser from any device on the tailnet:
+**https://home-server.tail8bc7ae.ts.net:8444/keystatic**, signed in with GitHub.
+
+- Saving works on a `blog/…` branch (`main` is protected). When a post is ready, open a pull
+  request from the editor; CI checks it, and merging publishes it to staging (and to production
+  with the next release).
+- Fields: title (and the web address made from it), short SEO title, summary, date, author,
+  tags, optional cover image (its alt text is required; the build fails without it), draft, body.
+- English posts are at `/blog/<slug>`, as before. Languages are listed in
+  `src/config/i18n.ts`; adding one gives it `src/content/blog/<lang>/`, its own editor
+  collection, and `/<lang>/blog/<slug>` pages with `hreflang` links between translations.
+- The feed is `/rss.xml`.
+- The editor is a separate image (`Dockerfile.editor`, `pnpm build:editor`), built from
+  `astro.editor.config.mjs` and `keystatic.config.ts`. The public build (`astro.config.mjs`)
+  never includes it, and CI fails if the public image answers `/keystatic`. How it runs on
+  staging, and how to set up its GitHub App: `picklemypaddle-infra/runbooks/staging-home-server.md`.
 
 ## Tests
 

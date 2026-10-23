@@ -20,6 +20,10 @@ interface Props {
   schema?: object | object[];
   /** Keep the page out of search results (the 404 page). */
   noindex?: boolean;
+  /** The page's language (BCP 47), for <html lang>. */
+  lang?: string;
+  /** hreflang links to this page in other languages (SCRUM-34); empty for single-language pages. */
+  alternates?: { hreflang: string; href: string }[];
 }
 
 const {
@@ -29,6 +33,8 @@ const {
   imageAlt = `${brand.name}. Pickleball paddle re-gritting. ${brand.tagline}`,
   schema,
   noindex = false,
+  lang = 'en-AU',
+  alternates = [],
 } = Astro.props;
 
 const pageTitle = title === brand.name ? `${brand.name} · Pickleball paddle re-gritting` : `${title} · ${brand.name}`;
@@ -39,7 +45,7 @@ const imageSize = image === '/og-image.png' ? { width: '1200', height: '630', ty
 const schemas = schema === undefined ? [] : Array.isArray(schema) ? schema : [schema];
 ---
 
-<html lang="en-AU">
+<html lang={lang}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -50,6 +56,9 @@ const schemas = schema === undefined ? [] : Array.isArray(schema) ? schema : [sc
     <title>{pageTitle}</title>
     <meta name="description" content={description} />
     {noindex && <meta name="robots" content="noindex" />}
+    {/* Same trailing-slash form as the canonical link and the sitemap. */}
+    {alternates.map((alt) => <link rel="alternate" hreflang={alt.hreflang} href={new URL(alt.href.replace(/\/?$/, '/'), Astro.site)} />)}
+    <link rel="alternate" type="application/rss+xml" title={`${brand.name} blog`} href="/rss.xml" />
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content={brand.name} />
