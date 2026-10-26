@@ -15,7 +15,9 @@
 		# is used anywhere (astro.config.mjs), so 'unsafe-inline' is not needed.
 		Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self' {$ORDER_API_ORIGIN}; form-action 'self' {$ORDER_API_ORIGIN}; frame-ancestors 'none'; base-uri 'self'; object-src 'none'"
 		X-Content-Type-Options "nosniff"
-		Referrer-Policy "strict-origin-when-cross-origin"
+		# A default only (?): the private order status page sets no-referrer below, and Caddy runs
+		# this unmatched block after matched ones, so a plain set here would overwrite it.
+		?Referrer-Policy "strict-origin-when-cross-origin"
 		Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
 		Cross-Origin-Opener-Policy "same-origin"
 		Cross-Origin-Resource-Policy "same-origin"
@@ -26,6 +28,14 @@
 
 	@hashed path /_astro/*
 	header @hashed Cache-Control "public, max-age=31536000, immutable"
+
+	# SCRUM-70: the private order status page is never cached and never sends a Referer.
+	@orderstatus path /order/status /order/status/ /order/status/*
+	header @orderstatus {
+		Referrer-Policy "no-referrer"
+		Cache-Control "no-store"
+		X-Robots-Tag "noindex"
+	}
 
 	# /env.css is empty here (the staging gateway serves its own, so this never reaches staging) but
 	# every page links it and a stylesheet in <head> blocks rendering: cache it so visitors fetch it

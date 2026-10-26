@@ -1,0 +1,26 @@
+{
+  "_about": "Brand and model suggestions for the order form (SCRUM-40). Customers can always type something else. Drafted by Claude on 26 Oct 2026 from brands commonly sold in Australia; Attila to check names and spelling. When checked, set reviewed to true. Later editable in Keystatic.",
+  "reviewed": false,
+  "brands": [
+    { "brand": "Selkirk", "models": ["Vanguard Power Air", "Vanguard Control Air", "SLK Halo", "SLK Evo", "Luxx Control Air", "Boomstik", "Labs Project 008"] },
+    { "brand": "JOOLA", "models": ["Ben Johns Hyperion CFS 16", "Perseus CFS 16", "Hyperion 3S", "Perseus 3S", "Scorpeus", "Radius", "Agassi Pro"] },
+    { "brand": "Franklin", "models": ["Ben Johns Signature", "Carbon STK", "FS Tour Dynasty", "X-1000"] },
+    { "brand": "Onix", "models": ["Evoke Premier", "Graphite Z5", "Stryker 4"] },
+    { "brand": "Paddletek", "models": ["Tempest Wave Pro", "Bantam TS-5", "Bantam EX-L", "Phoenix Genesis"] },
+    { "brand": "Gearbox", "models": ["CX14E", "GBX", "Pro Power", "Pro Control"] },
+    { "brand": "Engage", "models": ["Pursuit MX", "Pursuit EX", "Encore Pro", "Poach Infinity"] },
+    { "brand": "CRBN", "models": ["1X Power Series", "2X Power Series", "3X Power Series", "TruFoam Genesis"] },
+    { "brand": "HEAD", "models": ["Radical Pro", "Radical Elite", "Extreme Tour", "Gravity Tour"] },
+    { "brand": "Six Zero", "models": ["Double Black Diamond", "Black Diamond", "Ruby", "Infinity"] },
+    { "brand": "Vatic Pro", "models": ["Prism Flash", "V7", "V-Sol", "Saga"] },
+    { "brand": "ProKennex", "models": ["Ovation Flight", "Black Ace", "Pro Speed II"] },
+    { "brand": "Diadem", "models": ["Warrior", "Edge", "Hellcat"] },
+    { "brand": "Babolat", "models": ["MNSTR", "RBEL", "Tempo"] },
+    { "brand": "Wilson", "models": ["Juice", "Blaze", "Echo"] },
+    { "brand": "11SIX24", "models": ["Pegasus", "Vapor"] },
+    { "brand": "Bread & Butter", "models": ["Filth", "Loco", "Sugar"] },
+    { "brand": "Ronbus", "models": ["R1 Nova", "R3 Pulse", "Element"] },
+    { "brand": "Gamma", "models": ["Compass", "Hellbender"] },
+    { "brand": "Electrum", "models": ["Model E", "Pro II"] }
+  ]
+}

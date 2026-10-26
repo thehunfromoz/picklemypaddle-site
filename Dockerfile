@@ -11,7 +11,9 @@ COPY . .
 # Baked into canonical links, og:url, the sitemap and robots.txt. The same image runs on staging
 # and production, so this is the production address (CI passes it too).
 ARG SITE_URL=https://www.picklemypaddle.com
-ARG PUBLIC_ORDER_API_URL=
+# SCRUM-68: relative, so the same image works on staging, the tailnet and production (whose gateway
+# answers 503 until orders are switched on). Pass an empty value to build with ordering off.
+ARG PUBLIC_ORDER_API_URL=/api/orders
 ENV SITE_URL=${SITE_URL} PUBLIC_ORDER_API_URL=${PUBLIC_ORDER_API_URL}
 RUN pnpm build
 

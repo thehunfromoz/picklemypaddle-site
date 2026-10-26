@@ -51,8 +51,9 @@ describe('validatePhoto', () => {
     expect(validatePhoto({ ...photo, type: 'application/pdf' }, 'front')).toMatch(/JPEG/);
     expect(validatePhoto({ ...photo, size: 11 * 1024 * 1024 }, 'back')).toMatch(/10 MB/);
   });
-  it('accepts HEIC from iPhones', () => {
-    expect(validatePhoto({ ...photo, type: 'image/heic' }, 'front')).toBeNull();
+  it('leaves HEIC to iOS (SCRUM-66): the form accepts JPEG, PNG and WebP only', () => {
+    expect(validatePhoto({ ...photo, type: 'image/heic' }, 'front')).toMatch(/JPEG, PNG or WebP/);
+    for (const type of ['image/jpeg', 'image/png', 'image/webp']) expect(validatePhoto({ ...photo, type }, 'front')).toBeNull();
   });
 });
 

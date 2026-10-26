@@ -103,6 +103,12 @@ test.describe('Mobile order bar', () => {
 });
 
 test.describe('Order form (client-side)', () => {
+  // Client-side behaviour only: keep the real service out of it (it runs on staging), so a
+  // passing local check never sends anything. order-form.spec.ts covers the service.
+  test.beforeEach(async ({ page }) => {
+    await page.route('**/api/orders/form', (route) => route.fulfill({ status: 503, body: 'closed' }));
+    await page.route('**/api/orders', (route) => route.abort());
+  });
   test('submit is disabled until both boxes are ticked', async ({ page }) => {
     await page.goto('/#order');
     const submit = page.getByRole('button', { name: 'Submit for review' });
@@ -151,6 +157,7 @@ test.describe('Order form (client-side)', () => {
     await page.selectOption('#state', 'NSW');
     await page.fill('#postcode', '2000');
     await page.fill('#paddles-0-brand', 'Test brand');
+    await page.keyboard.press('Escape'); // close any brand suggestions
     const png = { name: 'face.png', mimeType: 'image/png', buffer: Buffer.from('89504e470d0a1a0a', 'hex') };
     await page.setInputFiles('#paddles-0-front', png);
     await page.setInputFiles('#paddles-0-back', png);
