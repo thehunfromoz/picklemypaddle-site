@@ -19,6 +19,10 @@ RUN pnpm build
 
 # ── Serve ────────────────────────────────────────────────────────────────────
 FROM caddy:2-alpine
+# Alpine packages in the base image that have a fixed version Trivy wants but the current
+# caddy:2-alpine doesn't include yet. Remove a package from this list once the base image ships
+# the fix (27 Oct 2026: brotli-libs 1.2.0 → 1.2.1, CVE-2026-111497).
+RUN apk upgrade --no-cache brotli-libs
 LABEL org.opencontainers.image.source="https://github.com/thehunfromoz/picklemypaddle-site" \
       org.opencontainers.image.licenses="MIT"
 COPY deploy/Caddyfile /etc/caddy/Caddyfile
