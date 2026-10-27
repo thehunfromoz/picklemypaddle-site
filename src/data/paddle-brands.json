@@ -1,10 +1,11 @@
 {
-  "_about": "Brand and model suggestions for the order form (SCRUM-40). Customers can always type something else. Drafted by Claude on 26 Oct 2026; checked by Attila on 27 Oct 2026. Refreshed 27 Oct 2026 from the paddle pages of Australian retailers Attila listed (Pickleball Mania, My Pickleball, Six Zero, Angry Penguins, Afternoon Social Club, Obelisk, Pickld). Existing entries are kept; models are never removed automatically.",
+  "_about": "Brand and model suggestions for the order form (SCRUM-40). Customers can always type something else. Drafted by Claude on 26 Oct 2026; checked by Attila on 27 Oct 2026. Refreshed 27 Oct 2026 from the paddle pages of Australian retailers Attila listed (Pickleball Mania, My Pickleball, Six Zero, Angry Penguins, Afternoon Social Club, Obelisk (full paddle list pasted by Attila), Pickld). Existing entries are kept; models are never removed automatically.",
   "reviewed": true,
   "brands": [
     { "brand": "11SIX24", "models": ["Pegasus", "Vapor"] },
     { "brand": "Afternoon Social Club", "models": ["Golden Hour", "High Noon", "La Siesta", "Last Light", "Long Shadow", "Magic House", "Tea Time"] },
     { "brand": "Aireo", "models": ["Cyclone", "Cyclone X Hybrid"] },
+    { "brand": "AMA", "models": ["3K Fusion P002", "Immerson 3K"] },
     { "brand": "Angry Penguins", "models": ["Abyss", "Abyss T700", "Flipper"] },
     { "brand": "Babolat", "models": ["MNSTR", "RBEL", "Tempo"] },
     { "brand": "Bread & Butter", "models": ["Filth", "Loco", "Sugar", "Loco 2"] },
@@ -22,13 +23,13 @@
     { "brand": "Gruvn", "models": ["Cruz-H", "Cruz-S", "Cruzn-HD", "Cruzn-X"] },
     { "brand": "HEAD", "models": ["Radical Pro", "Radical Elite", "Extreme Tour", "Gravity Tour"] },
     { "brand": "Honolulu", "models": ["J2CR", "J3CR", "J6CR", "Sword & Shield J2FC+", "Sword & Shield J2NF", "Sword & Shield J2NFT", "J2CR Endurance", "J6CR Endurance", "J6CR M.105 Endurance"] },
-    { "brand": "Hudef", "models": ["Mage Pro", "Newera Luxury"] },
+    { "brand": "Hudef", "models": ["Apex Pro", "HD4.1", "HD4.2", "HD4.3", "HD6.6", "HD6.8", "Mage Pro", "Newera Luxury", "Viva Pro Gen 2"] },
     { "brand": "JOOLA", "models": ["Ben Johns Hyperion CFS 16", "Perseus CFS 16", "Hyperion 3S", "Perseus 3S", "Scorpeus", "Radius", "Agassi Pro", "Hyperion Pro V", "Perseus Pro V", "Scorpeus Pro V", "Agassi Pro V", "Graf Pro V", "Kosmos Pro V", "Hyperion Pro IV", "Scorpeus Pro IV", "Magnus Pro IV", "Graf Pro IV", "Agassi Pro IV", "Hyperion 3S Dual", "Perseus 3S Dual", "Magnus 3S Dual", "Scorpeus 3S Dual", "Magnus 3S", "Perseus Power FX", "Agassi Edge", "Graf Edge"] },
     { "brand": "Kasaca", "models": ["Max", "Speed", "Streamlines"] },
     { "brand": "Luzz", "models": ["Cannon XPP M1", "Cannon2 M1", "Glider", "Inferno2 M1", "Pro 4 Inferno", "Glider 2026 Hybrid"] },
     { "brand": "LVL-UP", "models": ["Catalyst P3"] },
     { "brand": "Neonic", "models": ["Flare Prime X"] },
-    { "brand": "Obelisk", "models": ["Crimson", "Horizon", "Horizon II", "Horizon III Gen 3", "Horizon III Gen 3S", "Horizon V", "Horizon Raw T700", "Invictus III Gen 3", "Regal", "Tomahawk", "Triple Crown", "Triple Crown II", "Triple Crown Gen 3", "TS 5.0"] },
+    { "brand": "Obelisk", "models": ["Argyle", "Crimson", "Double Hand Horizon II", "Horizon", "Horizon II", "Horizon III Gen 3", "Horizon III Gen 3 Control Shot", "Horizon III Gen 3 Max", "Horizon III Gen 3 Power Shot", "Horizon III Gen 3S", "Horizon Raw T700", "Horizon V", "Invictus III Gen 3", "Red Horizon", "Regal", "Scepter", "Tomahawk", "Triple Crown", "Triple Crown Gen 3", "Triple Crown II", "TS 5.0", "Vector", "Vindicator", "Wooden"] },
     { "brand": "Onix", "models": ["Evoke Premier", "Graphite Z5", "Stryker 4"] },
     { "brand": "Paddletek", "models": ["Tempest Wave Pro", "Bantam TS-5", "Bantam EX-L", "Phoenix Genesis"] },
     { "brand": "ProKennex", "models": ["Ovation Flight", "Black Ace", "Pro Speed II"] },
@@ -39,6 +40,7 @@
     { "brand": "Spartus", "models": ["Spitfire Elongated", "Spitfire Widebody"] },
     { "brand": "Standout", "models": ["RF1"] },
     { "brand": "Sypik", "models": ["Avatar Pro", "Triton Pro 5"] },
+    { "brand": "TMPR", "models": ["Ascend", "Ascend LX", "Expanse GXT", "Expanse LX", "Oculus GXT", "Oculus LX", "Oculus XT", "Rave LX"] },
     { "brand": "Vatic Pro", "models": ["Prism Flash", "V7", "V-Sol", "Saga"] },
     { "brand": "Wilson", "models": ["Juice", "Blaze", "Echo"] }
   ]
