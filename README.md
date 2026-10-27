@@ -100,10 +100,32 @@ The image serves the static site with Caddy (`deploy/Caddyfile`) and sets a stri
 Content-Security-Policy and other security headers. Runtime settings: `SITE_ADDRESS`,
 `ORDER_API_ORIGIN`, `HSTS`.
 
+## Ordering (SCRUM-65 to 70, SCRUM-40)
+
+- The form posts to `/api/orders` on the same origin (`PUBLIC_ORDER_API_URL`, default `/api/orders`;
+  an empty value builds with ordering off). The gateway sends `/api/*` to picklemypaddle-integrations.
+- When someone first touches the form, it asks the service for a form token
+  (`GET /api/orders/form`). If that fails (production answers 503 until orders are switched on),
+  the "Online ordering opens soon" email notice shows. Not on page load, so a closed service never
+  puts an error in the console.
+- Photos are shrunk in the browser to 2560 px JPEG (`src/scripts/photo-resize.ts`) and uploaded with
+  progress. Field errors from the service land on the same fields as the browser's own.
+- Validation rules: `src/lib/order-rules.ts` is a byte-identical copy of integrations
+  `src/orders/rules.ts`; `tests/unit/order-rules-parity.test.ts` compares them (always in CI).
+  Change the rules in integrations first, then copy the file here.
+- Brand and model suggestions come from `src/data/paddle-brands.json` (free text always works).
+  Set `"reviewed": true` once the list is checked; until then a `[To confirm: …]` marker blocks release.
+- After an order the customer sees the reference and their private status link,
+  `/order/status#<token>` (`src/pages/order/status.astro`): noindex, `no-referrer`, `no-store`, and
+  never in the sitemap. The token stays in the URL fragment and is sent only in a POST body.
+- `tests/e2e/order-smoke.spec.ts` places a real order on staging (`EXPECT_STAGING=1` only).
+
 ## Before launch
 
 - [ ] Replace every `[To confirm: …]` placeholder (`pnpm build && pnpm check:placeholders`)
 - [ ] Add real photos (hero, about, at least 3 before-and-after pairs)
 - [ ] `pnpm brand:og` to generate the social preview image and touch icon; commit the PNGs
 - [ ] Legal review of privacy policy and terms
-- [ ] Set `PUBLIC_ORDER_API_URL` once picklemypaddle-integrations is running
+- [x] Order form wired to picklemypaddle-integrations (`/api/orders`, SCRUM-68)
+- [ ] Check the brand and model list and set `"reviewed": true` in `src/data/paddle-brands.json` (SCRUM-40)
+- [ ] Switch production orders on (infra production runbook) only after SCRUM-8, SCRUM-21 and SCRUM-75

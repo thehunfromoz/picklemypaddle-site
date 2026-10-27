@@ -13,7 +13,7 @@ import { siteData } from './siteData';
 const contactEmail = siteData.contact.email;
 
 export const privacyPolicy = {
-  lastUpdated: '15 October 2026',
+  lastUpdated: '26 October 2026',
 
   sections: [
     {
@@ -26,7 +26,7 @@ export const privacyPolicy = {
     {
       heading: 'What we collect',
       content: [
-        'When you place an order: your name, email address, return postal address, an optional phone number, details of each paddle, and photos of the front and back of each paddle. Please keep people out of your photos.',
+        'When you place an order: your name, email address, return postal address, an optional phone number, details of each paddle, and photos of the front and back of each paddle. Please keep people out of your photos. When a photo arrives we keep only a smaller copy, with any location and camera details removed.',
         'When you email us or book a chat: your name, email address and anything you tell us.',
         'When you pay: payment is processed by Stripe on its own secure pages. We receive confirmation that you have paid, but never your card number.',
         "When a club uses our service, the club keeps its members' details. We record only the club's contact details and the paddles in each batch.",

@@ -1,10 +1,15 @@
 ---
 import { siteData } from '../../data/siteData';
-import { AU_STATES, MAX_PADDLES } from '../../lib/order';
+import { ACCEPTED_PHOTO_TYPES, AU_STATES, DEFAULT_ORDER_API_URL, MAX_PADDLES } from '../../lib/order';
+import { BRAND_LIST_REVIEWED } from '../../lib/suggest';
 
 const price = siteData.pricing.regritPerPaddle;
-// Set PUBLIC_ORDER_API_URL at build time once picklemypaddle-integrations is running.
-const endpoint = import.meta.env.PUBLIC_ORDER_API_URL ?? '';
+// SCRUM-68: relative, so one image serves staging, the tailnet and production. An explicitly empty
+// PUBLIC_ORDER_API_URL turns online ordering off at build time (the email notice shows instead).
+const endpoint = import.meta.env.PUBLIC_ORDER_API_URL ?? DEFAULT_ORDER_API_URL;
+const accept = ACCEPTED_PHOTO_TYPES.join(',');
+// SCRUM-40: the drafted brand list needs Attila's check before release (pnpm check:placeholders).
+const brandListReview = BRAND_LIST_REVIEWED ? undefined : '[To confirm: Attila checks the brand and model list in src/data/paddle-brands.json (SCRUM-40)]';
 const field = 'mt-1 block w-full rounded-md border border-border bg-surface px-3 py-2.5 text-base text-text';
 const label = 'block text-sm font-semibold';
 const err = 'mt-1 text-sm font-medium text-[#A12B2B]';
@@ -20,16 +25,30 @@ const err = 'mt-1 text-sm font-medium text-[#A12B2B]';
       You don't pay anything now.
     </p>
 
-    {!endpoint && (
-      <p class="mt-6 rounded-md border border-primary bg-surface p-4 text-sm" data-testid="ordering-closed">
-        Online ordering opens soon. In the meantime, email
-        <a class="font-semibold text-primary underline" href={`mailto:${siteData.contact.email}`}>{siteData.contact.email}</a>.
-      </p>
-    )}
+    <p id="ordering-closed" class="mt-6 rounded-md border border-primary bg-surface p-4 text-sm" data-testid="ordering-closed" hidden={!!endpoint}>
+      Online ordering opens soon. In the meantime, email
+      <a class="font-semibold text-primary underline" href={`mailto:${siteData.contact.email}`}>{siteData.contact.email}</a>.
+    </p>
 
     <p class="test-order-notice" data-env="staging-only" data-testid="test-order-notice" role="note" hidden>
       <strong>Preview site:</strong> anything you submit here is a test order. No payment is taken.
     </p>
+
+    <div id="order-done" class="mt-8 rounded-lg bg-surface p-6 sm:p-8" data-testid="order-done" role="status" hidden>
+      <h3 id="done-heading" class="font-heading text-h3 font-bold" tabindex="-1">Thanks, we’ve got your order</h3>
+      <p class="mt-3 leading-relaxed">
+        Your reference is <strong id="done-reference" class="font-heading" data-testid="done-reference"></strong>.
+        We’ll check your photos and email you within {siteData.pricing.replyTime}.
+      </p>
+      <p id="done-test" class="mt-3 rounded-md bg-tint-blue p-3 text-sm" data-testid="done-test" hidden>
+        <strong>This was a TEST order</strong> on the preview site: no paddle needs to be sent and no payment is taken.
+      </p>
+      <p class="mt-4 leading-relaxed">
+        Follow your order at your private status link. Bookmark it, and please don’t share it: anyone with the link can see the status.
+      </p>
+      <p class="mt-2 break-all text-sm"><a id="done-status-link" class="font-semibold text-primary underline" data-testid="done-status-link" href="/order/status"></a></p>
+      <button type="button" id="order-another" class="btn-secondary mt-6">Send another order</button>
+    </div>
 
     <form
       id="order-form"
@@ -38,11 +57,22 @@ const err = 'mt-1 text-sm font-medium text-[#A12B2B]';
       enctype="multipart/form-data"
       action={endpoint || undefined}
       data-endpoint={endpoint}
+      data-contact={siteData.contact.email}
       data-price={price}
       data-max={MAX_PADDLES}
+      data-review={brandListReview}
       novalidate
     >
       <div id="form-status" role="status" aria-live="polite" class="hidden rounded-md p-4 text-sm"></div>
+
+      <!-- Set by the script: the signed load time (SCRUM-67) and one key per submission (SCRUM-65). -->
+      <input type="hidden" name="formToken" value="" />
+      <input type="hidden" name="idempotencyKey" value="" />
+      <!-- SCRUM-67 honeypot: people never see or reach this field; bots fill it in. -->
+      <div class="absolute -left-[10000px] top-auto h-px w-px overflow-hidden" aria-hidden="true" data-testid="honeypot">
+        <label for="website">Your website</label>
+        <input id="website" name="website" type="text" tabindex="-1" autocomplete="off" value="" />
+      </div>
 
       <fieldset class="space-y-4">
         <legend class="font-heading text-h3 font-bold">Your details</legend>
@@ -134,23 +164,24 @@ const err = 'mt-1 text-sm font-medium text-[#A12B2B]';
       <fieldset class="paddle rounded-md border border-border p-4" data-index="__i__">
         <legend class="px-1 font-semibold">Paddle <span class="paddle-number">__n__</span></legend>
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div>
+          <div class="relative">
             <label for="paddles-__i__-brand" class={label}>Brand</label>
-            <input id="paddles-__i__-brand" name="paddles[__i__][brand]" required class={field} aria-describedby="paddles-__i__-brand-error" />
+            <input id="paddles-__i__-brand" name="paddles[__i__][brand]" required maxlength="60" class={field} aria-describedby="paddles-__i__-brand-error" />
             <p id="paddles-__i__-brand-error" class={err} hidden></p>
           </div>
-          <div>
+          <div class="relative">
             <label for="paddles-__i__-model" class={label}>Model <span class="font-normal text-text-muted">(optional)</span></label>
-            <input id="paddles-__i__-model" name="paddles[__i__][model]" class={field} />
+            <input id="paddles-__i__-model" name="paddles[__i__][model]" maxlength="80" class={field} aria-describedby="paddles-__i__-model-error" />
+            <p id="paddles-__i__-model-error" class={err} hidden></p>
           </div>
           <div>
             <label for="paddles-__i__-front" class={label}>Photo of the front</label>
-            <input id="paddles-__i__-front" name="paddles[__i__][front]" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" required class={field} aria-describedby="paddles-__i__-front-error" />
+            <input id="paddles-__i__-front" name="paddles[__i__][front]" type="file" accept={accept} required class={field} aria-describedby="paddles-__i__-front-error" />
             <p id="paddles-__i__-front-error" class={err} hidden></p>
           </div>
           <div>
             <label for="paddles-__i__-back" class={label}>Photo of the back</label>
-            <input id="paddles-__i__-back" name="paddles[__i__][back]" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" required class={field} aria-describedby="paddles-__i__-back-error" />
+            <input id="paddles-__i__-back" name="paddles[__i__][back]" type="file" accept={accept} required class={field} aria-describedby="paddles-__i__-back-error" />
             <p id="paddles-__i__-back-error" class={err} hidden></p>
           </div>
         </div>
@@ -161,148 +192,6 @@ const err = 'mt-1 text-sm font-medium text-[#A12B2B]';
 </section>
 
 <script>
-  import { validateOrder, type OrderInput, type PhotoInfo } from '../../lib/order';
-
-  const form = document.getElementById('order-form') as HTMLFormElement | null;
-  const list = document.getElementById('paddle-list');
-  const tpl = document.getElementById('paddle-template') as HTMLTemplateElement | null;
-  const addBtn = document.getElementById('add-paddle') as HTMLButtonElement | null;
-  const estimate = document.getElementById('estimate');
-  const status = document.getElementById('form-status');
-
-  if (form && list && tpl && addBtn && estimate && status) {
-    const price = Number(form.dataset.price);
-    const max = Number(form.dataset.max);
-    let next = 0;
-
-    const paddles = () => [...list.querySelectorAll<HTMLFieldSetElement>('fieldset.paddle')];
-
-    const refresh = () => {
-      const items = paddles();
-      items.forEach((fs, i) => {
-        fs.querySelector('.paddle-number')!.textContent = String(i + 1);
-        (fs.querySelector('.remove-paddle') as HTMLElement).hidden = items.length === 1;
-      });
-      addBtn.hidden = items.length >= max;
-      estimate.textContent = `A$${items.length * price}`;
-    };
-
-    const addPaddle = (focus: boolean) => {
-      const i = next++;
-      const html = tpl.innerHTML.replaceAll('__i__', String(i)).replaceAll('__n__', String(i + 1));
-      const wrap = document.createElement('div');
-      wrap.innerHTML = html;
-      const fs = wrap.firstElementChild as HTMLFieldSetElement;
-      fs.querySelector('.remove-paddle')!.addEventListener('click', () => {
-        fs.remove();
-        refresh();
-        addBtn.focus();
-      });
-      list.appendChild(fs);
-      refresh();
-      if (focus) (fs.querySelector('input') as HTMLInputElement).focus();
-    };
-
-    // Submit stays disabled until both boxes are ticked. Set here rather than in the HTML,
-    // so the form still works (with validation) if this script doesn't load.
-    const submitBtn = document.getElementById('order-submit') as HTMLButtonElement;
-    const submitHint = document.getElementById('submit-hint')!;
-    const ticks = ['consent', 'tournamentAck'].map((id) => document.getElementById(id) as HTMLInputElement);
-    const syncSubmit = () => {
-      const ready = ticks.every((t) => t.checked);
-      submitBtn.disabled = !ready;
-      submitHint.hidden = ready;
-    };
-    ticks.forEach((t) => t.addEventListener('change', syncSubmit));
-    syncSubmit();
-
-    addBtn.addEventListener('click', () => addPaddle(true));
-    addPaddle(false);
-
-    const photo = (input: HTMLInputElement | null): PhotoInfo | null => {
-      const f = input?.files?.[0];
-      return f ? { name: f.name, size: f.size, type: f.type } : null;
-    };
-
-    const collect = (): { input: OrderInput; idx: string[] } => {
-      const v = (n: string) => (form.elements.namedItem(n) as HTMLInputElement | null)?.value ?? '';
-      const items = paddles();
-      return {
-        idx: items.map((fs) => fs.dataset.index!),
-        input: {
-          name: v('name'),
-          email: v('email'),
-          phone: v('phone'),
-          street: v('street'),
-          suburb: v('suburb'),
-          state: v('state'),
-          postcode: v('postcode'),
-          consent: (form.elements.namedItem('consent') as HTMLInputElement).checked,
-          tournamentAck: (form.elements.namedItem('tournamentAck') as HTMLInputElement).checked,
-          paddles: items.map((fs) => {
-            const i = fs.dataset.index!;
-            return {
-              brand: (fs.querySelector(`[name="paddles[${i}][brand]"]`) as HTMLInputElement).value,
-              model: (fs.querySelector(`[name="paddles[${i}][model]"]`) as HTMLInputElement).value,
-              front: photo(fs.querySelector(`[name="paddles[${i}][front]"]`)),
-              back: photo(fs.querySelector(`[name="paddles[${i}][back]"]`)),
-            };
-          }),
-        },
-      };
-    };
-
-    const showErrors = (errors: Record<string, string>, idx: string[]) => {
-      form.querySelectorAll<HTMLElement>('[id$="-error"]').forEach((p) => {
-        p.hidden = true;
-        p.textContent = '';
-      });
-      form.querySelectorAll('[aria-invalid]').forEach((el) => el.removeAttribute('aria-invalid'));
-      let first: HTMLElement | null = null;
-      for (const [key, msg] of Object.entries(errors)) {
-        // paddles.<position>.<field> → element ids use the stable data-index
-        const id = key.startsWith('paddles.')
-          ? (() => { const [, pos, f] = key.split('.'); return `paddles-${idx[Number(pos)]}-${f}`; })()
-          : key;
-        const p = document.getElementById(`${id}-error`);
-        if (p) { p.textContent = msg; p.hidden = false; }
-        const input = document.getElementById(id);
-        if (input) { input.setAttribute('aria-invalid', 'true'); first ??= input; }
-      }
-      first?.focus();
-    };
-
-    const say = (msg: string, ok: boolean) => {
-      status.textContent = msg;
-      status.className = `rounded-md p-4 text-sm ${ok ? 'bg-tint-green' : 'bg-tint-blue'}`;
-    };
-
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const { input, idx } = collect();
-      const errors = validateOrder(input);
-      showErrors(errors, idx);
-      if (Object.keys(errors).length > 0) {
-        say(`Please fix ${Object.keys(errors).length} item(s) highlighted below.`, false);
-        return;
-      }
-      const endpoint = form.dataset.endpoint;
-      if (!endpoint) {
-        say('Thanks! Online ordering opens soon. Please email us in the meantime.', false);
-        return;
-      }
-      say('Sending your order…', true);
-      try {
-        const res = await fetch(endpoint, { method: 'POST', body: new FormData(form) });
-        if (!res.ok) throw new Error(String(res.status));
-        const data = (await res.json().catch(() => ({}))) as { reference?: string };
-        form.reset();
-        list.innerHTML = '';
-        addPaddle(false);
-        say(`Thanks! We've received your order${data.reference ? ` (reference ${data.reference})` : ''}. Check your email for confirmation.`, true);
-      } catch {
-        say('Sorry, something went wrong sending your order. Please try again, or email us.', false);
-      }
-    });
-  }
+  // Bundled into an external file by Astro, so the CSP keeps script-src 'self'.
+  import '../../scripts/order-form';
 </script>

@@ -11,12 +11,19 @@ COPY . .
 # Baked into canonical links, og:url, the sitemap and robots.txt. The same image runs on staging
 # and production, so this is the production address (CI passes it too).
 ARG SITE_URL=https://www.picklemypaddle.com
-ARG PUBLIC_ORDER_API_URL=
+# SCRUM-68: relative, so the same image works on staging, the tailnet and production (whose gateway
+# answers 503 until orders are switched on). Pass an empty value to build with ordering off.
+ARG PUBLIC_ORDER_API_URL=/api/orders
 ENV SITE_URL=${SITE_URL} PUBLIC_ORDER_API_URL=${PUBLIC_ORDER_API_URL}
 RUN pnpm build
 
 # ── Serve ────────────────────────────────────────────────────────────────────
 FROM caddy:2-alpine
+# Take every Alpine security fix published since caddy:2-alpine was built. Its Alpine packages
+# lag behind (27 Oct 2026: brotli-libs CVE-2026-111497, then curl CVE-2026-92392, both already
+# fixed in Alpine), and Trivy fails the image on each one. This keeps the Alpine branch, so it
+# never moves to a new major; Caddy itself is a static Go binary and isn't touched.
+RUN apk upgrade --no-cache
 LABEL org.opencontainers.image.source="https://github.com/thehunfromoz/picklemypaddle-site" \
       org.opencontainers.image.licenses="MIT"
 COPY deploy/Caddyfile /etc/caddy/Caddyfile

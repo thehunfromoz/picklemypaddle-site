@@ -1,0 +1,73 @@
+---
+/**
+ * Private order status (SCRUM-70). The link is /order/status#<token>: the token sits in the URL
+ * fragment, so it never reaches a server log, the analytics or a Referer. The page's script sends
+ * it in a POST body and draws the minimal view: never a name, address, phone, email or photo.
+ * Static, noindex, no-referrer, not cached (deploy/Caddyfile) and not in the sitemap.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { siteData } from '../../data/siteData';
+
+const email = siteData.contact.email;
+---
+
+<BaseLayout title="Your order" description="The status of your PickleMyPaddle order." noindex>
+  <meta slot="head" name="referrer" content="no-referrer" />
+  <section class="py-section">
+    <div class="mx-auto max-w-3xl px-4 sm:px-6">
+      <p class="topper">Order status</p>
+      <h1 class="mt-2 font-heading text-h2 font-bold">Your order</h1>
+
+      <p id="status-loading" class="mt-6 text-text-muted" data-testid="status-loading" role="status">Loading your order…</p>
+
+      <div id="status-view" class="mt-6 space-y-6" data-testid="status-view" hidden>
+        <p id="status-test" class="rounded-md bg-tint-blue p-3 text-sm" data-testid="status-test" hidden>
+          <strong>TEST order</strong> on the preview site: no paddle needs to be sent and no payment is taken.
+        </p>
+        <div class="rounded-lg bg-surface p-6">
+          <p class="text-sm text-text-muted">Reference <strong id="status-reference" class="font-heading text-base text-text" data-testid="status-reference"></strong></p>
+          <h2 id="status-label" class="mt-2 font-heading text-h3 font-bold" data-testid="status-label" tabindex="-1"></h2>
+          <p id="status-eta" class="mt-2" hidden></p>
+          <p id="status-tracking" class="mt-2" hidden></p>
+        </div>
+        <div>
+          <h3 class="font-heading text-lg font-bold">Paddles</h3>
+          <ul id="status-paddles" class="mt-2 list-disc space-y-1 pl-6" data-testid="status-paddles"></ul>
+        </div>
+        <div>
+          <h3 class="font-heading text-lg font-bold">History</h3>
+          <ol id="status-history" class="mt-2 space-y-1" data-testid="status-history"></ol>
+        </div>
+        <p class="text-sm text-text-muted">
+          Questions? Email <a class="font-semibold text-primary underline" href={`mailto:${email}`}>{email}</a> with your reference.
+          Please don’t share this page’s link: anyone with it can see your order’s status.
+        </p>
+      </div>
+
+      <div id="status-invalid" class="mt-6 space-y-6" data-testid="status-invalid" hidden>
+        <p class="rounded-md border border-primary bg-surface p-4" role="alert">This link isn’t valid or has expired.</p>
+        <form id="links-form" class="space-y-4 rounded-lg bg-surface p-6" novalidate>
+          <h2 class="font-heading text-h3 font-bold">Get fresh links</h2>
+          <p class="text-sm leading-relaxed text-text-muted">
+            Enter the email address you ordered with. If we have orders for it, we’ll email you a new link for each one.
+          </p>
+          <div>
+            <label for="links-email" class="block text-sm font-semibold">Email</label>
+            <input id="links-email" name="email" type="email" autocomplete="email" required maxlength="254"
+              class="mt-1 block w-full rounded-md border border-border bg-surface px-3 py-2.5 text-base text-text" aria-describedby="links-email-error" />
+            <p id="links-email-error" class="mt-1 text-sm font-medium text-[#A12B2B]" hidden></p>
+          </div>
+          <button type="submit" class="btn-primary">Email me my links</button>
+          <p id="links-status" class="text-sm" role="status" aria-live="polite" data-testid="links-status"></p>
+        </form>
+        <p class="text-sm text-text-muted">
+          Or email <a class="font-semibold text-primary underline" href={`mailto:${email}`}>{email}</a> with your order reference.
+        </p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  import '../../scripts/order-status';
+</script>
