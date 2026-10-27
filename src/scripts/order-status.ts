@@ -8,6 +8,7 @@ import { DEFAULT_ORDER_API_URL } from '../lib/order';
 
 interface StatusView {
   reference: string;
+  status: string;
   statusLabel: string;
   history: { label: string; at: string }[];
   paddles: { brand: string; model: string | null }[];
@@ -33,6 +34,9 @@ function render(v: StatusView) {
   $('status-reference')!.textContent = v.reference;
   $('status-label')!.textContent = v.statusLabel;
   show('status-test', v.test);
+  // While the photos are still being checked, say when they'll hear from us (the confirmation
+  // screen says the same).
+  show('status-next', v.status === 'submitted');
   if (v.backInPostBy) {
     const eta = $('status-eta')!;
     eta.textContent = `Back in the post by ${day(v.backInPostBy)}${v.queuePosition ? ` (number ${v.queuePosition} in the queue)` : ''}.`;

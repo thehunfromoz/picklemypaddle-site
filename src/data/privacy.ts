@@ -13,7 +13,7 @@ import { siteData } from './siteData';
 const contactEmail = siteData.contact.email;
 
 export const privacyPolicy = {
-  lastUpdated: '26 October 2026',
+  lastUpdated: '27 October 2026',
 
   sections: [
     {
@@ -30,7 +30,7 @@ export const privacyPolicy = {
         'When you email us or book a chat: your name, email address and anything you tell us.',
         'When you pay: payment is processed by Stripe on its own secure pages. We receive confirmation that you have paid, but never your card number.',
         "When a club uses our service, the club keeps its members' details. We record only the club's contact details and the paddles in each batch.",
-        'When you visit the site: we use Umami, an analytics tool that runs on our own server. It uses no cookies, does not follow you across other sites, and records only aggregate information such as the pages viewed, the site that referred you, and your approximate country, browser and device type. Because it sets no cookies, there is no cookie banner.',
+        'When you visit the site: we use privacy-friendly analytics that run on our own server. They use no cookies, do not follow you across other sites, and record only aggregate information such as the pages viewed, the site that referred you, and your approximate country, browser and device type. Because they set no cookies, there is no cookie banner.',
       ],
     },
     {

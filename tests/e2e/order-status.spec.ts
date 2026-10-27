@@ -30,6 +30,7 @@ test.describe('Order status page', () => {
     await expect(page.getByTestId('status-reference')).toHaveText('PMP-ABCDE');
     await expect(page.getByTestId('status-label')).toHaveText('Received: we’re checking your photos');
     await expect(page.getByTestId('status-test')).toBeVisible();
+    await expect(page.getByTestId('status-next')).toHaveText(/email you within 1 business day/);
     await expect(page.getByTestId('status-paddles').locator('li')).toHaveText(['Selkirk Vanguard Power Air', 'Homemade']);
     await expect(page.getByTestId('status-history').locator('li')).toHaveCount(1);
     await expect(page.getByTestId('status-history')).toContainText('26 Oct 2026');
@@ -38,6 +39,15 @@ test.describe('Order status page', () => {
     expect(urls.filter((u) => u.includes(TOKEN))).toEqual([]);
     const results = await new AxeBuilder({ page }).withTags(WCAG).analyze();
     expect(results.violations.map((v) => `${v.id}: ${v.help}`)).toEqual([]);
+  });
+
+  test('says when they will hear from us only while the photos are being checked', async ({ page }) => {
+    await page.route('**/api/orders/status', (route) =>
+      route.fulfill({ json: { ...view, status: 'accepted', statusLabel: 'Accepted: payment link sent' } }),
+    );
+    await page.goto(`/order/status#${TOKEN}`);
+    await expect(page.getByTestId('status-label')).toHaveText('Accepted: payment link sent');
+    await expect(page.getByTestId('status-next')).toBeHidden();
   });
 
   test('an unknown or expired link: one message and the "email me my links" form', async ({ page }) => {
