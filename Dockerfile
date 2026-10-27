@@ -19,10 +19,11 @@ RUN pnpm build
 
 # ── Serve ────────────────────────────────────────────────────────────────────
 FROM caddy:2-alpine
-# Alpine packages in the base image that have a fixed version Trivy wants but the current
-# caddy:2-alpine doesn't include yet. Remove a package from this list once the base image ships
-# the fix (27 Oct 2026: brotli-libs 1.2.0 → 1.2.1, CVE-2026-111497).
-RUN apk upgrade --no-cache brotli-libs
+# Take every Alpine security fix published since caddy:2-alpine was built. Its Alpine packages
+# lag behind (27 Oct 2026: brotli-libs CVE-2026-111497, then curl CVE-2026-92392, both already
+# fixed in Alpine), and Trivy fails the image on each one. This keeps the Alpine branch, so it
+# never moves to a new major; Caddy itself is a static Go binary and isn't touched.
+RUN apk upgrade --no-cache
 LABEL org.opencontainers.image.source="https://github.com/thehunfromoz/picklemypaddle-site" \
       org.opencontainers.image.licenses="MIT"
 COPY deploy/Caddyfile /etc/caddy/Caddyfile
