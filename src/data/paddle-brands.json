@@ -1,5 +1,5 @@
 {
-  "_about": "Brand and model suggestions for the order form (SCRUM-40). Customers can always type something else. Drafted by Claude on 26 Oct 2026 from brands commonly sold in Australia; Attila to check names and spelling. When checked, set reviewed to true. Later editable in Keystatic.",
+  "_about": "Brand and model suggestions for the order form (SCRUM-40). Customers can always type something else. Drafted by Claude on 26 Oct 2026 from brands commonly sold in Australia; Attila to check names and spelling. When checked, set reviewed to true. May later be editable through the staging blog editor.",
   "reviewed": false,
   "brands": [
     { "brand": "Selkirk", "models": ["Vanguard Power Air", "Vanguard Control Air", "SLK Halo", "SLK Evo", "Luxx Control Air", "Boomstik", "Labs Project 008"] },

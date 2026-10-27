@@ -29,8 +29,11 @@ for path in /keystatic /keystatic/ /api/keystatic/github/login; do
   code="$(curl -s -o /dev/null -w '%{http_code}' "http://localhost:8080$path")"
   [ "$code" = 404 ] || { echo "public image answers $path with $code (expected 404)" >&2; exit 1; }
 done
-if docker run --rm --entrypoint sh "$IMAGE" -c 'grep -rliq keystatic /srv'; then
-  echo "public image contains Keystatic code under /srv" >&2; exit 1
+# A failure gets its own annotation naming the files: the shared workflow's summary of the last 40
+# lines is cut at 4 KB, which once hid this message behind the smoke run's output.
+if hits="$(docker run --rm --entrypoint sh "$IMAGE" -c 'grep -rli keystatic /srv')"; then
+  echo "::error title=public image mentions Keystatic::${hits//$'\n'/, } (the blog editor is staging-only; nothing in the public site may name it)"
+  echo "public image contains Keystatic code under /srv: $hits" >&2; exit 1
 fi
 echo "public image: no /keystatic route, no Keystatic code"
 
@@ -54,7 +57,7 @@ fail() { echo "editor image: $*" >&2; docker logs --tail 20 editor-under-test >&
 # The page is a doctype and Keystatic's app bundle (it has no <html> tag); capture it first, since
 # `curl | grep -q` can fail under pipefail when grep stops reading early.
 page="$(curl -fsS http://localhost:4321/keystatic)" || fail "/keystatic doesn't answer"
-grep -q 'keystatic-page' <<<"$page" || fail "/keystatic doesn't serve the editor app
+grep -q 'keystatic-page' <<<"$page" || fail "/keystatic doesn't serve the editor app"
 login="$(curl -s -o /dev/null -D - http://localhost:4321/api/keystatic/github/login \
   -H 'X-Forwarded-Proto: https' -H 'X-Forwarded-Host: home-server.tail8bc7ae.ts.net' -H 'X-Forwarded-Port: 8444')"
 grep -qi '^location: https://github.com/login/oauth/authorize?client_id=Iv1.citestclient&redirect_uri=https%3A%2F%2Fhome-server.tail8bc7ae.ts.net%3A8444%2Fapi%2Fkeystatic%2Fgithub%2Foauth%2Fcallback' <<<"$login" ||

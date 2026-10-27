@@ -2,16 +2,18 @@
  * Brand and model suggestions for the order form (SCRUM-40). Pure functions, so they are unit
  * tested; the combobox (src/scripts/combobox.ts) only draws what these return.
  */
-import data from '../data/paddle-brands.json';
+// Named imports, so only these two fields are bundled into the page's script, never the file's
+// "_about" note (the public-image check refuses the blog editor's name anywhere in the site).
+import { brands, reviewed } from '../data/paddle-brands.json';
 
 export interface BrandEntry {
   brand: string;
   models: string[];
 }
 
-export const PADDLE_BRANDS: readonly BrandEntry[] = data.brands;
+export const PADDLE_BRANDS: readonly BrandEntry[] = brands;
 /** False until Attila has checked the drafted list; the release gate blocks a release until then. */
-export const BRAND_LIST_REVIEWED: boolean = data.reviewed;
+export const BRAND_LIST_REVIEWED: boolean = reviewed;
 
 export const MAX_SUGGESTIONS = 8;
 
