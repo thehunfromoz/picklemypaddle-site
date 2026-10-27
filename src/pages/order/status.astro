@@ -9,6 +9,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import { siteData } from '../../data/siteData';
 
 const email = siteData.contact.email;
+const replyTime = siteData.pricing.replyTime;
 ---
 
 <BaseLayout title="Your order" description="The status of your PickleMyPaddle order." noindex>
@@ -27,6 +28,9 @@ const email = siteData.contact.email;
         <div class="rounded-lg bg-surface p-6">
           <p class="text-sm text-text-muted">Reference <strong id="status-reference" class="font-heading text-base text-text" data-testid="status-reference"></strong></p>
           <h2 id="status-label" class="mt-2 font-heading text-h3 font-bold" data-testid="status-label" tabindex="-1"></h2>
+          <p id="status-next" class="mt-2" data-testid="status-next" hidden>
+            We’ll check your photos and email you within {replyTime} of your order, to confirm or to ask a question.
+          </p>
           <p id="status-eta" class="mt-2" hidden></p>
           <p id="status-tracking" class="mt-2" hidden></p>
         </div>

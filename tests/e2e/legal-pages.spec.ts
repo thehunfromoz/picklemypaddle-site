@@ -21,13 +21,15 @@ test.describe('Privacy policy', () => {
     }
   });
 
-  test('names the services the site uses and says analytics set no cookies', async ({ page }) => {
+  test('names the services that receive data, and says analytics are self-hosted with no cookies', async ({ page }) => {
     await page.goto('/privacy');
     const main = page.locator('main');
     await expect(main).toContainText('HubSpot');
     await expect(main).toContainText('Stripe');
-    await expect(main).toContainText('Umami');
-    await expect(main).toContainText('It uses no cookies');
+    await expect(main).toContainText('analytics that run on our own server');
+    await expect(main).toContainText('They use no cookies');
+    // Self-hosted tools that receive nothing from third parties aren't named (decided 27 Oct 2026).
+    await expect(main).not.toContainText('Umami');
   });
 
   test('says how to see or delete your information and where to complain', async ({ page }) => {
