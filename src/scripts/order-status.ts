@@ -16,7 +16,12 @@ interface StatusView {
   backInPostBy: string | null;
   queuePosition: number | null;
   test: boolean;
+  /** SCRUM-33: 'open' once posted back, 'received' once reviewed, null before. */
+  review?: 'open' | 'received' | null;
 }
+
+/** The token of the order on screen (needed to send a review). */
+let currentToken = '';
 
 const api = DEFAULT_ORDER_API_URL;
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T | null;
@@ -65,18 +70,28 @@ function render(v: StatusView) {
       return li;
     }),
   );
+  show('review', v.review === 'open');
+  show('review-thanks', v.review === 'received');
   show('status-loading', false);
   show('status-view');
+  // From the Posted back email's "Leave a short review" link.
+  if (v.review === 'open' && new URLSearchParams(location.search).has('review')) {
+    const heading = $('review-heading');
+    heading?.scrollIntoView({ block: 'start' });
+    heading?.focus({ preventScroll: true });
+  }
 }
 
 function invalid() {
   show('status-loading', false);
+  show('status-view', false);
   show('status-invalid');
 }
 
 async function load() {
   const token = location.hash.slice(1);
   if (!/^[A-Za-z0-9_-]{43}$/.test(token)) return invalid();
+  currentToken = token;
   try {
     const res = await fetch(`${api}/status`, {
       method: 'POST',
@@ -126,9 +141,83 @@ linksForm?.addEventListener('submit', async (e) => {
   }
 });
 
+// ── Review (SCRUM-33) ─────────────────────────────────────────────────────────
+
+const REVIEW_FIELDS = { quote: 'review-quote', firstName: 'review-first-name', suburb: 'review-suburb', permission: 'review-permission' } as const;
+type ReviewField = keyof typeof REVIEW_FIELDS;
+const NAME_RE = /^[\p{L}][\p{L}\p{M} '’.-]*$/u;
+
+function reviewErrors(errors: Partial<Record<ReviewField, string>>) {
+  let first: HTMLElement | null = null;
+  for (const [field, id] of Object.entries(REVIEW_FIELDS) as [ReviewField, string][]) {
+    const msg = errors[field];
+    const err = $(`${id}-error`);
+    const input = field === 'permission' ? document.querySelector<HTMLInputElement>('#review-form input[name=permission]') : $(id);
+    if (err) {
+      err.textContent = msg ?? '';
+      err.hidden = !msg;
+    }
+    if (msg) input?.setAttribute('aria-invalid', 'true');
+    else input?.removeAttribute('aria-invalid');
+    if (msg && !first) first = input;
+  }
+  first?.focus();
+}
+
+function reviewDone() {
+  show('review', false);
+  show('review-thanks');
+  $('review-thanks')?.focus();
+}
+
+$<HTMLFormElement>('review-form')?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const form = e.currentTarget as HTMLFormElement;
+  const out = $('review-status')!;
+  const data = new FormData(form);
+  const quote = String(data.get('quote') ?? '').trim();
+  const firstName = String(data.get('firstName') ?? '').trim();
+  const suburb = String(data.get('suburb') ?? '').trim();
+  const choice = data.get('permission');
+  const errors: Partial<Record<ReviewField, string>> = {};
+  if (quote.length < 10) errors.quote = 'Tell us a little more (a sentence or two).';
+  if (!firstName) errors.firstName = 'Enter your first name.';
+  else if (!NAME_RE.test(firstName)) errors.firstName = 'Enter just your first name.';
+  if (!suburb) errors.suburb = 'Enter your suburb or town.';
+  else if (!NAME_RE.test(suburb)) errors.suburb = 'Enter just your suburb or town.';
+  if (choice !== 'yes' && choice !== 'no') errors.permission = 'Choose whether we may quote you.';
+  reviewErrors(errors);
+  if (Object.keys(errors).length) return;
+
+  out.textContent = 'Sending…';
+  try {
+    const res = await fetch(`${api}/review`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify({ token: currentToken, quote, firstName, suburb, permission: choice === 'yes' }),
+      referrerPolicy: 'no-referrer',
+    });
+    const reply = (await res.json().catch(() => ({}))) as { errors?: Partial<Record<ReviewField, string>>; error?: string; message?: string };
+    if (res.status === 201 || reply.error === 'already_received') {
+      out.textContent = '';
+      return reviewDone();
+    }
+    if (res.status === 400 && reply.errors) {
+      out.textContent = '';
+      return reviewErrors(reply.errors);
+    }
+    if (res.status === 404) return invalid();
+    out.textContent = reply.message ?? 'Sorry, that didn’t work. Please try again, or email us your review.';
+  } catch {
+    out.textContent = 'Sorry, that didn’t work. Please try again, or email us your review.';
+  }
+});
+
 // A new fragment (another link pasted into the same tab) loads that order.
 window.addEventListener('hashchange', () => {
   show('status-view', false);
+  show('review', false);
+  show('review-thanks', false);
   show('status-invalid', false);
   show('status-loading');
   void load();

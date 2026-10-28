@@ -1,8 +1,15 @@
 ---
-import { siteData } from '../../data/siteData';
-import Ph from '../Ph.astro';
+/**
+ * Testimonials (SCRUM-33): real reviews, published with permission as first name and suburb.
+ * Hidden until there are at least 3 (src/lib/visibility.ts). `items` is for tests.
+ */
+import { loadTestimonials, type Testimonial } from '../../lib/testimonials';
 import { showTestimonials } from '../../lib/visibility';
-const { testimonials } = siteData;
+
+interface Props {
+  items?: Testimonial[];
+}
+const testimonials = Astro.props.items ?? loadTestimonials();
 ---
 
 {showTestimonials(testimonials) && (
@@ -16,10 +23,10 @@ const { testimonials } = siteData;
         {testimonials.map((t) => (
           <li>
             <figure class="h-full rounded-lg border border-border bg-surface p-6">
-              <blockquote class="text-lg leading-relaxed">&ldquo;<Ph text={t.quote} />&rdquo;</blockquote>
+              <blockquote class="text-lg leading-relaxed">&ldquo;{t.quote}&rdquo;</blockquote>
               <figcaption class="mt-4 text-sm">
-                <span class="font-semibold"><Ph text={t.name} /></span>,{' '}
-                <span class="text-text-muted"><Ph text={t.context} /></span>
+                <span class="font-semibold">{t.firstName}</span>,{' '}
+                <span class="text-text-muted">{t.suburb}</span>
               </figcaption>
             </figure>
           </li>

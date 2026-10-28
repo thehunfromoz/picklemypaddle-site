@@ -37,7 +37,7 @@ export const privacyPolicy = {
       heading: 'How we use it',
       content: [
         "To assess whether your paddle can be re-gritted, contact you about your order, take payment, return your paddle, keep a record of the paddle's condition when we received it, and meet our tax and record-keeping obligations.",
-        'After an order is complete we may email you once to ask how it went and whether we may quote your feedback. We only publish a testimonial with your permission.',
+        'When we post your paddle back, our email asks whether you would like to leave a short review on your order page. Leaving one is up to you. We only publish a review with your permission, shown with your first name and suburb, and you can ask us to remove it at any time by emailing us.',
         'We do not sell your information, and we do not send marketing emails unless you ask us to.',
       ],
     },
