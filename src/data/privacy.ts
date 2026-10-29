@@ -13,7 +13,7 @@ import { siteData } from './siteData';
 const contactEmail = siteData.contact.email;
 
 export const privacyPolicy = {
-  lastUpdated: '27 October 2026',
+  lastUpdated: '29 October 2026',
 
   sections: [
     {
@@ -37,7 +37,7 @@ export const privacyPolicy = {
       heading: 'How we use it',
       content: [
         "To assess whether your paddle can be re-gritted, contact you about your order, take payment, return your paddle, keep a record of the paddle's condition when we received it, and meet our tax and record-keeping obligations.",
-        'When we post your paddle back, our email asks whether you would like to leave a short review on your order page. Leaving one is up to you. We only publish a review with your permission, shown with your first name and suburb, and you can ask us to remove it at any time by emailing us.',
+        'When we post your paddle back, our email asks whether you would like to leave a short review on your order page. If you haven’t left one about 10 days later, we send one reminder, and never another. Leaving one is up to you. We only publish a review with your permission, shown with your first name and suburb, and you can ask us to remove it at any time by emailing us.',
         'We do not sell your information, and we do not send marketing emails unless you ask us to.',
       ],
     },
