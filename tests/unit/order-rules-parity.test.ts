@@ -20,7 +20,7 @@ describe('order rules parity with the integrations service', () => {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       upstream = await res.text();
     } catch (err) {
-      if (process.env.CI) throw new Error(`couldn't fetch ${UPSTREAM}: ${(err as Error).message}`);
+      if (process.env.CI) throw new Error(`couldn't fetch ${UPSTREAM}: ${(err as Error).message}`, { cause: err });
       console.warn(`parity check skipped (offline): ${(err as Error).message}`);
       return;
     }
