@@ -4,7 +4,7 @@
  * sent anywhere. Unknown, expired and malformed links all get the same message and the
  * "email me my links" form.
  */
-import { DEFAULT_ORDER_API_URL } from '../lib/order';
+import { DEFAULT_ORDER_API_URL, queueLine } from '../lib/order';
 
 interface StatusView {
   reference: string;
@@ -13,8 +13,10 @@ interface StatusView {
   history: { label: string; at: string }[];
   paddles: { brand: string; model: string | null }[];
   trackingNumber: string | null;
+  /** SCRUM-73: YYYY-MM-DD, In queue and Re-gritted. */
   backInPostBy: string | null;
-  queuePosition: number | null;
+  /** SCRUM-73: paddles ahead in the queue, In queue only. */
+  paddlesAhead?: number | null;
   test: boolean;
   /** SCRUM-33: 'open' once posted back, 'received' once reviewed, null before. */
   review?: 'open' | 'received' | null;
@@ -32,8 +34,6 @@ const show = (id: string, on = true) => {
 
 const when = (iso: string) =>
   new Intl.DateTimeFormat('en-AU', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Australia/Sydney' }).format(new Date(iso));
-const day = (iso: string) =>
-  new Intl.DateTimeFormat('en-AU', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'Australia/Sydney' }).format(new Date(iso));
 
 function render(v: StatusView) {
   $('status-reference')!.textContent = v.reference;
@@ -42,10 +42,10 @@ function render(v: StatusView) {
   // While the photos are still being checked, say when they'll hear from us (the confirmation
   // screen says the same).
   show('status-next', v.status === 'submitted');
-  if (v.backInPostBy) {
-    const eta = $('status-eta')!;
-    eta.textContent = `Back in the post by ${day(v.backInPostBy)}${v.queuePosition ? ` (number ${v.queuePosition} in the queue)` : ''}.`;
-    eta.hidden = false;
+  const eta = queueLine(v);
+  if (eta) {
+    $('status-eta')!.textContent = eta;
+    show('status-eta');
   }
   if (v.trackingNumber) {
     const t = $('status-tracking')!;

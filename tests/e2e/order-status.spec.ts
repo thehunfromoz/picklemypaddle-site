@@ -13,6 +13,7 @@ const view = {
   paddles: [{ brand: 'Selkirk', model: 'Vanguard Power Air' }, { brand: 'Homemade', model: null }],
   trackingNumber: null,
   backInPostBy: null,
+  paddlesAhead: null,
   queuePosition: null,
   test: true,
   review: null,
@@ -49,6 +50,27 @@ test.describe('Order status page', () => {
     await page.goto(`/order/status#${TOKEN}`);
     await expect(page.getByTestId('status-label')).toHaveText('Accepted: payment link sent');
     await expect(page.getByTestId('status-next')).toBeHidden();
+  });
+
+  test('In queue: when it will be back in the post, and the paddles ahead (SCRUM-73)', async ({ page }) => {
+    await page.route('**/api/orders/status', (route) =>
+      route.fulfill({
+        json: { ...view, status: 'in_queue', statusLabel: 'Arrived: in the re-grit queue', backInPostBy: '2026-11-16', paddlesAhead: 3 },
+      }),
+    );
+    await page.goto(`/order/status#${TOKEN}`);
+    await expect(page.getByTestId('status-eta')).toHaveText('Back in the post by Monday, 16 Nov. 3 paddles ahead of yours.');
+  });
+
+  test('Re-gritted: the promise only; before the queue: nothing (SCRUM-73)', async ({ page }) => {
+    let current: Record<string, unknown> = { ...view, status: 'regritted', statusLabel: 'Re-gritted: getting ready to post back', backInPostBy: '2026-11-16', paddlesAhead: null };
+    await page.route('**/api/orders/status', (route) => route.fulfill({ json: current }));
+    await page.goto(`/order/status#${TOKEN}`);
+    await expect(page.getByTestId('status-eta')).toHaveText('Back in the post by Monday, 16 Nov.');
+    current = { ...view };
+    await page.reload();
+    await expect(page.getByTestId('status-label')).toHaveText('Received: we’re checking your photos');
+    await expect(page.getByTestId('status-eta')).toBeHidden();
   });
 
   test('an unknown or expired link: one message and the "email me my links" form', async ({ page }) => {
