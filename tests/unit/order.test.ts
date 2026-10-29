@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { MAX_PADDLES, regritSubtotal, validateOrder, validatePhoto, type OrderInput } from '../../src/lib/order';
+import { MAX_PADDLES, promiseDay, queueLine, regritSubtotal, validateOrder, validatePhoto, type OrderInput } from '../../src/lib/order';
 import { pairGallery } from '../../src/config/images';
 
 const photo = { name: 'face.jpg', size: 500_000, type: 'image/jpeg' };
@@ -80,5 +80,25 @@ describe('pairGallery', () => {
     expect(pairs[0].caption).toBe('Club Paddle');
     expect(pairs[0].before).toBeDefined();
     expect(pairs[0].after).toBeDefined();
+  });
+});
+
+describe('the status page turnaround line (SCRUM-73)', () => {
+  it('writes the promise as "weekday, d MMM" without shifting the day in any time zone', () => {
+    expect(promiseDay('2026-11-16')).toBe('Monday, 16 Nov');
+    expect(promiseDay('2027-01-06')).toBe('Wednesday, 6 Jan');
+    expect(promiseDay('2026-10-05')).toBe('Monday, 5 Oct'); // the day after the daylight-saving switch
+  });
+
+  it('adds the paddles ahead while In queue', () => {
+    expect(queueLine({ backInPostBy: '2026-11-16', paddlesAhead: 3 })).toBe('Back in the post by Monday, 16 Nov. 3 paddles ahead of yours.');
+    expect(queueLine({ backInPostBy: '2026-11-16', paddlesAhead: 1 })).toBe('Back in the post by Monday, 16 Nov. 1 paddle ahead of yours.');
+    expect(queueLine({ backInPostBy: '2026-11-16', paddlesAhead: 0 })).toBe('Back in the post by Monday, 16 Nov. Yours is next in the queue.');
+  });
+
+  it('shows only the promise once re-gritted, and nothing without one', () => {
+    expect(queueLine({ backInPostBy: '2026-11-16', paddlesAhead: null })).toBe('Back in the post by Monday, 16 Nov.');
+    expect(queueLine({ backInPostBy: '2026-11-16' })).toBe('Back in the post by Monday, 16 Nov.');
+    expect(queueLine({ backInPostBy: null, paddlesAhead: null })).toBeNull();
   });
 });
