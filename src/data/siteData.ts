@@ -90,11 +90,7 @@ export const siteData = {
     },
   ],
 
-  /**
-   * Real quotes only, from the review request after each job, with the customer's
-   * permission (SCRUM-33). The section stays hidden until there are at least 3.
-   */
-  testimonials: [] as { quote: string; name: string; context: string }[],
+  // Testimonials live in src/data/testimonials.json (SCRUM-33, src/lib/testimonials.ts).
 
   footerNav: [
     {

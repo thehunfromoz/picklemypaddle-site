@@ -4,6 +4,10 @@
  * fragment, so it never reaches a server log, the analytics or a Referer. The page's script sends
  * it in a POST body and draws the minimal view: never a name, address, phone, email or photo.
  * Static, noindex, no-referrer, not cached (deploy/Caddyfile) and not in the sitemap.
+ *
+ * SCRUM-33: once the paddles are posted back, the page offers a short review form (the Posted back
+ * email links here with ?review=1). First name and suburb are typed, never pre-filled, because this
+ * page never shows a name or address.
  */
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { siteData } from '../../data/siteData';
@@ -42,6 +46,60 @@ const replyTime = siteData.pricing.replyTime;
           <h3 class="font-heading text-lg font-bold">History</h3>
           <ol id="status-history" class="mt-2 space-y-1" data-testid="status-history"></ol>
         </div>
+
+        <section id="review" class="rounded-lg bg-surface p-6" data-testid="review" aria-labelledby="review-heading" hidden>
+          <h2 id="review-heading" class="font-heading text-h3 font-bold" tabindex="-1">How did we do?</h2>
+          <p class="mt-2 text-sm leading-relaxed text-text-muted">
+            A sentence or two is plenty. You choose below whether we may quote it on our website.
+          </p>
+          <form id="review-form" class="mt-4 space-y-4" novalidate>
+            <div>
+              <label for="review-quote" class="block text-sm font-semibold">Your review</label>
+              <textarea id="review-quote" name="quote" rows="4" required minlength="10" maxlength="600"
+                class="mt-1 block w-full rounded-md border border-border bg-surface px-3 py-2.5 text-base text-text"
+                aria-describedby="review-quote-error"></textarea>
+              <p id="review-quote-error" class="mt-1 text-sm font-medium text-[#A12B2B]" hidden></p>
+            </div>
+            <div class="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label for="review-first-name" class="block text-sm font-semibold">First name</label>
+                <input id="review-first-name" name="firstName" type="text" autocomplete="given-name" required maxlength="40"
+                  class="mt-1 block w-full rounded-md border border-border bg-surface px-3 py-2.5 text-base text-text"
+                  aria-describedby="review-first-name-error" />
+                <p id="review-first-name-error" class="mt-1 text-sm font-medium text-[#A12B2B]" hidden></p>
+              </div>
+              <div>
+                <label for="review-suburb" class="block text-sm font-semibold">Suburb or town</label>
+                <input id="review-suburb" name="suburb" type="text" autocomplete="address-level2" required maxlength="60"
+                  class="mt-1 block w-full rounded-md border border-border bg-surface px-3 py-2.5 text-base text-text"
+                  aria-describedby="review-suburb-error" />
+                <p id="review-suburb-error" class="mt-1 text-sm font-medium text-[#A12B2B]" hidden></p>
+              </div>
+            </div>
+            <fieldset aria-describedby="review-permission-error">
+              <legend class="text-sm font-semibold">May we quote your review on our website?</legend>
+              <div class="mt-2 space-y-2">
+                <label class="flex items-start gap-2">
+                  <input type="radio" name="permission" value="yes" class="mt-1" data-testid="review-permission-yes" />
+                  <span>Yes, you may quote it with my first name and suburb.</span>
+                </label>
+                <label class="flex items-start gap-2">
+                  <input type="radio" name="permission" value="no" class="mt-1" data-testid="review-permission-no" />
+                  <span>No, it’s just for you.</span>
+                </label>
+              </div>
+              <p id="review-permission-error" class="mt-1 text-sm font-medium text-[#A12B2B]" hidden></p>
+            </fieldset>
+            <p class="text-sm text-text-muted">
+              Changed your mind later? Email <a class="font-semibold text-primary underline" href={`mailto:${email}`}>{email}</a> and we’ll take your quote down.
+            </p>
+            <button type="submit" class="btn-primary">Send review</button>
+            <p id="review-status" class="text-sm" role="status" aria-live="polite" data-testid="review-status"></p>
+          </form>
+        </section>
+        <p id="review-thanks" class="rounded-lg bg-surface p-6" data-testid="review-thanks" tabindex="-1" hidden>
+          Thanks for your review! It means a lot to a small business.
+        </p>
         <p class="text-sm text-text-muted">
           Questions? Email <a class="font-semibold text-primary underline" href={`mailto:${email}`}>{email}</a> with your reference.
           Please don’t share this page’s link: anyone with it can see your order’s status.

@@ -15,6 +15,7 @@ const view = {
   backInPostBy: null,
   queuePosition: null,
   test: true,
+  review: null,
 };
 
 test.describe('Order status page', () => {
@@ -103,5 +104,79 @@ test.describe('Order status page', () => {
 
   test('is not in the sitemap', async ({ request }) => {
     expect(await (await request.get('/sitemap.xml')).text()).not.toContain('/order/status');
+  });
+});
+
+// SCRUM-33: the review form, offered once the paddles are posted back.
+test.describe('Review form on the status page', () => {
+  const postedBack = {
+    ...view,
+    status: 'posted_back',
+    statusLabel: 'Posted back to you',
+    trackingNumber: '33XYZ0123456789',
+    review: 'open',
+  };
+
+  test('is hidden before the paddles are posted back', async ({ page }) => {
+    await page.route('**/api/orders/status', (route) => route.fulfill({ json: view }));
+    await page.goto(`/order/status#${TOKEN}`);
+    await expect(page.getByTestId('status-reference')).toHaveText('PMP-ABCDE');
+    await expect(page.getByTestId('review')).toBeHidden();
+    await expect(page.getByTestId('review-thanks')).toBeHidden();
+  });
+
+  test('sends a review with an explicit permission choice, then says thanks', async ({ page }) => {
+    await page.route('**/api/orders/status', (route) => route.fulfill({ json: postedBack }));
+    let sent: unknown;
+    const urls: string[] = [];
+    page.on('request', (r) => urls.push(r.url()));
+    await page.route('**/api/orders/review', async (route) => {
+      sent = route.request().postDataJSON();
+      await route.fulfill({ status: 201, json: { message: 'Thanks! We’ve got your review.' } });
+    });
+    await page.goto(`/order/status?review=1#${TOKEN}`);
+    await expect(page.getByTestId('review')).toBeVisible();
+    // Arriving from the email's link puts the form in view, ready to type.
+    await expect(page.locator('#review-heading')).toBeFocused();
+    // Never pre-filled: this page shows no name or address.
+    await expect(page.locator('#review-first-name')).toHaveValue('');
+    await expect(page.locator('#review-suburb')).toHaveValue('');
+    const axe = await new AxeBuilder({ page }).withTags(WCAG).analyze();
+    expect(axe.violations.map((v) => `${v.id}: ${v.help}`)).toEqual([]);
+
+    await page.fill('#review-quote', 'Feels brand new: the spin is back.');
+    await page.fill('#review-first-name', 'Sam');
+    await page.fill('#review-suburb', 'Newtown');
+    await page.getByTestId('review-permission-yes').check();
+    await page.getByRole('button', { name: 'Send review' }).click();
+    await expect(page.getByTestId('review-thanks')).toBeVisible();
+    await expect(page.getByTestId('review')).toBeHidden();
+    expect(sent).toEqual({ token: TOKEN, quote: 'Feels brand new: the spin is back.', firstName: 'Sam', suburb: 'Newtown', permission: true });
+    expect(urls.filter((u) => u.includes(TOKEN))).toEqual([]);
+  });
+
+  test('asks for everything before sending, including the permission choice', async ({ page }) => {
+    await page.route('**/api/orders/status', (route) => route.fulfill({ json: postedBack }));
+    let called = false;
+    await page.route('**/api/orders/review', async (route) => {
+      called = true;
+      await route.fulfill({ status: 201, json: {} });
+    });
+    await page.goto(`/order/status#${TOKEN}`);
+    await page.fill('#review-quote', 'Good');
+    await page.getByRole('button', { name: 'Send review' }).click();
+    await expect(page.locator('#review-quote-error')).toHaveText('Tell us a little more (a sentence or two).');
+    await expect(page.locator('#review-first-name-error')).toHaveText('Enter your first name.');
+    await expect(page.locator('#review-suburb-error')).toHaveText('Enter your suburb or town.');
+    await expect(page.locator('#review-permission-error')).toHaveText('Choose whether we may quote you.');
+    await expect(page.locator('#review-quote')).toBeFocused();
+    expect(called).toBe(false);
+  });
+
+  test('shows thanks instead of the form once a review is in', async ({ page }) => {
+    await page.route('**/api/orders/status', (route) => route.fulfill({ json: { ...postedBack, review: 'received' } }));
+    await page.goto(`/order/status#${TOKEN}`);
+    await expect(page.getByTestId('review-thanks')).toBeVisible();
+    await expect(page.getByTestId('review')).toBeHidden();
   });
 });
