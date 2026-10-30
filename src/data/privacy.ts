@@ -4,16 +4,16 @@
  * Not legal advice: have it reviewed before launch. Lines marked
  * [To confirm: …] need decisions.
  *
- * Keep it true to what the system does. The order and status services are
- * still being built (SCRUM-8), so this describes the intended design. Revisit
- * it when they ship and when the production host is chosen.
+ * Keep it true to what the system does. Retention and erasure match the
+ * integrations service's rules (SCRUM-75, src/orders/retention.ts and
+ * erasure.ts); change both together.
  */
 import { siteData } from './siteData';
 
 const contactEmail = siteData.contact.email;
 
 export const privacyPolicy = {
-  lastUpdated: '29 October 2026',
+  lastUpdated: '30 October 2026',
 
   sections: [
     {
@@ -57,9 +57,10 @@ export const privacyPolicy = {
     {
       heading: 'How long we keep it',
       content: [
-        'Paddle photos: 12 months after your order is completed, then we delete them.',
-        'Order and payment records: 5 years, because tax law requires us to keep business records for that long.',
-        'Enquiries that do not become an order: 12 months.',
+        'Paddle photos: we delete them 12 months after your order is completed.',
+        'Orders that do not go ahead (we could not re-grit the paddle, you withdrew it, or we did not hear back): we delete the whole order 12 months after that.',
+        'Orders you paid for: we keep the record for 5 years after the order is completed, because tax law requires us to keep business records for that long, then delete it.',
+        'Our system deletes these automatically each day. Deleted information can remain in our backups for up to 30 days before the backups themselves are deleted.',
         'You can ask us to delete your information sooner (see below), unless we must keep it by law.',
       ],
     },
@@ -75,6 +76,7 @@ export const privacyPolicy = {
       heading: 'Your choices and rights',
       content: [
         `You can ask to see the information we hold about you, ask us to correct it, or ask us to delete it (unless we must keep it by law). Email ${contactEmail} and we will respond within 30 days.`,
+        'If you ask us to delete your information, we delete orders you did not pay for entirely. For orders you paid for in the last 5 years, tax law requires us to keep a minimal record: the order reference, your name, the dates and the amount. Everything else, including your photos, contact details, address and paddle details, is deleted straight away, and the remaining record is deleted when its 5 years are up. Your order’s private status link stops working.',
         'If you are not satisfied with how we handle a privacy concern, you can contact the Office of the Australian Information Commissioner at oaic.gov.au.',
       ],
     },
