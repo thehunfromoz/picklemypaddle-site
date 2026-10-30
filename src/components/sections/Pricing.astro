@@ -1,6 +1,9 @@
 ---
 import { siteData } from '../../data/siteData';
+import { GST_NOTE, gstNoteOn, sydneyToday } from '../../lib/pricing';
 const { pricing } = siteData;
+// SCRUM-81: the note as of the build, switched in the browser on the GST date (scripts/pricing.ts).
+const gstNote = gstNoteOn(sydneyToday(new Date()), pricing.gstRegisteredFrom);
 ---
 
 <section id="pricing" class="py-section">
@@ -45,7 +48,16 @@ const { pricing } = siteData;
       practice play.
     </p>
     <p class="mt-4 text-sm text-text-muted">
-      Prices in Australian dollars.{!pricing.gstRegistered && ' We are not registered for GST, so no GST is charged.'}
+      Prices in Australian dollars.
+      <span
+        data-testid="gst-note"
+        data-gst-from={pricing.gstRegisteredFrom ?? undefined}
+        data-gst-text-registered={pricing.gstRegisteredFrom ? GST_NOTE.registered : undefined}>{gstNote}</span>
     </p>
   </div>
 </section>
+
+<script>
+  // Bundled into an external file by Astro, so the CSP keeps script-src 'self'.
+  import '../../scripts/pricing';
+</script>

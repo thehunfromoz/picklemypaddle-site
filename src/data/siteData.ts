@@ -25,6 +25,12 @@ export const siteData = {
     currency: 'AUD',
     regritPerPaddle: 60,
     gstRegistered: false,
+    /**
+     * SCRUM-81: the first day GST applies (YYYY-MM-DD), the same value as GST_REGISTERED_FROM on the
+     * integrations service; null = not registered. Set it (and release) before the day: the price
+     * note then switches on that day by itself. The terms and FAQ are rewritten with SCRUM-87.
+     */
+    gstRegisteredFrom: null as string | null,
     returnPostageNote: 'Return postage is added at payment and depends on how many paddles you send.',
     /** Shown on the landing page and in the FAQ. */
     turnaround: 'within 10 business days of it reaching us, plus postage time each way',
