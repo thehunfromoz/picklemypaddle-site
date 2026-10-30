@@ -13,7 +13,9 @@
  */
 import { MAX_PHOTO_BYTES, validateOrder, type OrderErrors, type OrderInput, type PhotoInfo } from '../lib/order';
 import { brandNames, matchSuggestions, modelsFor, MAX_SUGGESTIONS } from '../lib/suggest';
+import { postageHint, type PricingResponse } from '../lib/pricing';
 import { attachCombobox } from './combobox';
+import { loadPricing } from './pricing';
 import { shrinkPhoto } from './photo-resize';
 
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T | null;
@@ -23,6 +25,7 @@ const list = $('paddle-list');
 const tpl = $<HTMLTemplateElement>('paddle-template');
 const addBtn = $<HTMLButtonElement>('add-paddle');
 const estimate = $('estimate');
+const postageEstimate = $('postage-estimate');
 const status = $('form-status');
 const closedNotice = $('ordering-closed');
 const done = $('order-done');
@@ -38,6 +41,8 @@ if (form && list && tpl && addBtn && estimate && status && done) {
   const keyField = form.elements.namedItem('idempotencyKey') as HTMLInputElement;
   let next = 0;
   let open = false;
+  /** SCRUM-81: today's postage per paddle count, fetched once ordering is known to be open. */
+  let pricing: PricingResponse | null = null;
   let sending = false;
 
   const paddles = () => [...list.querySelectorAll<HTMLFieldSetElement>('fieldset.paddle')];
@@ -50,6 +55,7 @@ if (form && list && tpl && addBtn && estimate && status && done) {
     });
     addBtn.hidden = items.length >= max;
     estimate.textContent = `A$${items.length * price}`;
+    if (postageEstimate) postageEstimate.textContent = postageHint(pricing, items.length);
   };
 
   const addPaddle = (focus: boolean) => {
@@ -328,7 +334,15 @@ if (form && list && tpl && addBtn && estimate && status && done) {
 
   // Ask once, on first interest; every later ask (after an order, a stale token) is explicit.
   let probe: Promise<void> | null = null;
-  const ensureProbe = () => (probe ??= fetchToken().then(setOpen));
+  const ensureProbe = () =>
+    (probe ??= fetchToken()
+      .then(setOpen)
+      // Only once the service answers (never on page load, never while ordering is closed).
+      .then(() => (open ? loadPricing(endpoint) : null))
+      .then((p) => {
+        pricing = p;
+        refresh();
+      }));
   form.addEventListener('focusin', () => void ensureProbe(), { once: true });
   form.addEventListener('pointerdown', () => void ensureProbe(), { once: true });
   const atOrder = () => location.hash === '#order' && void ensureProbe();
