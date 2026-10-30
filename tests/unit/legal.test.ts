@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { siteData } from '../../src/data/siteData';
-import { privacyPolicy } from '../../src/data/privacy';
+import { privacyEmail, privacyPolicy } from '../../src/data/privacy';
 import { termsOfService } from '../../src/data/terms';
 
 const text = (doc: { sections: readonly { content: readonly string[] }[] }) =>
@@ -17,6 +17,9 @@ describe('legal pages and GST', () => {
   it('take the price and contact address from siteData', () => {
     expect(text(termsOfService)).toContain(`A$${siteData.pricing.regritPerPaddle} per paddle`);
     expect(text(termsOfService)).toContain(siteData.contact.email);
-    expect(text(privacyPolicy)).toContain(siteData.contact.email);
+    expect(text(termsOfService)).not.toContain('info@picklemypaddle.com');
+    // Privacy questions go to info@ only (decided 30 Oct 2026).
+    expect(text(privacyPolicy)).toContain(privacyEmail);
+    expect(text(privacyPolicy)).not.toContain(siteData.contact.email);
   });
 });

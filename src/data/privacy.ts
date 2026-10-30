@@ -10,7 +10,12 @@
  */
 import { siteData } from './siteData';
 
-const contactEmail = siteData.contact.email;
+/**
+ * Privacy questions go to info@ (decided 30 Oct 2026), not the sales@ address the rest of the
+ * site uses: info@ is where Attila handles dialogue with customers.
+ */
+export const privacyEmail = 'info@picklemypaddle.com';
+const contactEmail = privacyEmail;
 
 export const privacyPolicy = {
   lastUpdated: '30 October 2026',
@@ -30,7 +35,7 @@ export const privacyPolicy = {
         'When you email us or book a chat: your name, email address and anything you tell us.',
         'When you pay: payment is processed by Stripe on its own secure pages. We receive confirmation that you have paid, but never your card number.',
         "When a club uses our service, the club keeps its members' details. We record only the club's contact details and the paddles in each batch.",
-        'When you visit the site: we use privacy-friendly analytics that run on our own server. They use no cookies, do not follow you across other sites, and record only aggregate information such as the pages viewed, the site that referred you, and your approximate country, browser and device type. Because they set no cookies, there is no cookie banner.',
+        'When you visit the site: we use privacy-friendly analytics that run on our own server. They use no cookies, do not follow you across other sites, and record only aggregate information such as the pages viewed, the site that referred you, your browser and device type, and roughly where you are (country, state and city), which is worked out from your internet address. Your internet address itself is not kept. Because they set no cookies, there is no cookie banner.',
       ],
     },
     {
@@ -48,7 +53,7 @@ export const privacyPolicy = {
         'HubSpot keeps our customer records. Our HubSpot account stores data in Australia.',
         'Stripe processes card payments and may handle data in Australia and other countries, including the United States.',
         'Our website and order system run on a server we rent from OVH in Australia. Orders and paddle photos are stored there.',
-        'We receive email through Cloudflare, which forwards messages sent to our address to a Gmail mailbox run by Google. Resend sends our automated order emails. Email providers may store messages outside Australia.',
+        'We use Cloudflare, Gmail and Resend to receive and send email. They may store messages outside Australia.',
         'Our postal carrier receives your name and return address so it can deliver your paddle.',
         'Our analytics run on our own server, so no third party receives them.',
         'Some of these providers store or access information outside Australia. Before sending information overseas we take reasonable steps to make sure the provider handles it consistently with the Australian Privacy Principles. We may also share information where the law requires it.',
