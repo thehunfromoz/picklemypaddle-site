@@ -134,7 +134,17 @@ if (form && list && tpl && addBtn && estimate && status && done) {
     }
   };
   $('discountCode-apply')?.addEventListener('click', () => void ensureProbe().then(checkCode));
-  codeInput?.addEventListener('change', () => void ensureProbe().then(checkCode));
+  // Editing clears the last answer at once (not on blur), so nothing above the Submit button
+  // changes height as someone clicks it.
+  codeInput?.addEventListener('input', () => {
+    checking++;
+    applied = null;
+    refresh();
+    setCodeMessage('');
+  });
+  codeInput?.addEventListener('change', () => {
+    if (codeInput.value.trim()) void ensureProbe().then(checkCode);
+  });
   codeInput?.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
