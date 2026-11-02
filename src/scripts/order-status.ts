@@ -5,6 +5,7 @@
  * "email me my links" form.
  */
 import { DEFAULT_ORDER_API_URL, queueLine } from '../lib/order';
+import { isCheckoutUrl, PAY_TOKEN_KEY } from '../lib/payment';
 
 interface StatusView {
   reference: string;
@@ -22,6 +23,8 @@ interface StatusView {
   review?: 'open' | 'received' | null;
   /** SCRUM-63: the code on the order; `confirmed` once accepted. */
   discount?: { code: string; label: string; cents: number; confirmed: boolean } | null;
+  /** SCRUM-82: the amount to pay, whether Pay now shows, and when it was paid. */
+  payment?: { amountCents: number; canPay: boolean; paidAt: string | null } | null;
 }
 
 /** The token of the order on screen (needed to send a review). */
@@ -34,6 +37,7 @@ const show = (id: string, on = true) => {
   if (el) el.hidden = !on;
 };
 
+const day = (iso: string) => new Intl.DateTimeFormat('en-AU', { dateStyle: 'long', timeZone: 'Australia/Sydney' }).format(new Date(iso));
 const when = (iso: string) =>
   new Intl.DateTimeFormat('en-AU', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Australia/Sydney' }).format(new Date(iso));
 
@@ -56,6 +60,19 @@ function render(v: StatusView) {
       ? `Discount code ${v.discount.code}: ${amount} off the re-grit.`
       : `Discount code ${v.discount.code} applied (${v.discount.label}, about ${amount} off): confirmed when we accept your order.`;
     d.hidden = false;
+  }
+  // SCRUM-82: Pay now while Accepted; "Paid on …" once paid.
+  const p = v.payment;
+  const money = (cents: number) => `A$${(cents / 100).toFixed(2)}`;
+  show('status-pay', !!p && v.status === 'accepted' && p.canPay);
+  show('status-pay-later', !!p && v.status === 'accepted' && !p.canPay);
+  if (p) {
+    $('status-amount')!.textContent = money(p.amountCents);
+    $('status-amount-later')!.textContent = money(p.amountCents);
+    if (p.paidAt) {
+      $('status-paid')!.textContent = `Paid ${money(p.amountCents)} on ${day(p.paidAt)}.`;
+      show('status-paid');
+    }
   }
   if (v.trackingNumber) {
     const t = $('status-tracking')!;
@@ -98,8 +115,30 @@ function invalid() {
   show('status-invalid');
 }
 
+/**
+ * SCRUM-82: before going to Stripe, the token is kept in this tab's sessionStorage, so the page
+ * Stripe sends the customer back to can find the order again without the token ever going to
+ * Stripe. Cleared once used.
+ */
+const remembered = (): string | null => {
+  try {
+    return sessionStorage.getItem(PAY_TOKEN_KEY);
+  } catch {
+    return null;
+  }
+};
+
 async function load() {
-  const token = location.hash.slice(1);
+  let token = location.hash.slice(1);
+  const params = new URLSearchParams(location.search);
+  // Back from Stripe with "Cancel": the token was remembered, not sent to Stripe.
+  if (!token && params.get('payment') === 'cancelled') {
+    token = remembered() ?? '';
+    if (token) {
+      history.replaceState(null, '', `/order/status#${token}`);
+      show('status-cancelled');
+    }
+  }
   if (!/^[A-Za-z0-9_-]{43}$/.test(token)) return invalid();
   currentToken = token;
   try {
@@ -116,6 +155,45 @@ async function load() {
     invalid();
   }
 }
+
+const payBtn = $<HTMLButtonElement>('pay-now');
+payBtn?.addEventListener('click', async () => {
+  const err = $('pay-error')!;
+  err.hidden = true;
+  payBtn.disabled = true;
+  payBtn.textContent = 'Opening Stripe…';
+  const fail = (msg: string) => {
+    err.textContent = msg;
+    err.hidden = false;
+    payBtn.disabled = false;
+    payBtn.textContent = 'Pay now';
+  };
+  try {
+    const res = await fetch(`${api}/pay`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify({ token: currentToken }),
+      cache: 'no-store',
+      referrerPolicy: 'no-referrer',
+    });
+    const data = (await res.json().catch(() => ({}))) as { url?: string; message?: string };
+    if (res.ok && isCheckoutUrl(data.url)) {
+      try {
+        sessionStorage.setItem(PAY_TOKEN_KEY, currentToken);
+      } catch {
+        // private browsing: the customer can still use their emailed link afterwards
+      }
+      location.assign(data.url);
+      return;
+    }
+    if (res.status === 409) {
+      void load(); // already paid, or no longer payable: show where it stands now
+    }
+    fail(data.message ?? 'We couldn’t start the payment just now. Please try again in a minute.');
+  } catch {
+    fail('We couldn’t start the payment just now. Please try again in a minute.');
+  }
+});
 
 const linksForm = $<HTMLFormElement>('links-form');
 linksForm?.addEventListener('submit', async (e) => {
