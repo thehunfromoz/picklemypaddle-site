@@ -45,6 +45,7 @@ test.describe('Paying for an accepted order', () => {
     await page.getByTestId('pay-now').click();
     await expect(page).toHaveURL(CHECKOUT);
     expect(sent).toEqual({ token: TOKEN });
+    await page.goBack(); // sessionStorage belongs to our origin, not Stripe's
     expect(await page.evaluate(() => sessionStorage.getItem('pmp-pay-token'))).toBe(TOKEN);
     expect(urls.filter((u) => u.includes(TOKEN))).toEqual([]);
   });
