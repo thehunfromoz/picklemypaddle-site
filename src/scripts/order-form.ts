@@ -14,6 +14,8 @@
 import { MAX_PHOTO_BYTES, validateOrder, type OrderErrors, type OrderInput, type PhotoInfo } from '../lib/order';
 import { brandNames, matchSuggestions, modelsFor, MAX_SUGGESTIONS } from '../lib/suggest';
 import { postageHint, type PricingResponse } from '../lib/pricing';
+import { discountCheckUrlFrom, parseDiscountCheck, regritEstimate, type AppliedCode } from '../lib/discount';
+import { DISCOUNT_REFUSED, isDiscountCodeShape, normaliseDiscountCode } from '../lib/order';
 import { attachCombobox } from './combobox';
 import { loadPricing } from './pricing';
 import { shrinkPhoto } from './photo-resize';
@@ -44,6 +46,8 @@ if (form && list && tpl && addBtn && estimate && status && done) {
   /** SCRUM-81: today's postage per paddle count, fetched once ordering is known to be open. */
   let pricing: PricingResponse | null = null;
   let sending = false;
+  /** SCRUM-63: the code the service said can be used, for the estimate; it re-checks at submit. */
+  let applied: AppliedCode | null = null;
 
   const paddles = () => [...list.querySelectorAll<HTMLFieldSetElement>('fieldset.paddle')];
 
@@ -54,7 +58,7 @@ if (form && list && tpl && addBtn && estimate && status && done) {
       (fs.querySelector('.remove-paddle') as HTMLElement).hidden = items.length === 1;
     });
     addBtn.hidden = items.length >= max;
-    estimate.textContent = `A$${items.length * price}`;
+    estimate.textContent = regritEstimate(items.length, price * 100, applied);
     if (postageEstimate) postageEstimate.textContent = postageHint(pricing, items.length);
   };
 
@@ -81,6 +85,72 @@ if (form && list && tpl && addBtn && estimate && status && done) {
     refresh();
     if (focus) brand.focus();
   };
+
+  // ── Discount code (SCRUM-63) ─────────────────────────────────────────────
+  const codeInput = $<HTMLInputElement>('discountCode');
+  const codeStatus = $('discountCode-status');
+  const codeError = $('discountCode-error');
+  const setCodeMessage = (ok: string, error = '') => {
+    if (codeStatus) codeStatus.textContent = ok;
+    if (codeError) {
+      codeError.textContent = error;
+      codeError.hidden = !error;
+    }
+    if (error) codeInput?.setAttribute('aria-invalid', 'true');
+    else codeInput?.removeAttribute('aria-invalid');
+  };
+  let checking = 0;
+  const checkCode = async () => {
+    if (!codeInput) return;
+    const code = normaliseDiscountCode(codeInput.value);
+    const run = ++checking;
+    applied = null;
+    refresh();
+    if (!code) return setCodeMessage('');
+    if (!isDiscountCodeShape(code)) return setCodeMessage('', DISCOUNT_REFUSED);
+    if (!endpoint || !open) return setCodeMessage('');
+    setCodeMessage('Checking…');
+    try {
+      const email = (form.elements.namedItem('email') as HTMLInputElement | null)?.value ?? '';
+      const res = await fetch(discountCheckUrlFrom(endpoint), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ code, email }),
+        cache: 'no-store',
+      });
+      const data: unknown = await res.json().catch(() => null);
+      if (run !== checking) return; // a newer check is under way
+      if (res.status === 429 && data && typeof (data as { message?: unknown }).message === 'string') {
+        return setCodeMessage('', (data as { message: string }).message);
+      }
+      const result = parseDiscountCheck(data);
+      if (!result) return setCodeMessage('We couldn’t check the code just now. Submit anyway: we check it again when your order arrives.');
+      if (!result.ok) return setCodeMessage('', result.message);
+      applied = result.applied;
+      refresh();
+      setCodeMessage(`Code ${applied.code}: ${applied.label}. Confirmed when we accept your order.`);
+    } catch {
+      if (run === checking) setCodeMessage('We couldn’t check the code just now. Submit anyway: we check it again when your order arrives.');
+    }
+  };
+  $('discountCode-apply')?.addEventListener('click', () => void ensureProbe().then(checkCode));
+  // Editing clears the last answer at once (not on blur), so nothing above the Submit button
+  // changes height as someone clicks it.
+  codeInput?.addEventListener('input', () => {
+    checking++;
+    applied = null;
+    refresh();
+    setCodeMessage('');
+  });
+  codeInput?.addEventListener('change', () => {
+    if (codeInput.value.trim()) void ensureProbe().then(checkCode);
+  });
+  codeInput?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      void ensureProbe().then(checkCode);
+    }
+  });
 
   // Submit stays disabled until both boxes are ticked. Set here rather than in the HTML,
   // so the form still works (with validation) if this script doesn't load.
@@ -222,7 +292,12 @@ if (form && list && tpl && addBtn && estimate && status && done) {
       xhr.send(body);
     });
 
-  const showDone = (reference: string, token: string, test: boolean) => {
+  const showDone = (reference: string, token: string, test: boolean, code: string) => {
+    const doneDiscount = $('done-discount');
+    if (doneDiscount) {
+      doneDiscount.textContent = code ? `Code ${code} applied: it’s confirmed when we accept your order. Return postage is still payable.` : '';
+      doneDiscount.hidden = !code;
+    }
     const link = `/order/status#${token}`;
     $('done-reference')!.textContent = reference;
     const a = $<HTMLAnchorElement>('done-status-link')!;
@@ -242,6 +317,9 @@ if (form && list && tpl && addBtn && estimate && status && done) {
     status.className = 'hidden';
     status.textContent = '';
     keyField.value = newKey();
+    applied = null;
+    setCodeMessage('');
+    refresh();
     syncSubmit();
     done.hidden = true;
     form.hidden = false;
@@ -274,6 +352,8 @@ if (form && list && tpl && addBtn && estimate && status && done) {
       for (const name of ['name', 'email', 'phone', 'street', 'suburb', 'state', 'postcode', 'website', 'formToken', 'idempotencyKey']) {
         body.set(name, (form.elements.namedItem(name) as HTMLInputElement | null)?.value ?? '');
       }
+      const sentCode = normaliseDiscountCode(codeInput?.value ?? '');
+      if (sentCode) body.set('discountCode', sentCode);
       body.set('consent', ticks[0]!.checked ? 'yes' : '');
       body.set('tournamentAck', ticks[1]!.checked ? 'yes' : '');
       const shrinkErrors: OrderErrors = {};
@@ -298,7 +378,7 @@ if (form && list && tpl && addBtn && estimate && status && done) {
       const reply = await upload(body, (pct) => say(`Uploading photos… ${pct}%`, true));
       const d = reply.data;
       if (reply.status === 201 && typeof d.reference === 'string' && typeof d.statusToken === 'string') {
-        showDone(d.reference, d.statusToken, d.test === true);
+        showDone(d.reference, d.statusToken, d.test === true, sentCode);
         return;
       }
       if (reply.status === 400 && d.errors && typeof d.errors === 'object') {
