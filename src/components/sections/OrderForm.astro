@@ -40,6 +40,7 @@ const err = 'mt-1 text-sm font-medium text-[#A12B2B]';
         Your reference is <strong id="done-reference" class="font-heading" data-testid="done-reference"></strong>.
         We’ll check your photos and email you within {siteData.pricing.replyTime}.
       </p>
+      <p id="done-discount" class="mt-3 leading-relaxed" data-testid="done-discount" hidden></p>
       <p id="done-test" class="mt-3 rounded-md bg-tint-blue p-3 text-sm" data-testid="done-test" hidden>
         <strong>This was a TEST order</strong> on the preview site: no paddle needs to be sent and no payment is taken.
       </p>
@@ -129,9 +130,21 @@ const err = 'mt-1 text-sm font-medium text-[#A12B2B]';
         <p id="paddles-error" class={err} hidden></p>
         <div id="paddle-list" class="space-y-4"></div>
         <button type="button" id="add-paddle" class="btn-secondary">+ Add another paddle</button>
-        <p class="text-sm text-text-muted">
+        <p class="text-sm text-text-muted" data-testid="estimate-line">
           Estimate: <strong id="estimate">A${price}</strong> for re-gritting, plus return postage<span id="postage-estimate"></span>.
         </p>
+      </div>
+
+      <div>
+        <label for="discountCode" class={label}>Discount code <span class="font-normal text-text-muted">(optional)</span></label>
+        <p id="discountCode-hint" class="text-sm text-text-muted">Have a code? It’s applied when we accept your order. Return postage is always payable.</p>
+        <div class="mt-1 flex gap-2">
+          <input id="discountCode" name="discountCode" maxlength="32" autocomplete="off" autocapitalize="characters" spellcheck="false"
+            class={field} aria-describedby="discountCode-hint discountCode-status discountCode-error" data-testid="discount-code" />
+          <button type="button" id="discountCode-apply" class="btn-secondary shrink-0" data-testid="discount-apply">Apply</button>
+        </div>
+        <p id="discountCode-status" class="mt-1 text-sm" role="status" aria-live="polite" data-testid="discount-status"></p>
+        <p id="discountCode-error" class={err} data-testid="discount-error" hidden></p>
       </div>
 
       <div>

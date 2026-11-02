@@ -20,6 +20,8 @@ interface StatusView {
   test: boolean;
   /** SCRUM-33: 'open' once posted back, 'received' once reviewed, null before. */
   review?: 'open' | 'received' | null;
+  /** SCRUM-63: the code on the order; `confirmed` once accepted. */
+  discount?: { code: string; label: string; cents: number; confirmed: boolean } | null;
 }
 
 /** The token of the order on screen (needed to send a review). */
@@ -46,6 +48,14 @@ function render(v: StatusView) {
   if (eta) {
     $('status-eta')!.textContent = eta;
     show('status-eta');
+  }
+  if (v.discount) {
+    const d = $('status-discount')!;
+    const amount = `A$${(v.discount.cents / 100).toFixed(v.discount.cents % 100 === 0 ? 0 : 2)}`;
+    d.textContent = v.discount.confirmed
+      ? `Discount code ${v.discount.code}: ${amount} off the re-grit.`
+      : `Discount code ${v.discount.code} applied (${v.discount.label}, about ${amount} off): confirmed when we accept your order.`;
+    d.hidden = false;
   }
   if (v.trackingNumber) {
     const t = $('status-tracking')!;

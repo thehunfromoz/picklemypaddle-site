@@ -18,12 +18,12 @@ To celebrate our grand opening, we are running an exclusive introductory offer: 
 **How it works:**
 
 - 💸 **The Service is Free:** You only cover the cost of return postage.
-- 💬 **All We Ask in Return:** A quick, honest testimonial about your experience that we can feature on our new website's testimonials section.
+- 💬 **Reviews Welcome, Never Required:** Once your paddle is back, we'll invite you to leave an honest review, as we do for every customer. Your free re-grit doesn't depend on it.
 
 **How to claim your free spot:**
 
 1. 📧 **Email us** at [**sales@picklemypaddle.com**](mailto:sales@picklemypaddle.com) to request your exclusive, one-time free coupon code.
 1. 🛒 **Head over** to our brand-new website at **www.picklemypaddle.com**.
-1. 📝 **Fill out the order form** with your details and enter your coupon code at the checkout page.
+1. 📝 **Fill out the order form** with your details and enter your coupon code in the **Discount code** box.
 
 These **10 free spots** will go fast! Email us today to lock in your code, restore your spin, and get your paddle game-ready for December.
