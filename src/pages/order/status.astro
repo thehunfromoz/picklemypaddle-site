@@ -27,7 +27,7 @@ const replyTime = siteData.pricing.replyTime;
 
       <div id="status-view" class="mt-6 space-y-6" data-testid="status-view" hidden>
         <p id="status-test" class="rounded-md bg-tint-blue p-3 text-sm" data-testid="status-test" hidden>
-          <strong>TEST order</strong> on the preview site: no paddle needs to be sent and no payment is taken.
+          <strong>TEST order</strong> on the preview site: no paddle needs to be sent and no real payment is taken (Stripe test mode: card 4242 4242 4242 4242, any future date, any CVC).
         </p>
         <div class="rounded-lg bg-surface p-6">
           <p class="text-sm text-text-muted">Reference <strong id="status-reference" class="font-heading text-base text-text" data-testid="status-reference"></strong></p>
@@ -37,6 +37,19 @@ const replyTime = siteData.pricing.replyTime;
           </p>
           <p id="status-eta" class="mt-2" data-testid="status-eta" hidden></p>
           <p id="status-discount" class="mt-2" data-testid="status-discount" hidden></p>
+          <p id="status-cancelled" class="mt-4 rounded-md bg-tint-blue p-3 text-sm" data-testid="status-cancelled" role="status" hidden>
+            Payment cancelled: nothing was charged. You can pay whenever you’re ready.
+          </p>
+          <div id="status-pay" class="mt-4" data-testid="status-pay" hidden>
+            <p>To pay: <strong id="status-amount" data-testid="status-amount"></strong>, including return postage.</p>
+            <button type="button" id="pay-now" class="btn-primary mt-3" data-testid="pay-now">Pay now</button>
+            <p class="mt-2 text-sm text-text-muted">You’ll pay by card on Stripe’s secure page. Your card details go to Stripe, our payment provider, and never to us.</p>
+            <p id="pay-error" class="mt-2 text-sm font-medium text-[#A12B2B]" role="alert" data-testid="pay-error" hidden></p>
+          </div>
+          <p id="status-pay-later" class="mt-4" data-testid="status-pay-later" hidden>
+            To pay: <strong id="status-amount-later"></strong>, including return postage. Online payment opens soon: we’ll email you how to pay, or email <a class="font-semibold text-primary underline" href={`mailto:${email}`}>{email}</a>.
+          </p>
+          <p id="status-paid" class="mt-2" data-testid="status-paid" hidden></p>
           <p id="status-tracking" class="mt-2" hidden></p>
         </div>
         <div>

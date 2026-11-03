@@ -1,0 +1,84 @@
+---
+/**
+ * Where Stripe Checkout sends the customer after paying (SCRUM-82):
+ * /order/paid?session_id=cs_…. The script asks the integrations service to confirm the payment
+ * with Stripe (server to server), so the order shows Paid at once, then links back to the order's
+ * private status page using the token kept in this tab before leaving for Stripe. Static, noindex,
+ * no-referrer, not cached (deploy/Caddyfile) and not in the sitemap.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { siteData } from '../../data/siteData';
+
+const email = siteData.contact.email;
+---
+
+<BaseLayout title="Payment" description="Your PickleMyPaddle payment." noindex>
+  <meta slot="head" name="referrer" content="no-referrer" />
+  <section class="py-section">
+    <div class="mx-auto max-w-3xl px-4 sm:px-6">
+      <p class="topper">Payment</p>
+      <h1 id="paid-heading" class="mt-2 font-heading text-h2 font-bold" tabindex="-1" data-testid="paid-heading">Checking your payment…</h1>
+      <div class="mt-6 space-y-4" role="status" aria-live="polite">
+        <p id="paid-done" data-testid="paid-done" hidden>
+          Thanks, payment received for order <strong id="paid-reference" data-testid="paid-reference"></strong>. Now post your paddles to us: the address and packing tips are in your acceptance email.
+        </p>
+        <p id="paid-pending" data-testid="paid-pending" hidden>
+          We haven’t had the confirmation from Stripe yet. If your card was charged, your order will show as paid within a few minutes; if you have any doubt, email <a class="font-semibold text-primary underline" href={`mailto:${email}`}>{email}</a>. Please don’t pay a second time.
+        </p>
+      </div>
+      <p class="mt-6"><a id="paid-status-link" class="btn-secondary" href="/order/status" data-testid="paid-status-link" hidden>See your order</a></p>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  import { DEFAULT_ORDER_API_URL } from '../../lib/order';
+  import { PAY_TOKEN_KEY, sessionIdFrom } from '../../lib/payment';
+
+  const $ = (id: string) => document.getElementById(id);
+  const show = (id: string) => {
+    const el = $(id);
+    if (el) el.hidden = false;
+  };
+
+  async function confirm() {
+    const sessionId = sessionIdFrom(location.search);
+    // The session id has done its job: keep it out of history and bookmarks.
+    history.replaceState(null, '', '/order/paid');
+    let token: string | null = null;
+    try {
+      token = sessionStorage.getItem(PAY_TOKEN_KEY);
+      sessionStorage.removeItem(PAY_TOKEN_KEY);
+    } catch {
+      // private browsing: the emailed link still works
+    }
+    if (token && /^[A-Za-z0-9_-]{43}$/.test(token)) {
+      const link = $('paid-status-link') as HTMLAnchorElement;
+      link.href = `/order/status#${token}`;
+      link.hidden = false;
+    }
+    let paid = false;
+    if (sessionId) {
+      try {
+        const res = await fetch(`${DEFAULT_ORDER_API_URL}/paid`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({ sessionId }),
+          cache: 'no-store',
+          referrerPolicy: 'no-referrer',
+        });
+        const data = (await res.json().catch(() => ({}))) as { paid?: boolean; reference?: string };
+        if (data.paid && typeof data.reference === 'string') {
+          $('paid-reference')!.textContent = data.reference;
+          paid = true;
+        }
+      } catch {
+        // shown as pending below
+      }
+    }
+    $('paid-heading')!.textContent = paid ? 'Thanks, payment received' : 'Confirming your payment';
+    show(paid ? 'paid-done' : 'paid-pending');
+    $('paid-heading')!.focus();
+  }
+  void confirm();
+</script>

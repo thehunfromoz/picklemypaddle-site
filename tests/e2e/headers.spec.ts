@@ -46,3 +46,12 @@ test('/env.css is cacheable on the live site', async ({ request }) => {
   expect(cc).toMatch(/max-age=\d{3,}/);
   expect(cc).not.toContain('no-store');
 });
+
+test('the private order pages are never cached and send no Referer (SCRUM-70, SCRUM-82)', async ({ request }) => {
+  for (const path of ['/order/status', '/order/paid']) {
+    const h = (await request.get(path)).headers();
+    expect(h['cache-control'], path).toBe('no-store');
+    expect(h['referrer-policy'], path).toBe('no-referrer');
+    expect(h['x-robots-tag'], path).toBe('noindex');
+  }
+});
