@@ -52,6 +52,7 @@ test('the private order pages are never cached and send no Referer (SCRUM-70, SC
     const h = (await request.get(path)).headers();
     expect(h['cache-control'], path).toBe('no-store');
     expect(h['referrer-policy'], path).toBe('no-referrer');
-    expect(h['x-robots-tag'], path).toBe('noindex');
+    // The staging gateway adds its own "noindex, nofollow" to every page, so match, don't equal.
+    expect(h['x-robots-tag'], path).toContain('noindex');
   }
 });
