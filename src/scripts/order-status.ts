@@ -6,6 +6,7 @@
  */
 import { DEFAULT_ORDER_API_URL, queueLine } from '../lib/order';
 import { isCheckoutUrl, PAY_TOKEN_KEY } from '../lib/payment';
+import { calendarDate, documentUrl } from '../lib/document';
 
 interface StatusView {
   reference: string;
@@ -24,7 +25,9 @@ interface StatusView {
   /** SCRUM-63: the code on the order; `confirmed` once accepted. */
   discount?: { code: string; label: string; cents: number; confirmed: boolean } | null;
   /** SCRUM-82: the amount to pay, whether Pay now shows, and when it was paid. */
-  payment?: { amountCents: number; canPay: boolean; paidAt: string | null } | null;
+  payment?: { amountCents: number; canPay: boolean; paidAt: string | null; refundedCents?: number } | null;
+  /** SCRUM-84: receipts and credit notes, oldest first. */
+  documents?: { number: string; title: string; issuedOn: string }[];
 }
 
 /** The token of the order on screen (needed to send a review). */
@@ -73,6 +76,29 @@ function render(v: StatusView) {
       $('status-paid')!.textContent = `Paid ${money(p.amountCents)} on ${day(p.paidAt)}.`;
       show('status-paid');
     }
+    // SCRUM-84: a refund, in part or in full.
+    if (p.refundedCents) {
+      $('status-refunded')!.textContent = p.refundedCents >= p.amountCents
+        ? `Refunded in full (${money(p.refundedCents)}).`
+        : `${money(p.refundedCents)} refunded.`;
+      show('status-refunded');
+    }
+  }
+  // SCRUM-84: each document opens its printable page with this same private token.
+  const docs = v.documents ?? [];
+  if (docs.length) {
+    $('status-document-list')!.replaceChildren(
+      ...docs.map((d) => {
+        const li = document.createElement('li');
+        const a = document.createElement('a');
+        a.className = 'font-semibold text-primary underline';
+        a.href = documentUrl(d.number, currentToken);
+        a.textContent = `${d.title} ${d.number}`;
+        li.append(a, ` (${calendarDate(d.issuedOn)})`);
+        return li;
+      }),
+    );
+    show('status-documents');
   }
   if (v.trackingNumber) {
     const t = $('status-tracking')!;
