@@ -100,9 +100,13 @@ if (form && list && tpl && addBtn && estimate && status && done) {
     else codeInput?.removeAttribute('aria-invalid');
   };
   let checking = 0;
+  /** The code being checked or last checked, so Apply plus the field's change event ask once. */
+  let checkedCode: string | null = null;
   const checkCode = async () => {
     if (!codeInput) return;
     const code = normaliseDiscountCode(codeInput.value);
+    if (code && code === checkedCode) return;
+    checkedCode = code || null;
     const run = ++checking;
     applied = null;
     refresh();
@@ -121,16 +125,23 @@ if (form && list && tpl && addBtn && estimate && status && done) {
       const data: unknown = await res.json().catch(() => null);
       if (run !== checking) return; // a newer check is under way
       if (res.status === 429 && data && typeof (data as { message?: unknown }).message === 'string') {
+        checkedCode = null;
         return setCodeMessage('', (data as { message: string }).message);
       }
       const result = parseDiscountCheck(data);
-      if (!result) return setCodeMessage('We couldn’t check the code just now. Submit anyway: we check it again when your order arrives.');
+      if (!result) {
+        checkedCode = null; // let Apply try again
+        return setCodeMessage('We couldn’t check the code just now. Submit anyway: we check it again when your order arrives.');
+      }
       if (!result.ok) return setCodeMessage('', result.message);
       applied = result.applied;
       refresh();
       setCodeMessage(`Code ${applied.code}: ${applied.label}. Confirmed when we accept your order.`);
     } catch {
-      if (run === checking) setCodeMessage('We couldn’t check the code just now. Submit anyway: we check it again when your order arrives.');
+      if (run === checking) {
+        checkedCode = null;
+        setCodeMessage('We couldn’t check the code just now. Submit anyway: we check it again when your order arrives.');
+      }
     }
   };
   $('discountCode-apply')?.addEventListener('click', () => void ensureProbe().then(checkCode));
@@ -138,6 +149,7 @@ if (form && list && tpl && addBtn && estimate && status && done) {
   // changes height as someone clicks it.
   codeInput?.addEventListener('input', () => {
     checking++;
+    checkedCode = null;
     applied = null;
     refresh();
     setCodeMessage('');
@@ -318,6 +330,7 @@ if (form && list && tpl && addBtn && estimate && status && done) {
     status.textContent = '';
     keyField.value = newKey();
     applied = null;
+    checkedCode = null;
     setCodeMessage('');
     refresh();
     syncSubmit();

@@ -13,7 +13,7 @@ draft: false
 
 We are thrilled to announce that the brand-new **PickleMyPaddle** paddle pickling (re-gritting) service is officially **launching this December 2026**—just in time for Christmas! If your paddle has lost its spin and needs that fresh-out-of-the-box texture, we are here to bring it back to life.
 
-To celebrate our grand opening, we are running an exclusive introductory offer: **we are giving away our re-gritting service completely free for the first 10 paddles!**
+To celebrate our grand opening, we are running an exclusive introductory offer: **we are re-gritting the first 10 paddles free of charge: you only pay the return postage!**
 
 **How it works:**
 

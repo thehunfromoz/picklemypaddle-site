@@ -34,8 +34,10 @@ test.describe('Discount code on the order form', () => {
     await fillOrder(page);
     await page.getByTestId('discount-code').fill(' launch10 ');
     await page.getByTestId('discount-apply').click();
-    await expect(page.getByTestId('discount-status')).toHaveText('Code LAUNCH10: Free re-grit for 1 paddle. Confirmed when we accept your order.');
-    await expect(page.locator('#estimate')).toHaveText('A$0 (A$60 less A$60 with LAUNCH10)');
+    // home-server runs this as a smoke test on a slow CPU: allow the answer time to arrive.
+    await expect(page.getByTestId('discount-status')).toHaveText('Code LAUNCH10: Free re-grit for 1 paddle. Confirmed when we accept your order.', { timeout: 15_000 });
+    await expect(page.locator('#estimate')).toHaveText('A$0 (A$60 less A$60 with LAUNCH10)', { timeout: 15_000 });
+    expect(seen.filter((b) => (b as { code: string }).code === 'LAUNCH10')).toHaveLength(1); // Apply and blur ask once
     await expect(page.getByTestId('estimate-line')).toContainText('plus return postage');
     expect(seen.at(-1)).toMatchObject({ code: 'LAUNCH10' });
 
@@ -45,7 +47,7 @@ test.describe('Discount code on the order form', () => {
     await page.getByRole('button', { name: 'Submit for review' }).click();
     await expect(page.getByTestId('order-done')).toBeVisible({ timeout: 30_000 });
     expect(parts.find((p) => p.name === 'discountCode')?.data.toString()).toBe('LAUNCH10');
-    await expect(page.getByTestId('done-discount')).toContainText('Code LAUNCH10 applied: it’s confirmed when we accept your order.');
+    await expect(page.getByTestId('done-discount')).toContainText('Code LAUNCH10 applied: it’s confirmed when we accept your order.', { timeout: 15_000 });
   });
 
   test('an invalid code shows the one message and doesn’t block the order', async ({ page }) => {
