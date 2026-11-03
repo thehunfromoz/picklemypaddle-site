@@ -6,7 +6,10 @@
  * Static, noindex, no-referrer, not cached (deploy/Caddyfile) and not in the sitemap.
  *
  * SCRUM-33: once the paddles are posted back, the page offers a short review form (the Posted back
- * email links here with ?review=1). First name and suburb are typed, never pre-filled, because this
+ * email links here with ?review=1).
+ *
+ * SCRUM-84: the order's receipt and any credit notes are listed and link to their printable page,
+ * /order/document?n=NUMBER#<the same token>. First name and suburb are typed, never pre-filled, because this
  * page never shows a name or address.
  */
 import BaseLayout from '../../layouts/BaseLayout.astro';
@@ -50,6 +53,11 @@ const replyTime = siteData.pricing.replyTime;
             To pay: <strong id="status-amount-later"></strong>, including return postage. Online payment opens soon: we’ll email you how to pay, or email <a class="font-semibold text-primary underline" href={`mailto:${email}`}>{email}</a>.
           </p>
           <p id="status-paid" class="mt-2" data-testid="status-paid" hidden></p>
+          <p id="status-refunded" class="mt-2" data-testid="status-refunded" hidden></p>
+          <div id="status-documents" class="mt-4" data-testid="status-documents" hidden>
+            <h3 class="font-heading text-lg font-bold">Receipts</h3>
+            <ul id="status-document-list" class="mt-2 space-y-1"></ul>
+          </div>
           <p id="status-tracking" class="mt-2" hidden></p>
         </div>
         <div>

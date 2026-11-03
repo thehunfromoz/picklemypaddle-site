@@ -30,8 +30,9 @@
 	header @hashed Cache-Control "public, max-age=31536000, immutable"
 
 	# SCRUM-70: the private order status page is never cached and never sends a Referer; nor is
-	# the page Stripe Checkout returns to (SCRUM-82), whose URL carries the session id.
-	@orderstatus path /order/status /order/status/ /order/status/* /order/paid /order/paid/ /order/paid/*
+	# the page Stripe Checkout returns to (SCRUM-82), whose URL carries the session id; nor is a
+	# receipt or credit note's printable page (SCRUM-84).
+	@orderstatus path /order/status /order/status/ /order/status/* /order/paid /order/paid/ /order/paid/* /order/document /order/document/ /order/document/*
 	header @orderstatus {
 		Referrer-Policy "no-referrer"
 		Cache-Control "no-store"

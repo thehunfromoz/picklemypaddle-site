@@ -1,0 +1,189 @@
+---
+/**
+ * A receipt or credit note, printable (SCRUM-84): /order/document?n=PMP-INV-0001#<status token>.
+ * Linked from the "Payment received", "Refund issued" and In-queue emails and the status page.
+ * The script asks the integrations service for the document with the token in a POST body and
+ * lays out the frozen snapshot it returns; every word and amount comes from that snapshot.
+ * "Print or save as PDF" uses the browser's own print (no PDF engine). Static, noindex,
+ * no-referrer, not cached (deploy/Caddyfile) and not in the sitemap.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { siteData } from '../../data/siteData';
+
+const email = siteData.contact.email;
+---
+
+<BaseLayout title="Receipt" description="Your PickleMyPaddle receipt." noindex>
+  <meta slot="head" name="referrer" content="no-referrer" />
+  <section class="py-section print:py-0">
+    <div class="mx-auto max-w-3xl px-4 sm:px-6 print:max-w-none print:px-0">
+      <p id="doc-loading" class="text-text-muted" data-testid="doc-loading" role="status">Loading your document…</p>
+
+      <div id="doc-invalid" class="rounded-lg bg-surface p-6" data-testid="doc-invalid" hidden>
+        <h1 class="font-heading text-h3 font-bold">This link isn’t valid or has expired</h1>
+        <p class="mt-3">
+          Use the latest link from our emails, or open your order from its status page (“Email me my links” there sends fresh ones). Still stuck? Email
+          <a class="font-semibold text-primary underline" href={`mailto:${email}`}>{email}</a>.
+        </p>
+      </div>
+
+      <div id="doc-view" data-testid="doc-view" hidden>
+        <p class="no-print mb-6 flex flex-wrap items-center gap-3">
+          <button type="button" id="doc-print" class="btn-primary" data-testid="doc-print">Print or save as PDF</button>
+          <a id="doc-back" class="font-semibold text-primary underline" href="/order/status">Back to your order</a>
+        </p>
+
+        <article class="doc rounded-lg border border-border bg-white p-6 text-text sm:p-8 print:border-0 print:p-0" data-testid="doc">
+          <p id="doc-test" class="mb-4 rounded-md bg-tint-blue p-3 text-sm" data-testid="doc-test" hidden></p>
+          <header class="flex flex-wrap justify-between gap-6">
+            <div>
+              <h1 id="doc-heading" class="font-heading text-h2 font-bold" data-testid="doc-heading"></h1>
+              <dl id="doc-meta" class="mt-3 grid grid-cols-[max-content_1fr] gap-x-4 gap-y-1 text-sm"></dl>
+            </div>
+            <address id="doc-seller" class="text-sm not-italic sm:text-right" data-testid="doc-seller"></address>
+          </header>
+
+          <div class="mt-6 text-sm">
+            <p id="doc-buyer-label" class="text-text-muted"></p>
+            <p id="doc-buyer" class="font-semibold" data-testid="doc-buyer"></p>
+          </div>
+
+          <table class="mt-6 w-full border-collapse text-sm" data-testid="doc-lines">
+            <thead>
+              <tr class="border-b border-border text-left">
+                <th scope="col" class="py-2 pr-2">Description</th>
+                <th scope="col" class="py-2 pr-2 text-right">Qty</th>
+                <th scope="col" class="py-2 pr-2 text-right">Each</th>
+                <th scope="col" class="py-2 text-right">Amount</th>
+              </tr>
+            </thead>
+            <tbody id="doc-lines"></tbody>
+            <tfoot>
+              <tr class="border-b-2 border-text font-bold">
+                <th id="doc-total-label" scope="row" colspan="3" class="py-2 text-left"></th>
+                <td id="doc-total" class="whitespace-nowrap py-2 text-right" data-testid="doc-total"></td>
+              </tr>
+              <tr><td id="doc-gst" colspan="4" class="pt-2" data-testid="doc-gst"></td></tr>
+            </tfoot>
+          </table>
+
+          <p id="doc-paid" class="mt-4 font-semibold" data-testid="doc-paid" hidden></p>
+          <div id="doc-notes" class="mt-2 space-y-1 text-sm text-text-muted"></div>
+        </article>
+        <p class="no-print mt-4 text-sm text-text-muted">Keep a copy: this link stops working some time after your order is finished.</p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style is:global>
+  @media print {
+    /* Only the document on paper: no header, footer, order bar, preview ribbon or buttons. */
+    body > :not(main),
+    .no-print {
+      display: none !important;
+    }
+    body {
+      padding: 0 !important;
+      background: #fff !important;
+    }
+  }
+</style>
+
+<script>
+  import { DEFAULT_ORDER_API_URL } from '../../lib/order';
+  import { calendarDate, displayHeading, documentMoney, documentParams, paidLine, type DocumentView } from '../../lib/document';
+
+  const $ = (id: string) => document.getElementById(id);
+  const show = (id: string, on = true) => {
+    const el = $(id);
+    if (el) el.hidden = !on;
+  };
+  const el = (tag: string, text: string, className = '') => {
+    const e = document.createElement(tag);
+    e.textContent = text;
+    if (className) e.className = className;
+    return e;
+  };
+
+  function render(v: DocumentView, token: string) {
+    const s = v.snapshot;
+    const heading = displayHeading(v);
+    document.title = `${heading} ${s.number} · PickleMyPaddle`;
+    if (s.test) {
+      $('doc-test')!.textContent = `TEST DOCUMENT from the preview site: not a real ${s.heading.toLowerCase()}. Nothing was charged.`;
+      show('doc-test');
+    }
+    $('doc-heading')!.textContent = heading;
+    const meta: [string, string][] = [
+      ['Number', s.number],
+      ['Date of issue', calendarDate(s.issuedOn)],
+      ['Order', s.reference],
+      ...(s.refersTo ? [['For', `${s.refersTo.number} of ${calendarDate(s.refersTo.issuedOn)}`] as [string, string]] : []),
+    ];
+    $('doc-meta')!.replaceChildren(...meta.flatMap(([k, val]) => [el('dt', k, 'text-text-muted'), el('dd', val)]));
+    $('doc-seller')!.replaceChildren(
+      el('strong', s.seller.name, 'block'),
+      el('span', `ABN ${s.seller.abn}`, 'block'),
+      el('span', s.seller.email, 'block'),
+      el('span', s.seller.website, 'block'),
+    );
+    $('doc-buyer-label')!.textContent = s.kind === 'credit_note' ? 'Credit to' : 'Bill to';
+    $('doc-buyer')!.replaceChildren(
+      document.createTextNode(s.buyer.name),
+      ...(s.buyer.abn ? [el('span', `ABN ${s.buyer.abn}`, 'block font-normal')] : []),
+      ...(s.buyer.address ? [el('span', s.buyer.address, 'block whitespace-pre-line font-normal')] : []),
+    );
+    $('doc-lines')!.replaceChildren(
+      ...s.lines.map((l) => {
+        const tr = document.createElement('tr');
+        tr.className = 'border-b border-border';
+        tr.append(
+          el('td', l.description, 'py-2 pr-2'),
+          el('td', String(l.quantity), 'py-2 pr-2 text-right'),
+          el('td', documentMoney(l.unitCents), 'whitespace-nowrap py-2 pr-2 text-right'),
+          el('td', documentMoney(l.amountCents), 'whitespace-nowrap py-2 text-right'),
+        );
+        return tr;
+      }),
+    );
+    $('doc-total-label')!.textContent = s.kind === 'credit_note' ? 'Total credit' : 'Total';
+    $('doc-total')!.textContent = documentMoney(s.totalCents);
+    $('doc-gst')!.textContent = s.gstLine;
+    const paid = paidLine(v);
+    if (paid) {
+      $('doc-paid')!.textContent = paid;
+      show('doc-paid');
+    }
+    $('doc-notes')!.replaceChildren(...s.notes.map((n) => el('p', n)));
+    ($('doc-back') as HTMLAnchorElement).href = `/order/status#${token}`;
+    show('doc-loading', false);
+    show('doc-view');
+  }
+
+  function invalid() {
+    show('doc-loading', false);
+    show('doc-invalid');
+  }
+
+  async function load() {
+    const params = documentParams(location.search, location.hash);
+    if (!params) return invalid();
+    try {
+      const res = await fetch(`${DEFAULT_ORDER_API_URL}/document`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ token: params.token, number: params.number }),
+        cache: 'no-store',
+        referrerPolicy: 'no-referrer',
+      });
+      if (!res.ok) return invalid();
+      render((await res.json()) as DocumentView, params.token);
+    } catch {
+      invalid();
+    }
+  }
+
+  $('doc-print')?.addEventListener('click', () => window.print());
+  void load();
+</script>
