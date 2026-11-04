@@ -1,0 +1,83 @@
+---
+/**
+ * A club batch's invoice, printable (SCRUM-85): /club/invoice?n=PMP-INV-0001#<token>, linked from
+ * the invoice email. The token is minted for that email (only its hash is kept by the service),
+ * stays in the fragment and is sent in a POST body. Every word and amount comes from the invoice's
+ * frozen snapshot. Static, noindex, no-referrer, not cached (deploy/Caddyfile), not in the sitemap.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import DocumentArticle from '../../components/DocumentArticle.astro';
+
+const clubEmail = 'attila@picklemypaddle.com';
+---
+
+<BaseLayout title="Club invoice" description="Your club’s PickleMyPaddle invoice." noindex>
+  <meta slot="head" name="referrer" content="no-referrer" />
+  <section class="py-section print:py-0">
+    <div class="mx-auto max-w-3xl px-4 sm:px-6 print:max-w-none print:px-0">
+      <p id="doc-loading" class="text-text-muted" data-testid="doc-loading" role="status">Loading your invoice…</p>
+
+      <div id="doc-invalid" class="rounded-lg bg-surface p-6" data-testid="doc-invalid" hidden>
+        <h1 class="font-heading text-h3 font-bold">This invoice link isn’t valid or has expired</h1>
+        <p class="mt-3">
+          Use the link in the latest invoice email, or reply to that email and we’ll send a fresh one. You can also email
+          <a class="font-semibold text-primary underline" href={`mailto:${clubEmail}`}>{clubEmail}</a>.
+        </p>
+      </div>
+
+      <div id="doc-view" data-testid="doc-view" hidden>
+        <p class="no-print mb-6 flex flex-wrap items-center gap-3">
+          <button type="button" id="doc-print" class="btn-primary" data-testid="doc-print">Print or save as PDF</button>
+        </p>
+        <DocumentArticle />
+        <p class="no-print mt-4 text-sm text-text-muted">This link is private to your club. Keep a copy of the invoice for your records.</p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style is:global>
+  @media print {
+    body > :not(main),
+    .no-print {
+      display: none !important;
+    }
+    body {
+      padding: 0 !important;
+      background: #fff !important;
+    }
+  }
+</style>
+
+<script>
+  import { documentParams, type DocumentView } from '../../lib/document';
+  import { renderDocument, show } from '../../lib/document-view';
+
+  const CLUB_API_URL = '/api/clubs';
+
+  function invalid() {
+    show('doc-loading', false);
+    show('doc-invalid');
+  }
+
+  async function load() {
+    const params = documentParams(location.search, location.hash);
+    if (!params) return invalid();
+    try {
+      const res = await fetch(`${CLUB_API_URL}/invoice`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ token: params.token, number: params.number }),
+        cache: 'no-store',
+        referrerPolicy: 'no-referrer',
+      });
+      if (!res.ok) return invalid();
+      renderDocument((await res.json()) as DocumentView);
+    } catch {
+      invalid();
+    }
+  }
+
+  document.getElementById('doc-print')?.addEventListener('click', () => window.print());
+  void load();
+</script>

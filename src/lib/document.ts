@@ -24,16 +24,22 @@ export interface DocumentSnapshot {
   kind: 'receipt' | 'invoice' | 'credit_note';
   heading: 'Invoice' | 'Tax invoice' | 'Credit note' | 'Adjustment note';
   issuedOn: string;
-  treatment: 'not_registered' | 'gst_inclusive';
+  /** gst_exclusive: club invoices once GST-registered (SCRUM-85): GST added on top as its own line. */
+  treatment: 'not_registered' | 'gst_inclusive' | 'gst_exclusive';
   test: boolean;
   seller: { name: string; abn: string; email: string; website: string };
   buyer: { name: string; abn?: string; address?: string };
   reference: string;
   refersTo?: { number: string; issuedOn: string };
   lines: DocumentLine[];
+  /** GST-exclusive documents: the lines' sum before GST. */
+  subtotalCents?: number;
   totalCents: number;
   gstCents: number;
   gstLine: string;
+  /** Club invoices (SCRUM-85): when it's due, and the PayID it asks clubs to pay to. */
+  dueOn?: string;
+  payId?: string;
   notes: string[];
 }
 
@@ -46,6 +52,31 @@ export interface DocumentView {
 /** The printable page of one of an order's documents. */
 export function documentUrl(number: string, token: string): string {
   return `/order/document?n=${encodeURIComponent(number)}#${token}`;
+}
+
+/** SCRUM-85: a club invoice's printable page (linked from its email). */
+export function clubDocumentUrl(number: string, token: string): string {
+  return `/club/invoice?n=${encodeURIComponent(number)}#${token}`;
+}
+
+/** SCRUM-85: a club batch's reference (PMPB-…) rather than an order's (PMP-…). */
+export const isBatchReference = (reference: string) => reference.startsWith('PMPB-');
+
+/** The rows above the total: the subtotal and GST of a GST-exclusive document, else none. */
+export function subtotalRows(s: DocumentSnapshot): [string, string][] {
+  if (s.subtotalCents === undefined) return [];
+  return [['Subtotal (excluding GST)', documentMoney(s.subtotalCents)], ['GST (10%)', documentMoney(s.gstCents)]];
+}
+
+/** The details under the heading: number, date, what it's for, due date, and what it adjusts. */
+export function documentMeta(s: DocumentSnapshot): [string, string][] {
+  return [
+    ['Number', s.number],
+    ['Date of issue', calendarDate(s.issuedOn)],
+    [isBatchReference(s.reference) ? 'Club batch' : 'Order', s.reference],
+    ...(s.dueOn ? [['Due by', calendarDate(s.dueOn)] as [string, string]] : []),
+    ...(s.refersTo ? [['For', `${s.refersTo.number} of ${calendarDate(s.refersTo.issuedOn)}`] as [string, string]] : []),
+  ];
 }
 
 /** The number and token from the page's own address, or null if either is malformed. */

@@ -9,6 +9,7 @@
  */
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { siteData } from '../../data/siteData';
+import DocumentArticle from '../../components/DocumentArticle.astro';
 
 const email = siteData.contact.email;
 ---
@@ -33,43 +34,7 @@ const email = siteData.contact.email;
           <a id="doc-back" class="font-semibold text-primary underline" href="/order/status">Back to your order</a>
         </p>
 
-        <article class="doc rounded-lg border border-border bg-white p-6 text-text sm:p-8 print:border-0 print:p-0" data-testid="doc">
-          <p id="doc-test" class="mb-4 rounded-md bg-tint-blue p-3 text-sm" data-testid="doc-test" hidden></p>
-          <header class="flex flex-wrap justify-between gap-6">
-            <div>
-              <h1 id="doc-heading" class="font-heading text-h2 font-bold" data-testid="doc-heading"></h1>
-              <dl id="doc-meta" class="mt-3 grid grid-cols-[max-content_1fr] gap-x-4 gap-y-1 text-sm"></dl>
-            </div>
-            <address id="doc-seller" class="text-sm not-italic sm:text-right" data-testid="doc-seller"></address>
-          </header>
-
-          <div class="mt-6 text-sm">
-            <p id="doc-buyer-label" class="text-text-muted"></p>
-            <p id="doc-buyer" class="font-semibold" data-testid="doc-buyer"></p>
-          </div>
-
-          <table class="mt-6 w-full border-collapse text-sm" data-testid="doc-lines">
-            <thead>
-              <tr class="border-b border-border text-left">
-                <th scope="col" class="py-2 pr-2">Description</th>
-                <th scope="col" class="py-2 pr-2 text-right">Qty</th>
-                <th scope="col" class="py-2 pr-2 text-right">Each</th>
-                <th scope="col" class="py-2 text-right">Amount</th>
-              </tr>
-            </thead>
-            <tbody id="doc-lines"></tbody>
-            <tfoot>
-              <tr class="border-b-2 border-text font-bold">
-                <th id="doc-total-label" scope="row" colspan="3" class="py-2 text-left"></th>
-                <td id="doc-total" class="whitespace-nowrap py-2 text-right" data-testid="doc-total"></td>
-              </tr>
-              <tr><td id="doc-gst" colspan="4" class="pt-2" data-testid="doc-gst"></td></tr>
-            </tfoot>
-          </table>
-
-          <p id="doc-paid" class="mt-4 font-semibold" data-testid="doc-paid" hidden></p>
-          <div id="doc-notes" class="mt-2 space-y-1 text-sm text-text-muted"></div>
-        </article>
+        <DocumentArticle />
         <p class="no-print mt-4 text-sm text-text-muted">Keep a copy: this link stops working some time after your order is finished.</p>
       </div>
     </div>
@@ -92,74 +57,8 @@ const email = siteData.contact.email;
 
 <script>
   import { DEFAULT_ORDER_API_URL } from '../../lib/order';
-  import { calendarDate, displayHeading, documentMoney, documentParams, paidLine, type DocumentView } from '../../lib/document';
-
-  const $ = (id: string) => document.getElementById(id);
-  const show = (id: string, on = true) => {
-    const el = $(id);
-    if (el) el.hidden = !on;
-  };
-  const el = (tag: string, text: string, className = '') => {
-    const e = document.createElement(tag);
-    e.textContent = text;
-    if (className) e.className = className;
-    return e;
-  };
-
-  function render(v: DocumentView, token: string) {
-    const s = v.snapshot;
-    const heading = displayHeading(v);
-    document.title = `${heading} ${s.number} · PickleMyPaddle`;
-    if (s.test) {
-      $('doc-test')!.textContent = `TEST DOCUMENT from the preview site: not a real ${s.heading.toLowerCase()}. Nothing was charged.`;
-      show('doc-test');
-    }
-    $('doc-heading')!.textContent = heading;
-    const meta: [string, string][] = [
-      ['Number', s.number],
-      ['Date of issue', calendarDate(s.issuedOn)],
-      ['Order', s.reference],
-      ...(s.refersTo ? [['For', `${s.refersTo.number} of ${calendarDate(s.refersTo.issuedOn)}`] as [string, string]] : []),
-    ];
-    $('doc-meta')!.replaceChildren(...meta.flatMap(([k, val]) => [el('dt', k, 'text-text-muted'), el('dd', val)]));
-    $('doc-seller')!.replaceChildren(
-      el('strong', s.seller.name, 'block'),
-      el('span', `ABN ${s.seller.abn}`, 'block'),
-      el('span', s.seller.email, 'block'),
-      el('span', s.seller.website, 'block'),
-    );
-    $('doc-buyer-label')!.textContent = s.kind === 'credit_note' ? 'Credit to' : 'Bill to';
-    $('doc-buyer')!.replaceChildren(
-      document.createTextNode(s.buyer.name),
-      ...(s.buyer.abn ? [el('span', `ABN ${s.buyer.abn}`, 'block font-normal')] : []),
-      ...(s.buyer.address ? [el('span', s.buyer.address, 'block whitespace-pre-line font-normal')] : []),
-    );
-    $('doc-lines')!.replaceChildren(
-      ...s.lines.map((l) => {
-        const tr = document.createElement('tr');
-        tr.className = 'border-b border-border';
-        tr.append(
-          el('td', l.description, 'py-2 pr-2'),
-          el('td', String(l.quantity), 'py-2 pr-2 text-right'),
-          el('td', documentMoney(l.unitCents), 'whitespace-nowrap py-2 pr-2 text-right'),
-          el('td', documentMoney(l.amountCents), 'whitespace-nowrap py-2 text-right'),
-        );
-        return tr;
-      }),
-    );
-    $('doc-total-label')!.textContent = s.kind === 'credit_note' ? 'Total credit' : 'Total';
-    $('doc-total')!.textContent = documentMoney(s.totalCents);
-    $('doc-gst')!.textContent = s.gstLine;
-    const paid = paidLine(v);
-    if (paid) {
-      $('doc-paid')!.textContent = paid;
-      show('doc-paid');
-    }
-    $('doc-notes')!.replaceChildren(...s.notes.map((n) => el('p', n)));
-    ($('doc-back') as HTMLAnchorElement).href = `/order/status#${token}`;
-    show('doc-loading', false);
-    show('doc-view');
-  }
+  import { documentParams, type DocumentView } from '../../lib/document';
+  import { renderDocument, show } from '../../lib/document-view';
 
   function invalid() {
     show('doc-loading', false);
@@ -178,12 +77,13 @@ const email = siteData.contact.email;
         referrerPolicy: 'no-referrer',
       });
       if (!res.ok) return invalid();
-      render((await res.json()) as DocumentView, params.token);
+      renderDocument((await res.json()) as DocumentView);
+      (document.getElementById('doc-back') as HTMLAnchorElement).href = `/order/status#${params.token}`;
     } catch {
       invalid();
     }
   }
 
-  $('doc-print')?.addEventListener('click', () => window.print());
+  document.getElementById('doc-print')?.addEventListener('click', () => window.print());
   void load();
 </script>
