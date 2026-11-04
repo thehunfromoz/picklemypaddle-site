@@ -1,6 +1,6 @@
 /** Website side of SCRUM-84: the printable receipt's address and wording helpers. */
 import { describe, expect, it } from 'vitest';
-import { calendarDate, clubDocumentUrl, displayHeading, documentMeta, documentMoney, documentParams, documentUrl, paidLine, subtotalRows, type DocumentView } from '../../src/lib/document';
+import { calendarDate, clubDocumentUrl, clubPaymentLines, displayHeading, documentMeta, documentMoney, documentParams, documentUrl, paidLine, subtotalRows, type DocumentView } from '../../src/lib/document';
 
 const TOKEN = 'T'.repeat(43);
 const view = (over: Partial<DocumentView['snapshot']> = {}, paid: DocumentView['paid'] = { on: '2026-11-03', method: 'card' }): DocumentView => ({
@@ -36,6 +36,15 @@ describe('printable documents', () => {
 });
 
 describe('club invoices (SCRUM-85)', () => {
+  it('lists payments so far and what’s owing only while part-paid', () => {
+    const base = { sha256: 'x', paid: null, snapshot: {} as DocumentView['snapshot'] };
+    expect(clubPaymentLines({ ...base, balanceCents: 27000, payments: [] })).toEqual({ payments: [], owing: null });
+    expect(clubPaymentLines({ ...base, balanceCents: 17000, payments: [{ method: 'PayID', amountCents: 10000, paidOn: '2026-11-04' }] }))
+      .toEqual({ payments: ['A$100.00 by PayID on 4 November 2026'], owing: 'Still owing: A$170.00' });
+    expect(clubPaymentLines({ ...base, balanceCents: 0, payments: [{ method: 'cash', amountCents: 27000, paidOn: '2026-11-05' }] }).owing).toBeNull();
+    expect(clubPaymentLines(base)).toEqual({ payments: [], owing: null }); // a credit note, or an older service
+  });
+
   it('links the club invoice page with the token in the fragment', () => {
     expect(clubDocumentUrl('PMP-INV-0042', TOKEN)).toBe(`/club/invoice?n=PMP-INV-0042#${TOKEN}`);
   });

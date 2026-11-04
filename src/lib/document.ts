@@ -49,6 +49,20 @@ export interface DocumentView {
   paid: { on: string; method: string } | null;
 }
 
+/** SCRUM-85: a club invoice also says what's been paid towards it and what's still owing. */
+export interface ClubInvoiceView extends DocumentView {
+  balanceCents?: number;
+  payments?: { method: string; amountCents: number; paidOn: string }[];
+  canPayByCard?: boolean;
+}
+
+/** The payments made so far, one line each, then what's owing (only while part-paid). */
+export function clubPaymentLines(v: ClubInvoiceView): { payments: string[]; owing: string | null } {
+  const payments = (v.payments ?? []).map((p) => `${documentMoney(p.amountCents)} by ${p.method} on ${calendarDate(p.paidOn)}`);
+  const owing = payments.length && v.balanceCents !== undefined && v.balanceCents > 0 ? `Still owing: ${documentMoney(v.balanceCents)}` : null;
+  return { payments, owing };
+}
+
 /** The printable page of one of an order's documents. */
 export function documentUrl(number: string, token: string): string {
   return `/order/document?n=${encodeURIComponent(number)}#${token}`;

@@ -31,8 +31,8 @@
 
 	# SCRUM-70: the private order status page is never cached and never sends a Referer; nor is
 	# the page Stripe Checkout returns to (SCRUM-82), whose URL carries the session id; nor is a
-	# receipt or credit note's printable page (SCRUM-84); nor is a club invoice's (SCRUM-85).
-	@orderstatus path /order/status /order/status/ /order/status/* /order/paid /order/paid/ /order/paid/* /order/document /order/document/ /order/document/* /club/invoice /club/invoice/ /club/invoice/*
+	# receipt or credit note's printable page (SCRUM-84); nor is a club invoice's, nor the page after paying one (SCRUM-85).
+	@orderstatus path /order/status /order/status/ /order/status/* /order/paid /order/paid/ /order/paid/* /order/document /order/document/ /order/document/* /club/invoice /club/invoice/ /club/invoice/* /club/paid /club/paid/ /club/paid/*
 	header @orderstatus {
 		Referrer-Policy "no-referrer"
 		Cache-Control "no-store"

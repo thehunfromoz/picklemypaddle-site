@@ -48,7 +48,7 @@ test('/env.css is cacheable on the live site', async ({ request }) => {
 });
 
 test('the private order pages are never cached and send no Referer (SCRUM-70, SCRUM-82)', async ({ request }) => {
-  for (const path of ['/order/status', '/order/paid', '/order/document', '/club/invoice']) {
+  for (const path of ['/order/status', '/order/paid', '/order/document', '/club/invoice', '/club/paid']) {
     const h = (await request.get(path)).headers();
     expect(h['cache-control'], path).toBe('no-store');
     expect(h['referrer-policy'], path).toBe('no-referrer');
