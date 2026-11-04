@@ -1,6 +1,6 @@
 /** Website side of SCRUM-84: the printable receipt's address and wording helpers. */
 import { describe, expect, it } from 'vitest';
-import { calendarDate, displayHeading, documentMoney, documentParams, documentUrl, paidLine, type DocumentView } from '../../src/lib/document';
+import { calendarDate, clubDocumentUrl, displayHeading, documentMeta, documentMoney, documentParams, documentUrl, paidLine, subtotalRows, type DocumentView } from '../../src/lib/document';
 
 const TOKEN = 'T'.repeat(43);
 const view = (over: Partial<DocumentView['snapshot']> = {}, paid: DocumentView['paid'] = { on: '2026-11-03', method: 'card' }): DocumentView => ({
@@ -32,5 +32,23 @@ describe('printable documents', () => {
     expect(documentMoney(6000)).toBe('A$60.00');
     expect(documentMoney(-6000)).toBe('−A$60.00');
     expect(calendarDate('2027-03-01')).toBe('1 March 2027');
+  });
+});
+
+describe('club invoices (SCRUM-85)', () => {
+  it('links the club invoice page with the token in the fragment', () => {
+    expect(clubDocumentUrl('PMP-INV-0042', TOKEN)).toBe(`/club/invoice?n=PMP-INV-0042#${TOKEN}`);
+  });
+  it('names a batch "Club batch" and shows the due date; an order stays "Order"', () => {
+    expect(documentMeta(view({ reference: 'PMPB-4K7QX', dueOn: '2026-11-18' }).snapshot)).toEqual([
+      ['Number', 'PMP-INV-0001'], ['Date of issue', '3 November 2026'], ['Club batch', 'PMPB-4K7QX'], ['Due by', '18 November 2026'],
+    ]);
+    expect(documentMeta(view().snapshot)[2]).toEqual(['Order', 'PMP-ABCDE']);
+  });
+  it('shows a subtotal and GST line only on a GST-exclusive document', () => {
+    expect(subtotalRows(view().snapshot)).toEqual([]);
+    expect(subtotalRows(view({ treatment: 'gst_exclusive', subtotalCents: 124200, gstCents: 12420, totalCents: 136620 }).snapshot)).toEqual([
+      ['Subtotal (excluding GST)', 'A$1242.00'], ['GST (10%)', 'A$124.20'],
+    ]);
   });
 });
