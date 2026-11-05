@@ -43,6 +43,7 @@ const clubEmail = 'attila@picklemypaddle.com';
           <ul id="club-payment-list" class="mt-2 space-y-1" data-testid="club-payment-list"></ul>
           <p id="club-owing" class="mt-2 font-semibold" data-testid="club-owing" hidden></p>
         </div>
+        <p id="club-pay-notice" class="no-print mt-4 rounded-md bg-tint-blue p-3 text-sm" data-testid="club-pay-notice" role="status" hidden></p>
         <div id="club-pay" class="no-print mt-4" data-testid="club-pay" hidden>
           <button type="button" id="club-pay-now" class="btn-primary" data-testid="club-pay-now">Pay by card</button>
           <p class="mt-2 text-sm text-text-muted">You’ll pay by card on Stripe’s secure page. Card details go to Stripe, our payment provider, and never to us. PayID or cash (as on the invoice) is still fine.</p>
@@ -93,12 +94,12 @@ const clubEmail = 'attila@picklemypaddle.com';
           return li;
         }),
       );
-      show('club-payments');
     }
-    if (owing) {
-      document.getElementById('club-owing')!.textContent = owing;
-      show('club-owing');
-    }
+    // Shown and hidden from what the invoice says now: a reload after "paid meanwhile" must not
+    // leave an old "Still owing" line on a paid invoice.
+    show('club-payments', payments.length > 0);
+    document.getElementById('club-owing')!.textContent = owing ?? '';
+    show('club-owing', Boolean(owing));
     const pay = document.getElementById('club-pay-now')!;
     pay.textContent = v.balanceCents ? `Pay ${documentMoney(v.balanceCents)} by card` : 'Pay by card';
     show('club-pay', !v.paid && v.canPayByCard === true);
@@ -110,6 +111,8 @@ const clubEmail = 'attila@picklemypaddle.com';
   }
 
   async function load() {
+    show('pay-cancelled', false);
+    show('club-pay-notice', false);
     let params = documentParams(location.search, location.hash);
     // Back from Stripe with "Cancel": the link was remembered in this tab, not sent to Stripe.
     if (!params && new URLSearchParams(location.search).get('payment') === 'cancelled') {
@@ -174,8 +177,18 @@ const clubEmail = 'attila@picklemypaddle.com';
         location.assign(data.url);
         return;
       }
-      if (res.status === 409) void load(); // paid meanwhile: show where it stands now
-      fail(data.message ?? 'We couldn’t start the payment just now. Please try again in a minute.');
+      const message = data.message ?? 'We couldn’t start the payment just now. Please try again in a minute.';
+      if (res.status === 409) {
+        // Paid meanwhile: show where it stands now, with the reason beside it (the pay box may hide).
+        await load();
+        const notice = document.getElementById('club-pay-notice')!;
+        notice.textContent = message;
+        show('club-pay-notice');
+        payBtn.disabled = false;
+        payBtn.textContent = label;
+        return;
+      }
+      fail(message);
     } catch {
       fail('We couldn’t start the payment just now. Please try again in a minute.');
     }
