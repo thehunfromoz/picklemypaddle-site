@@ -8,8 +8,8 @@ import { publishedPosts } from '../lib/blog';
 // other-language blog indexes, added below from the content, SCRUM-34).
 const pages = Object.keys(import.meta.glob('./**/*.astro'))
   .map((file) => file.replace(/^\.\//, '').replace(/\.astro$/, ''))
-  // order/status, order/paid, order/document and club/invoice are private, noindex pages (SCRUM-70, 82, 84, 85): never listed.
-  .filter((route) => !route.includes('[') && route !== '404' && !['order/status', 'order/paid', 'order/document', 'club/invoice'].includes(route))
+  // order/status, order/paid, order/document, club/invoice and club/paid are private, noindex pages (SCRUM-70, 82, 84, 85): never listed.
+  .filter((route) => !route.includes('[') && route !== '404' && !['order/status', 'order/paid', 'order/document', 'club/invoice', 'club/paid'].includes(route))
   .map((route) => (route === 'index' ? '/' : `/${route.replace(/\/index$/, '')}/`));
 
 export const GET: APIRoute = async ({ site }) => {

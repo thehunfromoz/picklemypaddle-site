@@ -80,4 +80,115 @@ test.describe('Club invoices', () => {
     expect(asked).toBeGreaterThan(0);
     await expect(page.getByTestId('doc-invalid')).toContainText('reply to that email');
   });
+
+  test('part-paid: the payments so far and what’s owing; Pay by card keeps the link in the tab and goes to Stripe', async ({ page }) => {
+    const partPaid = { ...invoice, balanceCents: 114200, payments: [{ method: 'PayID', amountCents: 10000, paidOn: '2026-11-04' }], canPayByCard: true };
+    await page.route('**/api/clubs/invoice', (route) => route.fulfill({ json: partPaid }));
+    let paySent: unknown;
+    await page.route('**/api/clubs/pay', async (route) => {
+      paySent = route.request().postDataJSON();
+      await route.fulfill({ json: { url: 'https://checkout.stripe.com/c/pay/cs_test_club' } });
+    });
+    await page.route('https://checkout.stripe.com/**', (route) => route.fulfill({ contentType: 'text/html', body: '<title>Stripe</title>' }));
+    await page.goto(`/club/invoice?n=PMP-INV-0042#${TOKEN}`);
+    await expect(page.getByTestId('club-payment-list')).toHaveText('A$100.00 by PayID on 4 November 2026');
+    await expect(page.getByTestId('club-owing')).toHaveText('Still owing: A$1142.00');
+    await expect(page.getByTestId('club-pay-now')).toHaveText('Pay A$1142.00 by card');
+    const results = await new AxeBuilder({ page }).withTags(WCAG).analyze();
+    expect(results.violations).toEqual([]);
+    await page.getByTestId('club-pay-now').click();
+    await page.waitForURL('https://checkout.stripe.com/**');
+    expect(paySent).toEqual({ token: TOKEN, number: 'PMP-INV-0042' });
+    expect(page.url()).not.toContain(TOKEN);
+
+    // Cancel on Stripe: back without the fragment; the tab's memory reopens the invoice.
+    await page.goto('/club/invoice?n=PMP-INV-0042&payment=cancelled');
+    await expect(page.getByTestId('pay-cancelled')).toBeVisible();
+    await expect(page.getByTestId('doc-heading')).toHaveText('Invoice');
+    expect(new URL(page.url()).hash).toBe(`#${TOKEN}`);
+  });
+
+  test('no card button when card isn’t offered or it’s paid; a refused start says why', async ({ page }) => {
+    let view: Record<string, unknown> = { ...invoice, balanceCents: 124200, payments: [], canPayByCard: false };
+    await page.route('**/api/clubs/invoice', (route) => route.fulfill({ json: view }));
+    await page.goto(`/club/invoice?n=PMP-INV-0042#${TOKEN}`);
+    await expect(page.getByTestId('doc-view')).toBeVisible();
+    await expect(page.getByTestId('club-pay')).toBeHidden();
+    await expect(page.getByTestId('club-payments')).toBeHidden();
+
+    view = { ...invoice, paid: { on: '2026-11-05', method: 'PayID' }, balanceCents: 0, payments: [{ method: 'PayID', amountCents: 124200, paidOn: '2026-11-05' }], canPayByCard: false };
+    await page.reload();
+    await expect(page.getByTestId('doc-heading')).toHaveText('Invoice: paid');
+    await expect(page.getByTestId('club-pay')).toBeHidden();
+    await expect(page.getByTestId('club-owing')).toBeHidden();
+
+    view = { ...invoice, balanceCents: 124200, payments: [], canPayByCard: true };
+    await page.route('**/api/clubs/pay', (route) => route.fulfill({ status: 503, json: { message: 'Card payment isn’t available yet.' } }));
+    await page.reload();
+    await page.getByTestId('club-pay-now').click();
+    await expect(page.getByTestId('club-pay-error')).toHaveText('Card payment isn’t available yet.');
+    await expect(page.getByTestId('club-pay-now')).toBeEnabled();
+  });
+
+  test('paid in full while the page was open: the 409 reloads the invoice, nothing owing is left on screen, and the reason is shown', async ({ page }) => {
+    let view: Record<string, unknown> = { ...invoice, balanceCents: 114200, payments: [{ method: 'PayID', amountCents: 10000, paidOn: '2026-11-04' }], canPayByCard: true };
+    await page.route('**/api/clubs/invoice', (route) => route.fulfill({ json: view }));
+    await page.route('**/api/clubs/pay', (route) => route.fulfill({ status: 409, json: { message: 'This invoice has been paid in full. Thank you!' } }));
+    await page.goto(`/club/invoice?n=PMP-INV-0042#${TOKEN}`);
+    await expect(page.getByTestId('club-owing')).toHaveText('Still owing: A$1142.00');
+    // PayID for the rest is recorded while the page is open.
+    view = { ...invoice, paid: { on: '2026-11-05', method: 'PayID' }, balanceCents: 0, canPayByCard: false,
+      payments: [{ method: 'PayID', amountCents: 10000, paidOn: '2026-11-04' }, { method: 'PayID', amountCents: 114200, paidOn: '2026-11-05' }] };
+    await page.getByTestId('club-pay-now').click();
+    await expect(page.getByTestId('doc-heading')).toHaveText('Invoice: paid');
+    await expect(page.getByTestId('club-owing')).toBeHidden();
+    await expect(page.getByTestId('club-pay')).toBeHidden();
+    await expect(page.getByTestId('club-payment-list')).toContainText('A$1142.00 by PayID on 5 November 2026');
+    await expect(page.getByTestId('club-pay-notice')).toHaveText('This invoice has been paid in full. Thank you!');
+  });
+
+  test('a cancelled return with nothing remembered (another tab) says the link is needed', async ({ page }) => {
+    await page.goto('/club/invoice?n=PMP-INV-0042&payment=cancelled');
+    await expect(page.getByTestId('doc-invalid')).toBeVisible();
+  });
+});
+
+test.describe('After paying a club invoice by card', () => {
+  test('confirms with the service, links back to the invoice, and drops the session id from the address', async ({ page }) => {
+    let sent: unknown;
+    await page.route('**/api/clubs/paid', async (route) => {
+      sent = route.request().postDataJSON();
+      await route.fulfill({ json: { paid: true, number: 'PMP-INV-0042' } });
+    });
+    await page.goto('/');
+    await page.evaluate((token) => sessionStorage.setItem('pmp-club-pay', JSON.stringify({ number: 'PMP-INV-0042', token })), TOKEN);
+    await page.goto('/club/paid?session_id=cs_test_a1B2c3D4e5F6g7H8');
+    await expect(page.getByTestId('paid-heading')).toHaveText('Thanks, payment received');
+    await expect(page.getByTestId('paid-number')).toHaveText('PMP-INV-0042');
+    expect(sent).toEqual({ sessionId: 'cs_test_a1B2c3D4e5F6g7H8' });
+    expect(new URL(page.url()).search).toBe('');
+    await expect(page.getByTestId('paid-invoice-link')).toHaveAttribute('href', `/club/invoice?n=PMP-INV-0042#${TOKEN}`);
+    expect(await page.evaluate(() => sessionStorage.getItem('pmp-club-pay'))).toBeNull();
+    const results = await new AxeBuilder({ page }).withTags(WCAG).analyze();
+    expect(results.violations).toEqual([]);
+  });
+
+  test('charged but not applied (the invoice was paid or changed meanwhile): says so, not "within a few minutes"', async ({ page }) => {
+    await page.route('**/api/clubs/paid', (route) => route.fulfill({ json: { paid: false, review: true } }));
+    await page.goto('/club/paid?session_id=cs_test_a1B2c3D4e5F6g7H8');
+    await expect(page.getByTestId('paid-review')).toContainText('refund');
+    await expect(page.getByTestId('paid-review')).toContainText('attila@picklemypaddle.com');
+    await expect(page.getByTestId('paid-pending')).toBeHidden();
+    await expect(page.getByTestId('paid-done')).toBeHidden();
+    await expect(page.getByTestId('paid-heading')).toHaveText('We need to check your payment');
+    const results = await new AxeBuilder({ page }).withTags(WCAG).analyze();
+    expect(results.violations).toEqual([]);
+  });
+
+  test('not confirmed yet: says so and not to pay twice', async ({ page }) => {
+    await page.route('**/api/clubs/paid', (route) => route.fulfill({ json: { paid: false } }));
+    await page.goto('/club/paid?session_id=cs_test_a1B2c3D4e5F6g7H8');
+    await expect(page.getByTestId('paid-pending')).toContainText('Please don’t pay a second time');
+    await expect(page.getByTestId('paid-invoice-link')).toBeHidden();
+  });
 });

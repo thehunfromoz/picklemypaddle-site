@@ -7,6 +7,24 @@
  */
 export const PAY_TOKEN_KEY = 'pmp-pay-token';
 
+/**
+ * SCRUM-85: the same for a club invoice's "Pay by card": the invoice number and its link's token,
+ * so /club/paid can link back to the invoice and a cancelled payment reopens it.
+ */
+export const CLUB_PAY_KEY = 'pmp-club-pay';
+
+/** What was kept under CLUB_PAY_KEY, if it's still a well-formed invoice link. */
+export function clubPayMemory(raw: string | null): { number: string; token: string } | null {
+  try {
+    const v = JSON.parse(raw ?? 'null') as { number?: unknown; token?: unknown } | null;
+    return v && typeof v.number === 'string' && /^PMP-INV-\d{4,}$/.test(v.number) && typeof v.token === 'string' && /^[A-Za-z0-9_-]{43}$/.test(v.token)
+      ? { number: v.number, token: v.token }
+      : null;
+  } catch {
+    return null;
+  }
+}
+
 /** A Checkout Session id from Stripe's return URL, or null. */
 export function sessionIdFrom(search: string): string | null {
   const id = new URLSearchParams(search).get('session_id');

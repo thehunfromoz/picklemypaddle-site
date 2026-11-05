@@ -1,0 +1,89 @@
+---
+/**
+ * Where Stripe Checkout sends a club after paying an invoice by card (SCRUM-85):
+ * /club/paid?session_id=cs_…. The script asks the integrations service to confirm the payment with
+ * Stripe (server to server), then links back to the invoice using the number and token kept in this
+ * tab before leaving for Stripe. Static, noindex, no-referrer, not cached (deploy/Caddyfile) and
+ * not in the sitemap.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const clubEmail = 'attila@picklemypaddle.com';
+---
+
+<BaseLayout title="Club payment" description="Your club’s PickleMyPaddle payment." noindex>
+  <meta slot="head" name="referrer" content="no-referrer" />
+  <section class="py-section">
+    <div class="mx-auto max-w-3xl px-4 sm:px-6">
+      <p class="topper">Club payment</p>
+      <h1 id="paid-heading" class="mt-2 font-heading text-h2 font-bold" tabindex="-1" data-testid="paid-heading">Checking your payment…</h1>
+      <div class="mt-6 space-y-4" role="status" aria-live="polite">
+        <p id="paid-done" data-testid="paid-done" hidden>
+          Thanks, payment received for invoice <strong id="paid-number" data-testid="paid-number"></strong>. The invoice now shows it as paid; keep a copy for your club’s records.
+        </p>
+        <p id="paid-review" data-testid="paid-review" hidden>
+          Your card payment went through, but the invoice had already been paid or had changed since you started, so we couldn’t apply it. We’ll check it and refund anything extra: please email <a class="font-semibold text-primary underline" href={`mailto:${clubEmail}`}>{clubEmail}</a> with the invoice number. Please don’t pay again.
+        </p>
+        <p id="paid-pending" data-testid="paid-pending" hidden>
+          We haven’t had the confirmation from Stripe yet. If the card was charged, the invoice will show as paid within a few minutes; if you have any doubt, email <a class="font-semibold text-primary underline" href={`mailto:${clubEmail}`}>{clubEmail}</a>. Please don’t pay a second time.
+        </p>
+      </div>
+      <p class="mt-6"><a id="paid-invoice-link" class="btn-secondary" href="/club/invoice" data-testid="paid-invoice-link" hidden>See the invoice</a></p>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  import { CLUB_PAY_KEY, clubPayMemory, sessionIdFrom } from '../../lib/payment';
+  import { clubDocumentUrl } from '../../lib/document';
+
+  const $ = (id: string) => document.getElementById(id);
+  const show = (id: string) => {
+    const el = $(id);
+    if (el) el.hidden = false;
+  };
+
+  async function confirm() {
+    const sessionId = sessionIdFrom(location.search);
+    // The session id has done its job: keep it out of history and bookmarks.
+    history.replaceState(null, '', '/club/paid');
+    let kept: { number: string; token: string } | null = null;
+    try {
+      kept = clubPayMemory(sessionStorage.getItem(CLUB_PAY_KEY));
+      sessionStorage.removeItem(CLUB_PAY_KEY);
+    } catch {
+      // private browsing: the emailed link still works
+    }
+    let paid = false;
+    let review = false;
+    if (sessionId) {
+      try {
+        const res = await fetch('/api/clubs/paid', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({ sessionId }),
+          cache: 'no-store',
+          referrerPolicy: 'no-referrer',
+        });
+        const data = (await res.json().catch(() => ({}))) as { paid?: boolean; review?: boolean; number?: string };
+        if (data.paid && typeof data.number === 'string') {
+          $('paid-number')!.textContent = data.number;
+          paid = true;
+        } else if (data.review === true) {
+          review = true; // taken but not applied (invoice paid or changed meanwhile): needs a refund
+        }
+      } catch {
+        // shown as pending below
+      }
+    }
+    if (kept) {
+      const link = $('paid-invoice-link') as HTMLAnchorElement;
+      link.href = clubDocumentUrl(kept.number, kept.token);
+      link.hidden = false;
+    }
+    $('paid-heading')!.textContent = paid ? 'Thanks, payment received' : review ? 'We need to check your payment' : 'Confirming your payment';
+    show(paid ? 'paid-done' : review ? 'paid-review' : 'paid-pending');
+    $('paid-heading')!.focus();
+  }
+  void confirm();
+</script>
