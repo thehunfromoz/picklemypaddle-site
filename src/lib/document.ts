@@ -49,18 +49,16 @@ export interface DocumentView {
   paid: { on: string; method: string } | null;
 }
 
-/** SCRUM-85: a club invoice also says what's been paid towards it and what's still owing. */
+/** SCRUM-85: a club invoice also says what's been paid towards it. Payment is in full, so there is no balance line (6 Nov 2026). */
 export interface ClubInvoiceView extends DocumentView {
   balanceCents?: number;
   payments?: { method: string; amountCents: number; paidOn: string }[];
   canPayByCard?: boolean;
 }
 
-/** The payments made so far, one line each, then what's owing (only while part-paid). */
-export function clubPaymentLines(v: ClubInvoiceView): { payments: string[]; owing: string | null } {
-  const payments = (v.payments ?? []).map((p) => `${documentMoney(p.amountCents)} by ${p.method} on ${calendarDate(p.paidOn)}`);
-  const owing = payments.length && v.balanceCents !== undefined && v.balanceCents > 0 ? `Still owing: ${documentMoney(v.balanceCents)}` : null;
-  return { payments, owing };
+/** The payments made so far, one line each. */
+export function clubPaymentLines(v: ClubInvoiceView): { payments: string[] } {
+  return { payments: (v.payments ?? []).map((p) => `${documentMoney(p.amountCents)} by ${p.method} on ${calendarDate(p.paidOn)}`) };
 }
 
 /** The printable page of one of an order's documents. */
