@@ -36,13 +36,15 @@ describe('printable documents', () => {
 });
 
 describe('club invoices (SCRUM-85)', () => {
-  it('lists payments so far and what’s owing only while part-paid', () => {
+  it('lists the payments received and never a balance line: payment is in full', () => {
     const base = { sha256: 'x', paid: null, snapshot: {} as DocumentView['snapshot'] };
-    expect(clubPaymentLines({ ...base, balanceCents: 27000, payments: [] })).toEqual({ payments: [], owing: null });
+    expect(clubPaymentLines({ ...base, balanceCents: 27000, payments: [] })).toEqual({ payments: [] });
+    expect(clubPaymentLines({ ...base, balanceCents: 0, payments: [{ method: 'cash', amountCents: 27000, paidOn: '2026-11-05' }] }))
+      .toEqual({ payments: ['A$270.00 by cash on 5 November 2026'] });
+    // An old part payment still in the data shows as a payment, with no "Still owing" line.
     expect(clubPaymentLines({ ...base, balanceCents: 17000, payments: [{ method: 'PayID', amountCents: 10000, paidOn: '2026-11-04' }] }))
-      .toEqual({ payments: ['A$100.00 by PayID on 4 November 2026'], owing: 'Still owing: A$170.00' });
-    expect(clubPaymentLines({ ...base, balanceCents: 0, payments: [{ method: 'cash', amountCents: 27000, paidOn: '2026-11-05' }] }).owing).toBeNull();
-    expect(clubPaymentLines(base)).toEqual({ payments: [], owing: null }); // a credit note, or an older service
+      .toEqual({ payments: ['A$100.00 by PayID on 4 November 2026'] });
+    expect(clubPaymentLines(base)).toEqual({ payments: [] }); // a credit note, or an older service
   });
 
   it('links the club invoice page with the token in the fragment', () => {
