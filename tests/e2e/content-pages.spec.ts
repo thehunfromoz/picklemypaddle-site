@@ -68,7 +68,10 @@ test.describe('Clubs page', () => {
     await page.goto('/clubs');
     const main = page.locator('main');
     await expect(main).toContainText('PayID');
-    await expect(main).toContainText('Stripe invoice');
+    await expect(main).toContainText('card');
+    await expect(main).not.toContainText('Stripe invoice');
+    await expect(main).toContainText('agree a short written club agreement by email');
+    await expect(main).not.toContainText('sign a short written club agreement');
     await expect(main).toContainText('cash on delivery');
     await expect(main).not.toContainText(/commission|10%/i);
   });
