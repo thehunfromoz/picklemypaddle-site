@@ -120,6 +120,14 @@ Content-Security-Policy and other security headers. Runtime settings: `SITE_ADDR
   never in the sitemap. The token stays in the URL fragment and is sent only in a POST body.
 - `tests/e2e/order-smoke.spec.ts` places a real order on staging (`EXPECT_STAGING=1` only).
 
+## Club agreement page (SCRUM-94)
+
+`/club/agreement#<token>` is the printable page of the club agreement a club was emailed (browser print, no
+PDF engine), like `/club/invoice`: the token stays in the fragment and goes in a POST body to
+`/api/clubs/agreement`; the page is noindex, no-referrer, never cached (`deploy/Caddyfile`) and not in the
+sitemap. It shows the version as it was sent, the club's Schedule, and whether it has been accepted. Every
+word comes from the service and is set as text, never as HTML.
+
 ## Before launch
 
 - [ ] Replace every `[To confirm: …]` placeholder (`pnpm build && pnpm check:placeholders`)
