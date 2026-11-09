@@ -127,6 +127,14 @@ PDF engine), like `/club/invoice`: the token stays in the fragment and goes in a
 `/api/clubs/agreement`; the page is noindex, no-referrer, never cached (`deploy/Caddyfile`) and not in the
 sitemap. It shows the version as it was sent, the club's Schedule, and whether it has been accepted. Every
 word comes from the service and is set as text, never as HTML.
+## Clubs page form (SCRUM-93)
+
+The Clubs page has its own "Talk to us about your club" form (`ClubLeadForm.astro`, `scripts/club-lead.ts`,
+rules in `lib/club-lead.ts`, mirrored by integrations `src/clubs/leads.ts`). It posts JSON to
+`/api/clubs/lead` after fetching a form token from `/api/clubs/lead/form` on first touch (like the order
+form), with a honeypot. No third-party origin is involved (HubSpot Meetings can't be embedded under our
+CSP). Nothing about members and no street address is asked for. If the service is closed or away the form
+gives way to the email address. Its e2e spec (`club-lead.spec.ts`) checks CSP, axe and the posted fields.
 
 ## Before launch
 

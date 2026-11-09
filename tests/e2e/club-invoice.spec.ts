@@ -81,7 +81,7 @@ test.describe('Club invoices', () => {
     await expect(page.getByTestId('doc-invalid')).toContainText('reply to that email');
   });
 
-  test('part-paid: the payments so far and what’s owing; Pay by card keeps the link in the tab and goes to Stripe', async ({ page }) => {
+  test('payments received, no balance line; Pay by card keeps the link in the tab and goes to Stripe', async ({ page }) => {
     const partPaid = { ...invoice, balanceCents: 114200, payments: [{ method: 'PayID', amountCents: 10000, paidOn: '2026-11-04' }], canPayByCard: true };
     await page.route('**/api/clubs/invoice', (route) => route.fulfill({ json: partPaid }));
     let paySent: unknown;
@@ -92,7 +92,8 @@ test.describe('Club invoices', () => {
     await page.route('https://checkout.stripe.com/**', (route) => route.fulfill({ contentType: 'text/html', body: '<title>Stripe</title>' }));
     await page.goto(`/club/invoice?n=PMP-INV-0042#${TOKEN}`);
     await expect(page.getByTestId('club-payment-list')).toHaveText('A$100.00 by PayID on 4 November 2026');
-    await expect(page.getByTestId('club-owing')).toHaveText('Still owing: A$1142.00');
+    await expect(page.getByTestId('club-owing')).toHaveCount(0);
+    await expect(page.getByText('Still owing')).toHaveCount(0);
     await expect(page.getByTestId('club-pay-now')).toHaveText('Pay A$1142.00 by card');
     const results = await new AxeBuilder({ page }).withTags(WCAG).analyze();
     expect(results.violations).toEqual([]);
@@ -120,7 +121,6 @@ test.describe('Club invoices', () => {
     await page.reload();
     await expect(page.getByTestId('doc-heading')).toHaveText('Invoice: paid');
     await expect(page.getByTestId('club-pay')).toBeHidden();
-    await expect(page.getByTestId('club-owing')).toBeHidden();
 
     view = { ...invoice, balanceCents: 124200, payments: [], canPayByCard: true };
     await page.route('**/api/clubs/pay', (route) => route.fulfill({ status: 503, json: { message: 'Card payment isn’t available yet.' } }));
@@ -130,18 +130,17 @@ test.describe('Club invoices', () => {
     await expect(page.getByTestId('club-pay-now')).toBeEnabled();
   });
 
-  test('paid in full while the page was open: the 409 reloads the invoice, nothing owing is left on screen, and the reason is shown', async ({ page }) => {
+  test('paid in full while the page was open: the 409 reloads the invoice, the card button goes, and the reason is shown', async ({ page }) => {
     let view: Record<string, unknown> = { ...invoice, balanceCents: 114200, payments: [{ method: 'PayID', amountCents: 10000, paidOn: '2026-11-04' }], canPayByCard: true };
     await page.route('**/api/clubs/invoice', (route) => route.fulfill({ json: view }));
     await page.route('**/api/clubs/pay', (route) => route.fulfill({ status: 409, json: { message: 'This invoice has been paid in full. Thank you!' } }));
     await page.goto(`/club/invoice?n=PMP-INV-0042#${TOKEN}`);
-    await expect(page.getByTestId('club-owing')).toHaveText('Still owing: A$1142.00');
+    await expect(page.getByTestId('club-pay-now')).toHaveText('Pay A$1142.00 by card');
     // PayID for the rest is recorded while the page is open.
     view = { ...invoice, paid: { on: '2026-11-05', method: 'PayID' }, balanceCents: 0, canPayByCard: false,
       payments: [{ method: 'PayID', amountCents: 10000, paidOn: '2026-11-04' }, { method: 'PayID', amountCents: 114200, paidOn: '2026-11-05' }] };
     await page.getByTestId('club-pay-now').click();
     await expect(page.getByTestId('doc-heading')).toHaveText('Invoice: paid');
-    await expect(page.getByTestId('club-owing')).toBeHidden();
     await expect(page.getByTestId('club-pay')).toBeHidden();
     await expect(page.getByTestId('club-payment-list')).toContainText('A$1142.00 by PayID on 5 November 2026');
     await expect(page.getByTestId('club-pay-notice')).toHaveText('This invoice has been paid in full. Thank you!');

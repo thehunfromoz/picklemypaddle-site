@@ -18,7 +18,7 @@ export const privacyEmail = 'info@picklemypaddle.com';
 const contactEmail = privacyEmail;
 
 export const privacyPolicy = {
-  lastUpdated: '30 October 2026',
+  lastUpdated: '9 November 2026',
 
   sections: [
     {
@@ -34,6 +34,7 @@ export const privacyPolicy = {
         'When you place an order: your name, email address, return postal address, an optional phone number, details of each paddle, and photos of the front and back of each paddle. Please keep people out of your photos. When a photo arrives we keep only a smaller copy, with any location and camera details removed.',
         'When you email us or book a chat: your name, email address and anything you tell us.',
         'When you pay: payment is processed by Stripe on its own secure pages. We receive confirmation that you have paid, but never your card number.',
+        "When a club asks to talk to us (the “Talk to us about your club” form): the club's name and suburb, your name, email address and optional phone number, roughly how many members play, and anything you tell us. Please don't send us members' names or contact details.",
         "When a club uses our service, the club keeps its members' details. We record only the club's contact details and the paddles in each batch.",
         'When you visit the site: we use privacy-friendly analytics that run on our own server. They use no cookies, do not follow you across other sites, and record only aggregate information such as the pages viewed, the site that referred you, your browser and device type, and roughly where you are (country, state and city), which is worked out from your internet address. Your internet address itself is not kept. Because they set no cookies, there is no cookie banner.',
       ],
@@ -65,6 +66,7 @@ export const privacyPolicy = {
         'Paddle photos: we delete them 12 months after your order is completed.',
         'Orders that do not go ahead (we could not re-grit the paddle, you withdrew it, or we did not hear back): we delete the whole order 12 months after that.',
         'Orders you paid for: we keep the record for 5 years after the order is completed, because tax law requires us to keep business records for that long, then delete it.',
+        'A club that asked to talk to us but did not go ahead: we delete its details 12 months after we last dealt with it.',
         'Our system deletes these automatically each day. Deleted information can remain in our backups for up to 30 days before the backups themselves are deleted.',
         'You can ask us to delete your information sooner (see below), unless we must keep it by law.',
       ],
