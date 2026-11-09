@@ -5,7 +5,7 @@
  * stays in the fragment and is sent in a POST body. Every word and amount comes from the invoice's
  * frozen snapshot. Static, noindex, no-referrer, not cached (deploy/Caddyfile), not in the sitemap.
  *
- * Part 2: the payments recorded so far and what's still owing, and "Pay by card" (Stripe Checkout)
+ * Part 2: the payments recorded so far, and "Pay by card" (Stripe Checkout)
  * when the service offers it. Before leaving for Stripe the number and token are kept in this
  * tab's sessionStorage, so /club/paid and a cancelled payment (?payment=cancelled, no fragment:
  * the token never goes to Stripe) find the invoice again.
@@ -41,7 +41,6 @@ const clubEmail = 'attila@picklemypaddle.com';
         <div id="club-payments" class="mt-4 rounded-lg bg-surface p-4" data-testid="club-payments" hidden>
           <h2 class="font-heading text-lg font-bold">Payments received</h2>
           <ul id="club-payment-list" class="mt-2 space-y-1" data-testid="club-payment-list"></ul>
-          <p id="club-owing" class="mt-2 font-semibold" data-testid="club-owing" hidden></p>
         </div>
         <p id="club-pay-notice" class="no-print mt-4 rounded-md bg-tint-blue p-3 text-sm" data-testid="club-pay-notice" role="status" hidden></p>
         <div id="club-pay" class="no-print mt-4" data-testid="club-pay" hidden>
@@ -85,7 +84,7 @@ const clubEmail = 'attila@picklemypaddle.com';
   };
 
   function renderPayments(v: ClubInvoiceView) {
-    const { payments, owing } = clubPaymentLines(v);
+    const { payments } = clubPaymentLines(v);
     if (payments.length) {
       document.getElementById('club-payment-list')!.replaceChildren(
         ...payments.map((text) => {
@@ -95,11 +94,8 @@ const clubEmail = 'attila@picklemypaddle.com';
         }),
       );
     }
-    // Shown and hidden from what the invoice says now: a reload after "paid meanwhile" must not
-    // leave an old "Still owing" line on a paid invoice.
+    // Shown and hidden from what the invoice says now. No balance line: payment is in full (6 Nov 2026).
     show('club-payments', payments.length > 0);
-    document.getElementById('club-owing')!.textContent = owing ?? '';
-    show('club-owing', Boolean(owing));
     const pay = document.getElementById('club-pay-now')!;
     pay.textContent = v.balanceCents ? `Pay ${documentMoney(v.balanceCents)} by card` : 'Pay by card';
     show('club-pay', !v.paid && v.canPayByCard === true);
