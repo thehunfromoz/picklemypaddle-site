@@ -120,6 +120,15 @@ Content-Security-Policy and other security headers. Runtime settings: `SITE_ADDR
   never in the sitemap. The token stays in the URL fragment and is sent only in a POST body.
 - `tests/e2e/order-smoke.spec.ts` places a real order on staging (`EXPECT_STAGING=1` only).
 
+## Clubs page form (SCRUM-93)
+
+The Clubs page has its own "Talk to us about your club" form (`ClubLeadForm.astro`, `scripts/club-lead.ts`,
+rules in `lib/club-lead.ts`, mirrored by integrations `src/clubs/leads.ts`). It posts JSON to
+`/api/clubs/lead` after fetching a form token from `/api/clubs/lead/form` on first touch (like the order
+form), with a honeypot. No third-party origin is involved (HubSpot Meetings can't be embedded under our
+CSP). Nothing about members and no street address is asked for. If the service is closed or away the form
+gives way to the email address. Its e2e spec (`club-lead.spec.ts`) checks CSP, axe and the posted fields.
+
 ## Before launch
 
 - [ ] Replace every `[To confirm: …]` placeholder (`pnpm build && pnpm check:placeholders`)

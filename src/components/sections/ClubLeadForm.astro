@@ -1,0 +1,92 @@
+---
+import { siteData } from '../../data/siteData';
+import { CLUB_LEAD_API_URL, MAX_MESSAGE, MAX_PREFERRED_TIMES } from '../../lib/club-lead';
+
+// SCRUM-93: relative, so one image serves staging, the tailnet and production.
+const endpoint = import.meta.env.PUBLIC_CLUB_LEAD_API_URL ?? CLUB_LEAD_API_URL;
+const field = 'mt-1 block w-full rounded-md border border-border bg-surface px-3 py-2.5 text-base text-text';
+const label = 'block text-sm font-semibold';
+const err = 'mt-1 text-sm font-medium text-[#A12B2B]';
+---
+
+<div id="club-lead" class="rounded-lg bg-surface p-8">
+  <h2 class="font-heading text-h3 font-bold">Talk to us about your club</h2>
+  <p class="mt-3 leading-relaxed text-text-muted">
+    We're currently looking for a pilot club in the {siteData.contact.area} area. Tell us a little about your club and we'll
+    reply within 1 business day with times for a short intro chat: how pickups work, what your club earns and how payment works.
+  </p>
+
+  <p id="club-lead-closed" class="mt-4 rounded-md border border-primary bg-surface p-4 text-sm" data-testid="club-lead-closed" hidden>
+    The form isn't available just now. Please email
+    <a class="font-semibold text-primary underline" href={`mailto:${siteData.contact.email}?subject=Club%20re-gritting`}>{siteData.contact.email}</a>.
+  </p>
+
+  <form id="club-lead-form" class="mt-6 space-y-4" data-endpoint={endpoint} data-testid="club-lead-form" novalidate>
+    <div id="club-lead-status" role="status" aria-live="polite" class="hidden rounded-md p-4 text-sm"></div>
+    <input type="hidden" name="formToken" value="" />
+    <!-- Honeypot (as on the order form): people never see or reach this field; bots fill it in. -->
+    <div class="absolute -left-[10000px] top-auto h-px w-px overflow-hidden" aria-hidden="true" data-testid="club-honeypot">
+      <label for="club-website">Your website</label>
+      <input id="club-website" name="website" type="text" tabindex="-1" autocomplete="off" value="" />
+    </div>
+
+    <div>
+      <label for="clubName" class={label}>Club name</label>
+      <input id="clubName" name="clubName" autocomplete="organization" required maxlength="120" class={field} aria-describedby="clubName-error" />
+      <p id="clubName-error" class={err} hidden></p>
+    </div>
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div>
+        <label for="suburb" class={label}>Suburb</label>
+        <input id="suburb" name="suburb" autocomplete="address-level2" required maxlength="80" class={field} aria-describedby="suburb-error" />
+        <p id="suburb-error" class={err} hidden></p>
+      </div>
+      <div>
+        <label for="memberCount" class={label}>Roughly how many members play?</label>
+        <input id="memberCount" name="memberCount" inputmode="numeric" required maxlength="6" class={field} aria-describedby="memberCount-error" />
+        <p id="memberCount-error" class={err} hidden></p>
+      </div>
+    </div>
+    <div>
+      <label for="contactName" class={label}>Your name</label>
+      <input id="contactName" name="contactName" autocomplete="name" required maxlength="120" class={field} aria-describedby="contactName-error" />
+      <p id="contactName-error" class={err} hidden></p>
+    </div>
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div>
+        <label for="contactEmail" class={label}>Email</label>
+        <input id="contactEmail" name="contactEmail" type="email" autocomplete="email" required maxlength="254" class={field} aria-describedby="contactEmail-error" />
+        <p id="contactEmail-error" class={err} hidden></p>
+      </div>
+      <div>
+        <label for="contactPhone" class={label}>Phone <span class="font-normal text-text-muted">(optional)</span></label>
+        <input id="contactPhone" name="contactPhone" type="tel" autocomplete="tel" maxlength="25" class={field} aria-describedby="contactPhone-error" />
+        <p id="contactPhone-error" class={err} hidden></p>
+      </div>
+    </div>
+    <div>
+      <label for="preferredTimes" class={label}>Times that suit you for a chat <span class="font-normal text-text-muted">(optional)</span></label>
+      <input id="preferredTimes" name="preferredTimes" maxlength={MAX_PREFERRED_TIMES} class={field} aria-describedby="preferredTimes-error" />
+      <p id="preferredTimes-error" class={err} hidden></p>
+    </div>
+    <div>
+      <label for="message" class={label}>Anything else we should know <span class="font-normal text-text-muted">(optional)</span></label>
+      <textarea id="message" name="message" rows="4" maxlength={MAX_MESSAGE} class={field} aria-describedby="message-error"></textarea>
+      <p id="message-error" class={err} hidden></p>
+    </div>
+    <p class="text-sm text-text-muted">
+      We use these details only to reply to you, and keep them for 12 months if nothing comes of it. Please don't send us your
+      members' names or contact details. See our <a class="font-semibold text-primary underline" href="/privacy">privacy policy</a>.
+    </p>
+    <button type="submit" id="club-lead-submit" class="btn-primary">Send</button>
+  </form>
+
+  <p id="club-lead-done" class="mt-6 rounded-md border border-primary bg-tint-green p-4 text-sm" role="status" data-testid="club-lead-done" hidden>
+    Thanks! We've got your details and will email you within 1 business day with times for a chat.
+  </p>
+</div>
+
+<script>
+  // Bundled into an external file by Astro, so the CSP keeps script-src 'self'.
+  import '../../scripts/club-lead';
+</script>
