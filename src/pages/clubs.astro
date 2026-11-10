@@ -5,22 +5,22 @@ import ClubLeadForm from '../components/sections/ClubLeadForm.astro';
 import { siteData } from '../data/siteData';
 
 const steps = [
-  { title: 'Agree the arrangement', body: 'We meet, walk through how it works, and agree a short written club agreement by email, covering vetting, custody, payment and pickups.' },
+  { title: 'Agree the arrangement', body: 'We meet, walk through how it works, and agree a short written club agreement by email, covering vetting, custody, payment, and pickups or posting.' },
   { title: 'Collect from members', body: "Members hand in paddles at the club. Your club checks they're suitable, records who owns each one, and takes payment." },
-  { title: 'Request a pickup', body: "When a batch is ready, request a pickup from your club's private link. We collect the batch and leave a receipt." },
-  { title: 'Re-gritted and returned', body: 'We bring the batch back re-gritted. Your club pays when it arrives, by PayID, card or cash on delivery, then hands the paddles back to members.' },
+  { title: 'Pickup, or post a box', body: "Near us, request a pickup when a batch is ready, and we collect it and leave a receipt. Further away, post the batch to us in a box we supply." },
+  { title: 'Re-gritted and returned', body: 'We bring the batch back re-gritted, or post it back, and cover return postage on boxes of 6 paddles or more. Your club pays when it arrives, then hands the paddles back to members.' },
 ];
 ---
 
-<BaseLayout title="For clubs" description="Pickleball clubs: batch paddle re-gritting with pickup and drop-off, no postage, and a share of every paddle for your club.">
+<BaseLayout title="For clubs" description="Pickleball clubs: batch paddle re-gritting by local pickup or by post, with a share of every paddle for your club.">
   <Banner
     title="Re-gritting for clubs"
-    intro="Offer your members a re-grit service without anyone posting a paddle. We pick up and drop off batches, and your club earns a share of every paddle."
+    intro="Offer your members a re-grit service without each of them posting a paddle. We pick up and drop off batches near us, or your club posts a box to us, and your club earns a share of every paddle."
   />
 
   <section class="py-section">
     <div class="mx-auto max-w-site px-4 sm:px-6">
-      <h2 class="font-heading text-h2 font-bold">How club pickups work</h2>
+      <h2 class="font-heading text-h2 font-bold">How it works for clubs</h2>
       <ol class="mt-8 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-4">
         {steps.map((s, i) => (
           <li class="rounded-lg bg-tint-blue p-6">
@@ -38,10 +38,10 @@ const steps = [
       <div class="space-y-4 leading-relaxed text-text-muted">
         <h2 class="font-heading text-h2 font-bold text-text">What your club gets</h2>
         <ul class="space-y-3" role="list">
-          <li class="flex gap-3"><span class="font-bold text-green-text" aria-hidden="true">&check;</span>A service members value, with no postage for anyone</li>
+          <li class="flex gap-3"><span class="font-bold text-green-text" aria-hidden="true">&check;</span>A service members value, with one batch instead of many parcels</li>
           <li class="flex gap-3"><span class="font-bold text-green-text" aria-hidden="true">&check;</span>A share of every paddle your club puts through</li>
-          <li class="flex gap-3"><span class="font-bold text-green-text" aria-hidden="true">&check;</span>Pickups when your batch is ready, or on a regular schedule</li>
-          <li class="flex gap-3"><span class="font-bold text-green-text" aria-hidden="true">&check;</span>Pay by PayID, card or cash on delivery when each batch is returned</li>
+          <li class="flex gap-3"><span class="font-bold text-green-text" aria-hidden="true">&check;</span>Pickups when your batch is ready, or a box we supply to post to us if you are further away</li>
+          <li class="flex gap-3"><span class="font-bold text-green-text" aria-hidden="true">&check;</span>Return postage on us for boxes of 6 paddles or more; pay by PayID, card or cash on delivery when each batch is returned</li>
           <li class="flex gap-3"><span class="font-bold text-green-text" aria-hidden="true">&check;</span>A private link to request pickups and see batches and invoices</li>
         </ul>
       </div>
