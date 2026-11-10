@@ -59,14 +59,14 @@ test.describe('Clubs page: Talk to us', () => {
     await page.goto('/clubs');
     const note = page.getByTestId('service-area-note');
     await expect(note).toBeHidden();
-    await page.locator('#suburb').fill('Milperra');
+    await page.locator('#suburb').fill('Hornsby');
     await expect(note).toBeHidden(); // no postcode yet
-    await page.locator('#postcode').fill('2214');
+    await page.locator('#postcode').fill('2077');
     await expect(note).toHaveText('Great, you’re in our local pickup area.');
     await page.locator('#suburb').fill('Mt Annan');
     await page.locator('#postcode').fill('2567');
     await expect(note).toHaveText('You’re outside our local pickup area, so we’ll use post for your batches.');
-    await page.locator('#suburb').fill('Milperra');
+    await page.locator('#suburb').fill('Hornsby');
     await page.locator('#postcode').fill('2560'); // right suburb, wrong postcode: outside
     await expect(note).toContainText('outside our local pickup area');
     await fill(page, { suburb: 'Campbelltown', postcode: '2560' });
