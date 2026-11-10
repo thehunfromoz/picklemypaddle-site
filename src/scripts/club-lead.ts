@@ -66,6 +66,30 @@ if (form && status && done && submit) {
     form.hidden = true;
     return false;
   };
+  // Once the suburb and postcode are in, say which way batches will travel. Only a default, and
+  // never blocks sending. The suburb list loads on first use, so it isn't in the page's first load.
+  const areaNote = document.getElementById('service-area-note');
+  let areaRun = 0;
+  const updateAreaNote = async () => {
+    if (!areaNote) return;
+    const suburb = value('suburb').trim();
+    const postcode = value('postcode').replace(/\s+/g, '');
+    if (!suburb || !/^\d{4}$/.test(postcode)) {
+      areaNote.hidden = true;
+      return;
+    }
+    const run = ++areaRun;
+    const { isInServiceArea } = await import('../lib/service-area');
+    if (run !== areaRun) return;
+    const inside = isInServiceArea({ suburb, postcode });
+    areaNote.textContent = inside ? 'Great, you’re in our local pickup area.' : 'You’re outside our local pickup area, so we’ll use post for your batches.';
+    areaNote.className = `text-sm font-semibold ${inside ? 'text-green-text' : 'text-text'}`;
+    areaNote.hidden = false;
+  };
+  form.addEventListener('input', (e) => {
+    const name = (e.target as HTMLInputElement | null)?.name;
+    if (name === 'suburb' || name === 'postcode') void updateAreaNote();
+  });
   form.addEventListener('focusin', () => void ensureOpen(), { once: true });
   if (location.hash === '#club-lead') void ensureOpen();
 

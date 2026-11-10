@@ -72,7 +72,7 @@ test.describe('Clubs page', () => {
     await expect(main).not.toContainText('Stripe invoice');
     await expect(main).toContainText('agree a short written club agreement by email');
     await expect(main).not.toContainText('sign a short written club agreement');
-    await expect(main).toContainText('cash on delivery');
+    await expect(main).toContainText('PayID, card or cash');
     await expect(main).not.toContainText(/commission|10%/i);
   });
 
@@ -82,10 +82,27 @@ test.describe('Clubs page', () => {
     await expect(main).toContainText('post a box');
     await expect(main).toContainText('box we supply');
     await expect(main).toContainText('6 paddles or more');
+    await expect(main).not.toContainText('Return postage on us');
     await expect(main).not.toContainText(/no postage|without anyone posting/i);
     await expect(main).not.toContainText('How club pickups work');
     await page.goto('/faq');
     await expect(page.locator('details', { hasText: 'Can my club organise paddles' })).toContainText('posts a box');
+  });
+
+  test('shows the local pickup area map with its alt text, and its suburbs (SCRUM-102)', async ({ page }) => {
+    await page.goto('/clubs');
+    await expect(page.getByRole('heading', { name: 'Local pickup and drop-off area' })).toBeVisible();
+    const map = page.getByTestId('service-area-map');
+    await expect(map).toHaveAttribute('src', '/images/service-area.svg');
+    await expect(map).toHaveAttribute('alt', 'Map of the PickleMyPaddle local pickup and drop-off area, covering most of Sydney and the southern Central Coast, from Terrigal and Bateau Bay to the Sutherland Shire, Liverpool and Penrith.');
+    await expect(map).toHaveAttribute('width', '1000');
+    await expect(map).toHaveAttribute('height', '940');
+    await expect(map).toHaveAttribute('loading', 'lazy');
+    await map.scrollIntoViewIfNeeded();
+    expect(await map.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
+    await expect(page.getByTestId('service-area-suburbs').locator('li').filter({ hasText: 'Milperra 2214' })).toHaveCount(1);
+    await expect(page.locator('main')).toContainText('Clubs outside it use post');
+    await expect(page.locator('main')).toContainText('Get in touch anyway');
   });
 
   test('explains how to request an intro by email', async ({ page }) => {

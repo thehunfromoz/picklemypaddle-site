@@ -6,7 +6,7 @@
 /** Relative, so one image serves staging, the tailnet and production (like the order form). */
 export const CLUB_LEAD_API_URL = '/api/clubs/lead';
 
-export const LEAD_FIELDS = ['clubName', 'suburb', 'contactName', 'contactEmail', 'contactPhone', 'memberCount', 'message', 'preferredTimes'] as const;
+export const LEAD_FIELDS = ['clubName', 'suburb', 'postcode', 'contactName', 'contactEmail', 'contactPhone', 'memberCount', 'message', 'preferredTimes'] as const;
 export type LeadField = (typeof LEAD_FIELDS)[number];
 export type LeadValues = Partial<Record<LeadField, string>>;
 export type LeadErrors = Partial<Record<LeadField | 'form', string>>;
@@ -21,6 +21,7 @@ export function validateLeadForm(v: LeadValues): LeadErrors {
   const errors: LeadErrors = {};
   if (!t('clubName') || t('clubName').length > 120) errors.clubName = 'Tell us the club’s name (up to 120 characters).';
   if (!t('suburb') || t('suburb').length > 80) errors.suburb = 'Tell us the suburb (up to 80 characters).';
+  if (!/^\d{4}$/.test(t('postcode').replace(/\s+/g, ''))) errors.postcode = 'Enter the 4-digit postcode of the club’s venue.';
   if (!t('contactName') || t('contactName').length > 120) errors.contactName = 'Tell us your name (up to 120 characters).';
   if (!EMAIL_RE.test(t('contactEmail')) || t('contactEmail').length > 254) errors.contactEmail = 'Enter a valid email address.';
   if (t('contactPhone') && !PHONE_RE.test(t('contactPhone'))) errors.contactPhone = 'Enter a phone number, or leave it empty.';

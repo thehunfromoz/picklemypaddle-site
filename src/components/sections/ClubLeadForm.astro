@@ -37,10 +37,18 @@ const err = 'mt-1 text-sm font-medium text-[#A12B2B]';
     </div>
     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
       <div>
-        <label for="suburb" class={label}>Suburb</label>
+        <label for="suburb" class={label}>Venue suburb</label>
         <input id="suburb" name="suburb" autocomplete="address-level2" required maxlength="80" class={field} aria-describedby="suburb-error" />
         <p id="suburb-error" class={err} hidden></p>
       </div>
+      <div>
+        <label for="postcode" class={label}>Postcode</label>
+        <input id="postcode" name="postcode" autocomplete="postal-code" inputmode="numeric" required maxlength="4" class={field} aria-describedby="postcode-error" />
+        <p id="postcode-error" class={err} hidden></p>
+      </div>
+    </div>
+    <p id="service-area-note" class="text-sm font-semibold" role="status" aria-live="polite" data-testid="service-area-note" hidden></p>
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
       <div>
         <label for="memberCount" class={label}>Roughly how many members play?</label>
         <input id="memberCount" name="memberCount" inputmode="numeric" required maxlength="6" class={field} aria-describedby="memberCount-error" />

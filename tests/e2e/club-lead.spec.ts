@@ -9,7 +9,7 @@ const TOKEN = '1760000000000.' + 'a'.repeat(43);
 
 async function fill(page: import('@playwright/test').Page, over: Record<string, string> = {}) {
   const values: Record<string, string> = {
-    clubName: 'Inner West Pickleball Club', suburb: 'Newtown', memberCount: '40', contactName: 'Jo Treasurer', contactEmail: 'jo@club.org.au', ...over,
+    clubName: 'Inner West Pickleball Club', suburb: 'Newtown', postcode: '2042', memberCount: '40', contactName: 'Jo Treasurer', contactEmail: 'jo@club.org.au', ...over,
   };
   for (const [k, v] of Object.entries(values)) await page.locator(`#${k}`).fill(v);
 }
@@ -22,7 +22,7 @@ test.describe('Clubs page: Talk to us', () => {
     page.on('request', (r) => origins.add(new URL(r.url()).origin));
     await page.goto('/clubs');
     await expect(page.getByRole('heading', { name: 'Talk to us about your club' })).toBeVisible();
-    for (const label of ['Club name', 'Suburb', 'Roughly how many members play?', 'Your name', 'Email']) await expect(page.getByLabel(label, { exact: true })).toBeVisible();
+    for (const label of ['Club name', 'Venue suburb', 'Postcode', 'Roughly how many members play?', 'Your name', 'Email']) await expect(page.getByLabel(label, { exact: true })).toBeVisible();
     await expect(page.getByLabel(/Phone/)).toBeVisible();
     // Nothing about members' details or a street address is asked for.
     await expect(page.getByLabel(/street|address/i)).toHaveCount(0);
@@ -45,8 +45,35 @@ test.describe('Clubs page: Talk to us', () => {
     await page.getByRole('button', { name: 'Send' }).click();
     await expect(page.getByTestId('club-lead-done')).toBeVisible();
     await expect(page.getByTestId('club-lead-form')).toBeHidden();
-    expect(sent).toMatchObject({ clubName: 'Inner West Pickleball Club', suburb: 'Newtown', contactName: 'Jo Treasurer', contactEmail: 'jo@club.org.au', memberCount: '40', contactPhone: '0412 345 678', preferredTimes: 'Weeknights', message: 'Keen to talk.', formToken: TOKEN, website: '' });
-    expect(Object.keys(sent!).sort()).toEqual(['clubName', 'contactEmail', 'contactName', 'contactPhone', 'formToken', 'memberCount', 'message', 'preferredTimes', 'suburb', 'website']);
+    expect(sent).toMatchObject({ clubName: 'Inner West Pickleball Club', suburb: 'Newtown', postcode: '2042', contactName: 'Jo Treasurer', contactEmail: 'jo@club.org.au', memberCount: '40', contactPhone: '0412 345 678', preferredTimes: 'Weeknights', message: 'Keen to talk.', formToken: TOKEN, website: '' });
+    expect(Object.keys(sent!).sort()).toEqual(['clubName', 'contactEmail', 'contactName', 'contactPhone', 'formToken', 'memberCount', 'message', 'postcode', 'preferredTimes', 'suburb', 'website']);
+  });
+
+  test('says whether the venue is in the local pickup area once suburb and postcode are in, and never blocks sending (SCRUM-102)', async ({ page }) => {
+    let sent: Record<string, unknown> | undefined;
+    await page.route('**/api/clubs/lead/form', (route) => route.fulfill({ json: { open: true, formToken: TOKEN } }));
+    await page.route('**/api/clubs/lead', async (route) => {
+      sent = route.request().postDataJSON();
+      await route.fulfill({ status: 201, json: { ok: true, test: true } });
+    });
+    await page.goto('/clubs');
+    const note = page.getByTestId('service-area-note');
+    await expect(note).toBeHidden();
+    await page.locator('#suburb').fill('Milperra');
+    await expect(note).toBeHidden(); // no postcode yet
+    await page.locator('#postcode').fill('2214');
+    await expect(note).toHaveText('Great, you’re in our local pickup area.');
+    await page.locator('#suburb').fill('Mt Annan');
+    await page.locator('#postcode').fill('2567');
+    await expect(note).toHaveText('You’re outside our local pickup area, so we’ll use post for your batches.');
+    await page.locator('#suburb').fill('Milperra');
+    await page.locator('#postcode').fill('2560'); // right suburb, wrong postcode: outside
+    await expect(note).toContainText('outside our local pickup area');
+    await fill(page, { suburb: 'Campbelltown', postcode: '2560' });
+    await expect(note).toContainText('outside our local pickup area');
+    await page.getByRole('button', { name: 'Send' }).click();
+    await expect(page.getByTestId('club-lead-done')).toBeVisible(); // outside is never a reason to refuse
+    expect(sent).toMatchObject({ suburb: 'Campbelltown', postcode: '2560' });
   });
 
   test('shows mistakes beside the field before sending anything, and the service’s own errors after', async ({ page }) => {
