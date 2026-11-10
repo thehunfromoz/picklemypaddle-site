@@ -74,17 +74,16 @@ if (form && status && done && submit) {
     if (!areaNote) return;
     const suburb = value('suburb').trim();
     const postcode = value('postcode').replace(/\s+/g, '');
+    const run = ++areaRun; // also cancels a lookup still loading when the input stops being valid
     if (!suburb || !/^\d{4}$/.test(postcode)) {
-      areaNote.hidden = true;
+      areaNote.textContent = ''; // the live region stays in the page, so a screen reader announces the first message
       return;
     }
-    const run = ++areaRun;
     const { isInServiceArea } = await import('../lib/service-area');
     if (run !== areaRun) return;
     const inside = isInServiceArea({ suburb, postcode });
     areaNote.textContent = inside ? 'Great, you’re in our local pickup area.' : 'You’re outside our local pickup area, so we’ll use post for your batches.';
     areaNote.className = `text-sm font-semibold ${inside ? 'text-green-text' : 'text-text'}`;
-    areaNote.hidden = false;
   };
   form.addEventListener('input', (e) => {
     const name = (e.target as HTMLInputElement | null)?.name;
