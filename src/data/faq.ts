@@ -51,7 +51,7 @@ export const faq: { q: string; a: string }[] = [
   },
   {
     q: 'Can my club organise paddles for its members?',
-    a: 'Yes. Clubs collect paddles from members and we pick up and return them in batches, with no postage. See the clubs page for how it works.',
+    a: 'Yes. Clubs collect paddles from members and we pick up and return them in batches, or the club posts a box of paddles to us, in a box we supply. See the clubs page for how it works.',
   },
   {
     q: 'What happens to my photos and details?',

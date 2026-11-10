@@ -76,6 +76,18 @@ test.describe('Clubs page', () => {
     await expect(main).not.toContainText(/commission|10%/i);
   });
 
+  test('offers pickup or post, and no longer says pickups only or "no postage" (UAT 10 Nov 2026)', async ({ page }) => {
+    await page.goto('/clubs');
+    const main = page.locator('main');
+    await expect(main).toContainText('post a box');
+    await expect(main).toContainText('box we supply');
+    await expect(main).toContainText('6 paddles or more');
+    await expect(main).not.toContainText(/no postage|without anyone posting/i);
+    await expect(main).not.toContainText('How club pickups work');
+    await page.goto('/faq');
+    await expect(page.locator('details', { hasText: 'Can my club organise paddles' })).toContainText('posts a box');
+  });
+
   test('explains how to request an intro by email', async ({ page }) => {
     await page.goto('/clubs');
     await expect(
