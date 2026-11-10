@@ -3,12 +3,13 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Banner from '../components/Banner.astro';
 import ClubLeadForm from '../components/sections/ClubLeadForm.astro';
 import { siteData } from '../data/siteData';
+import { SERVICE_AREA_SUBURBS } from '../lib/service-area';
 
 const steps = [
   { title: 'Agree the arrangement', body: 'We meet, walk through how it works, and agree a short written club agreement by email, covering vetting, custody, payment, and pickups or posting.' },
   { title: 'Collect from members', body: "Members hand in paddles at the club. Your club checks they're suitable, records who owns each one, and takes payment." },
   { title: 'Pickup, or post a box', body: "Near us, request a pickup when a batch is ready, and we collect it and leave a receipt. Further away, post the batch to us in a box we supply." },
-  { title: 'Re-gritted and returned', body: 'We bring the batch back re-gritted, or post it back, and cover return postage on boxes of 6 paddles or more. Your club pays when it arrives, then hands the paddles back to members.' },
+  { title: 'Re-gritted and returned', body: 'We bring the batch back re-gritted, or post it back. On boxes of 6 paddles or more we take the standard postage cost off your invoice. Your club pays before the batch goes back, then hands the paddles to members.' },
 ];
 ---
 
@@ -33,6 +34,32 @@ const steps = [
     </div>
   </section>
 
+  <section id="service-area" class="py-section">
+    <div class="mx-auto max-w-site px-4 sm:px-6">
+      <h2 class="font-heading text-h2 font-bold">Local pickup and drop-off area</h2>
+      <p class="mt-4 max-w-prose leading-relaxed text-text-muted">
+        Clubs inside the green area get batch pickup and drop-off. Clubs outside it use post: you send us a box we supply, and we
+        post it back. Not sure which side you're on, or just outside the line? Get in touch anyway.
+      </p>
+      <img
+        src="/images/service-area.svg"
+        width="1000"
+        height="940"
+        alt="Map of the PickleMyPaddle local pickup and drop-off area, covering most of Sydney and the southern Central Coast, from Terrigal and Bateau Bay to the Sutherland Shire, Liverpool and Penrith."
+        loading="lazy"
+        decoding="async"
+        class="mt-8 h-auto w-full max-w-3xl rounded-lg border border-border"
+        data-testid="service-area-map"
+      />
+      <details class="mt-6 max-w-3xl rounded-lg border border-border bg-surface p-4">
+        <summary class="cursor-pointer font-semibold">See the {SERVICE_AREA_SUBURBS.length} suburbs in the area</summary>
+        <ul class="mt-4 columns-2 gap-6 text-sm text-text-muted sm:columns-3" data-testid="service-area-suburbs" role="list">
+          {SERVICE_AREA_SUBURBS.map((s) => <li>{s.suburb} {s.postcodes.join(', ')}</li>)}
+        </ul>
+      </details>
+    </div>
+  </section>
+
   <section class="bg-tint-green py-section">
     <div class="mx-auto grid max-w-site grid-cols-1 gap-10 px-4 sm:px-6 lg:grid-cols-2">
       <div class="space-y-4 leading-relaxed text-text-muted">
@@ -41,7 +68,7 @@ const steps = [
           <li class="flex gap-3"><span class="font-bold text-green-text" aria-hidden="true">&check;</span>A service members value, with one batch instead of many parcels</li>
           <li class="flex gap-3"><span class="font-bold text-green-text" aria-hidden="true">&check;</span>A share of every paddle your club puts through</li>
           <li class="flex gap-3"><span class="font-bold text-green-text" aria-hidden="true">&check;</span>Pickups when your batch is ready, or a box we supply to post to us if you are further away</li>
-          <li class="flex gap-3"><span class="font-bold text-green-text" aria-hidden="true">&check;</span>Return postage on us for boxes of 6 paddles or more; pay by PayID, card or cash on delivery when each batch is returned</li>
+          <li class="flex gap-3"><span class="font-bold text-green-text" aria-hidden="true">&check;</span>Standard postage cost off your invoice for boxes of 6 paddles or more; pay by PayID, card or cash</li>
           <li class="flex gap-3"><span class="font-bold text-green-text" aria-hidden="true">&check;</span>A private link to request pickups and see batches and invoices</li>
         </ul>
       </div>

@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { LEAD_FIELDS, readLeadErrors, validateLeadForm } from '../../src/lib/club-lead';
 
-const GOOD = { clubName: 'Inner West Pickleball Club', suburb: 'Newtown', contactName: 'Jo Treasurer', contactEmail: 'jo@club.org.au', contactPhone: '', memberCount: '40', message: '', preferredTimes: '' };
+const GOOD = { clubName: 'Inner West Pickleball Club', suburb: 'Newtown', postcode: '2042', contactName: 'Jo Treasurer', contactEmail: 'jo@club.org.au', contactPhone: '', memberCount: '40', message: '', preferredTimes: '' };
 
 describe('club lead form rules (SCRUM-93)', () => {
   it('has the form’s fields, and asks for nothing about members or a street address', () => {
-    expect([...LEAD_FIELDS]).toEqual(['clubName', 'suburb', 'contactName', 'contactEmail', 'contactPhone', 'memberCount', 'message', 'preferredTimes']);
+    expect([...LEAD_FIELDS]).toEqual(['clubName', 'suburb', 'postcode', 'contactName', 'contactEmail', 'contactPhone', 'memberCount', 'message', 'preferredTimes']);
     expect(LEAD_FIELDS.some((f) => /street|address|member(s|Names|Emails)$/i.test(f))).toBe(false);
   });
 
@@ -15,7 +15,7 @@ describe('club lead form rules (SCRUM-93)', () => {
   });
 
   it('flags what is missing or wrong, beside the field', () => {
-    expect(Object.keys(validateLeadForm({})).sort()).toEqual(['clubName', 'contactEmail', 'contactName', 'memberCount', 'suburb']);
+    expect(Object.keys(validateLeadForm({})).sort()).toEqual(['clubName', 'contactEmail', 'contactName', 'memberCount', 'postcode', 'suburb']);
     expect(validateLeadForm({ ...GOOD, contactEmail: 'nope' })).toHaveProperty('contactEmail');
     expect(validateLeadForm({ ...GOOD, contactPhone: 'call me' })).toHaveProperty('contactPhone');
     expect(validateLeadForm({ ...GOOD, memberCount: 'lots' })).toHaveProperty('memberCount');
