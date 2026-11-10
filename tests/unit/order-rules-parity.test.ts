@@ -32,23 +32,3 @@ describe('order rules parity with the integrations service', () => {
     expect([MAX_PHOTO_BYTES, MAX_REQUEST_BYTES, MAX_PHOTO_EDGE]).toEqual([10 * 1024 * 1024, 60 * 1024 * 1024, 2560]);
   });
 });
-
-// SCRUM-102: the service area list and its check are shared the same way.
-describe('service area parity with the integrations service', () => {
-  const upstreamBase = 'https://raw.githubusercontent.com/thehunfromoz/picklemypaddle-integrations/main/src/clubs/';
-  for (const [remote, localPath] of [['service-area.ts', '../../src/lib/service-area.ts'], ['service-area-suburbs.json', '../../src/lib/service-area-suburbs.json']] as const) {
-    it(`${remote} is byte-identical to integrations src/clubs/${remote} on main`, async () => {
-      let upstream: string;
-      try {
-        const res = await fetch(upstreamBase + remote, { signal: AbortSignal.timeout(15_000) });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        upstream = await res.text();
-      } catch (err) {
-        if (process.env.CI) throw new Error(`couldn't fetch ${upstreamBase + remote}: ${(err as Error).message}`, { cause: err });
-        console.warn(`parity check skipped (offline): ${(err as Error).message}`);
-        return;
-      }
-      expect(readFileSync(new URL(localPath, import.meta.url), 'utf8'), `copy integrations src/clubs/${remote} into src/lib/`).toBe(upstream);
-    });
-  }
-});

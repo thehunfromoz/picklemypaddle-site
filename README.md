@@ -110,6 +110,10 @@ Content-Security-Policy and other security headers. Runtime settings: `SITE_ADDR
   puts an error in the console.
 - Photos are shrunk in the browser to 2560 px JPEG (`src/scripts/photo-resize.ts`) and uploaded with
   progress. Field errors from the service land on the same fields as the browser's own.
+- Local pickup area (SCRUM-102): the site OWNS `src/lib/service-area-suburbs.json` (the single source of
+  truth for the suburb list) and `src/lib/service-area.ts`, and the map `public/images/service-area.svg`.
+  Integrations holds byte-identical copies of the two `src/lib` files (`src/clubs/`) and checks them
+  against this repo's `main`: change them here first, then copy to integrations. Don't hand-edit the list in code.
 - Validation rules: `src/lib/order-rules.ts` is a byte-identical copy of integrations
   `src/orders/rules.ts`; `tests/unit/order-rules-parity.test.ts` compares them (always in CI).
   Change the rules in integrations first, then copy the file here.

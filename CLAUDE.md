@@ -20,6 +20,8 @@ built for home-server's amd64 in CI.
 - **Strict CSP:** no inline scripts, no third-party origins (fonts are self-hosted). A new page needs
   the CSP and axe checks in its e2e spec.
 - Staging-only behaviour lives in the infra gateway (`/env.css`), never in the build.
+- `src/lib/service-area.ts` and `service-area-suburbs.json` are OWNED here and copied byte-for-byte into
+  integrations `src/clubs/` (its parity test checks against this repo's `main`): change them here first.
 - `src/lib/order-rules.ts` is a byte-identical copy of integrations `src/orders/rules.ts`; the parity
   test compares it with integrations `main`, so merge the integrations change first.
 - Copy: Claude drafts, Attila approves on staging; unknown facts are `[To confirm: …]`.
