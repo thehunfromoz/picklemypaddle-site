@@ -164,9 +164,9 @@ if (form && list && tpl && addBtn && estimate && status && done) {
     }
   });
 
-  // Submit stays disabled until both boxes are ticked. Set here rather than in the HTML,
+  // Submit stays disabled until all three boxes are ticked. Set here rather than in the HTML,
   // so the form still works (with validation) if this script doesn't load.
-  const ticks = ['consent', 'tournamentAck'].map((id) => $<HTMLInputElement>(id)!);
+  const ticks = ['consent', 'tournamentAck', 'artworkAck'].map((id) => $<HTMLInputElement>(id)!);
   const syncSubmit = () => {
     const ready = ticks.every((t) => t.checked);
     submitBtn.disabled = !ready || sending;
@@ -222,6 +222,7 @@ if (form && list && tpl && addBtn && estimate && status && done) {
         postcode: v('postcode'),
         consent: ticks[0]!.checked,
         tournamentAck: ticks[1]!.checked,
+        artworkAck: ticks[2]!.checked,
         paddles: items.map((fs) => {
           const i = fs.dataset.index!;
           return {
@@ -369,6 +370,7 @@ if (form && list && tpl && addBtn && estimate && status && done) {
       if (sentCode) body.set('discountCode', sentCode);
       body.set('consent', ticks[0]!.checked ? 'yes' : '');
       body.set('tournamentAck', ticks[1]!.checked ? 'yes' : '');
+      body.set('artworkAck', ticks[2]!.checked ? 'yes' : '');
       const shrinkErrors: OrderErrors = {};
       for (const [pos, i] of idx.entries()) {
         const fs = list.querySelector(`fieldset.paddle[data-index="${i}"]`)!;

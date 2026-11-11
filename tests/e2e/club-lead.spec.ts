@@ -14,6 +14,16 @@ async function fill(page: import('@playwright/test').Page, over: Record<string, 
   for (const [k, v] of Object.entries(values)) await page.locator(`#${k}`).fill(v);
 }
 
+test.describe('Clubs page: what to tell members (SCRUM-104)', () => {
+  test('tells clubs the grit is black and hides logos and artwork, so they can advise members', async ({ page }) => {
+    await page.goto('/clubs');
+    const notes = page.getByTestId('club-member-notes');
+    await expect(notes).toContainText('Logos and artwork are hidden');
+    await expect(notes).toContainText('black and not see-through');
+    await expect(notes).toContainText('sanctioned tournaments');
+  });
+});
+
 test.describe('Clubs page: Talk to us', () => {
   test('shows the form with no third-party origin, no CSP violation and no accessibility violations', async ({ page }) => {
     const violations: string[] = [];

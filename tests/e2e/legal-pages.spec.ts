@@ -55,6 +55,12 @@ test.describe('Terms', () => {
     await expect(page.locator('main')).toContainText('not allowed in sanctioned tournaments');
   });
 
+  test('says the black grit hides logos and artwork (SCRUM-104)', async ({ page }) => {
+    await page.goto('/terms');
+    await expect(page.locator('main')).toContainText('black and not see-through');
+    await expect(page.locator('main')).toContainText('logo or artwork on the paddle faces will be hidden');
+  });
+
   test('states A$60 plus return postage, payment after assessment and no GST', async ({ page }) => {
     await page.goto('/terms');
     const main = page.locator('main');
