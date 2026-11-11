@@ -3,7 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Banner from '../components/Banner.astro';
 import ClubLeadForm from '../components/sections/ClubLeadForm.astro';
 import { siteData } from '../data/siteData';
-import { SERVICE_AREA_SUBURBS } from '../lib/service-area';
+import { SERVICE_AREA_SUBURBS, SERVICE_AREA_VERSION } from '../lib/service-area';
 
 const steps = [
   { title: 'Agree the arrangement', body: 'We meet, walk through how it works, and agree a short written club agreement by email, covering vetting, custody, payment, and pickups or posting.' },
@@ -42,7 +42,7 @@ const steps = [
         post it back. Not sure which side you're on, or just outside the line? Get in touch anyway.
       </p>
       <img
-        src="/images/service-area.svg"
+        src={`/images/service-area.svg?v=${SERVICE_AREA_VERSION}`}
         width="1000"
         height="940"
         alt="Map of the PickleMyPaddle local pickup and drop-off area, covering northern and central Sydney, including the north shore, the northern beaches and the Hills."
