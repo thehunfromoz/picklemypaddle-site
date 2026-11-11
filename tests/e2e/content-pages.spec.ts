@@ -93,7 +93,8 @@ test.describe('Clubs page', () => {
     await page.goto('/clubs');
     await expect(page.getByRole('heading', { name: 'Local pickup and drop-off area' })).toBeVisible();
     const map = page.getByTestId('service-area-map');
-    await expect(map).toHaveAttribute('src', '/images/service-area.svg');
+    // The list's version is in the URL, so a browser that cached an older map fetches the new one.
+    await expect(map).toHaveAttribute('src', /^\/images\/service-area\.svg\?v=2026-11-11-launch-35$/);
     await expect(map).toHaveAttribute('alt', 'Map of the PickleMyPaddle local pickup and drop-off area, covering northern and central Sydney, including the north shore, the northern beaches and the Hills.');
     await expect(map).toHaveAttribute('width', '1000');
     await expect(map).toHaveAttribute('height', '940');
