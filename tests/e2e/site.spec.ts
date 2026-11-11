@@ -51,7 +51,8 @@ test.describe('Landing page', () => {
   test('states the turnaround, reply time and what the price covers', async ({ page }) => {
     await page.goto('/');
     await expect(page.locator('#pricing')).toContainText('per paddle, both faces');
-    await expect(page.locator('#how-it-works')).toContainText('within 10 business days');
+    await expect(page.locator('#how-it-works')).toContainText('usually within 10 business days');
+    await expect(page.locator('#pricing')).toContainText('Usually back in the post within 10 business days'); // SCRUM-105
     await expect(page.locator('#order')).toContainText('within 1 business day');
   });
 

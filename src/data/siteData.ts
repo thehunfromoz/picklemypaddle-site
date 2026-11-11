@@ -32,8 +32,14 @@ export const siteData = {
      */
     gstRegisteredFrom: null as string | null,
     returnPostageNote: 'Return postage is added at payment and depends on how many paddles you send.',
+    /**
+     * The usual turnaround in business days: the same number as TURNAROUND_BUSINESS_DAYS in the integrations
+     * service (tests/unit/order-rules-parity.test.ts fails if they differ). Attila can set another number
+     * when he accepts an order (SCRUM-105); the acceptance email says it.
+     */
+    turnaroundDays: 10,
     /** Shown on the landing page and in the FAQ. */
-    turnaround: 'within 10 business days of it reaching us, plus postage time each way',
+    turnaround: 'usually within 10 business days of it reaching us, plus postage time each way',
     /** How quickly we reply to an order with the photo check and payment link. */
     replyTime: '1 business day',
     covers: 'both faces',

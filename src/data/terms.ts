@@ -41,7 +41,7 @@ export const termsOfService = {
     {
       heading: 'Turnaround',
       content: [
-        'We expect to post your paddle back within 10 business days of it reaching us. Business days are Monday to Friday, excluding NSW public holidays. This is an estimate, not a guarantee, and it does not include postage time each way.',
+        `We usually post your paddle back within ${pricing.turnaroundDays} business days of it reaching us. Sometimes it takes longer, for example around holidays or at busy times: the email that accepts your paddle tells you how many business days to expect. Business days are Monday to Friday, excluding NSW public holidays. This is an estimate, not a guarantee, and it does not include postage time each way.`,
         'We are not responsible for delays caused by carriers or other events outside our control. Nothing here limits your rights under the Australian Consumer Law.',
       ],
     },
