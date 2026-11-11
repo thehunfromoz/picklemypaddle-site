@@ -68,6 +68,7 @@ test.describe('Terms', () => {
     await expect(main).toContainText('plus return postage');
     await expect(main).toContainText('after we accept your paddle and before you post it');
     await expect(main).toContainText('our prices do not include GST');
-    await expect(main).toContainText('within 10 business days');
+    await expect(main).toContainText('usually post your paddle back within 10 business days');
+    await expect(main).toContainText('the email that accepts your paddle tells you how many business days to expect'); // SCRUM-105
   });
 });

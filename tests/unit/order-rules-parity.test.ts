@@ -7,9 +7,11 @@
  */
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
+import { siteData } from '../../src/data/siteData';
 import { ACCEPTED_PHOTO_TYPES, MAX_PHOTO_BYTES, MAX_PHOTO_EDGE, MAX_REQUEST_BYTES } from '../../src/lib/order';
 
 const UPSTREAM = 'https://raw.githubusercontent.com/thehunfromoz/picklemypaddle-integrations/main/src/orders/rules.ts';
+const DATES = 'https://raw.githubusercontent.com/thehunfromoz/picklemypaddle-integrations/main/src/orders/dates.ts';
 const local = readFileSync(new URL('../../src/lib/order-rules.ts', import.meta.url), 'utf8');
 
 describe('order rules parity with the integrations service', () => {
@@ -30,5 +32,22 @@ describe('order rules parity with the integrations service', () => {
   it('accepts the same photo types and limits as the server (SCRUM-66)', () => {
     expect(ACCEPTED_PHOTO_TYPES).toEqual(['image/jpeg', 'image/png', 'image/webp']);
     expect([MAX_PHOTO_BYTES, MAX_REQUEST_BYTES, MAX_PHOTO_EDGE]).toEqual([10 * 1024 * 1024, 60 * 1024 * 1024, 2560]);
+  });
+
+  it('says the same usual turnaround as the service: one number, 10 business days by default (SCRUM-105)', async () => {
+    expect(siteData.pricing.turnaround).toContain(`${siteData.pricing.turnaroundDays} business days`);
+    expect(siteData.pricing.turnaround).toMatch(/^usually /);
+    let upstream: string;
+    try {
+      const res = await fetch(DATES, { signal: AbortSignal.timeout(15_000) });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      upstream = await res.text();
+    } catch (err) {
+      if (process.env.CI) throw new Error(`couldn't fetch ${DATES}: ${(err as Error).message}`, { cause: err });
+      console.warn(`turnaround check skipped (offline): ${(err as Error).message}`);
+      return;
+    }
+    const n = /export const TURNAROUND_BUSINESS_DAYS = (\d+);/.exec(upstream)?.[1];
+    expect(Number(n), 'TURNAROUND_BUSINESS_DAYS in integrations src/orders/dates.ts').toBe(siteData.pricing.turnaroundDays);
   });
 });
