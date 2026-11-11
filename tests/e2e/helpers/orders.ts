@@ -100,6 +100,7 @@ export async function fillOrder(page: Page, opts: { email?: string; photo?: Retu
   await page.setInputFiles('#paddles-0-back', { ...photo, name: 'back.png' });
   await page.check('#consent');
   await page.check('#tournamentAck');
+  await page.check('#artworkAck');
 }
 
 /** Stands in for the integrations service: the form-token call, and the order POST. */

@@ -55,6 +55,13 @@ test.describe('Landing page', () => {
     await expect(page.locator('#order')).toContainText('within 1 business day');
   });
 
+  test('the order form asks for a third tick-box, and the pricing section says the grit hides logos and artwork (SCRUM-104)', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByTestId('artwork-note')).toContainText('black and not see-through');
+    await expect(page.locator('label[for="artworkAck"]')).toContainText('logo or artwork on my paddle faces will be hidden');
+    await expect(page.locator('#artworkAck')).toHaveAttribute('required', '');
+  });
+
   test('tells tournament players re-gritted paddles are not tournament-approved', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByTestId('tournament-note')).toContainText('sanctioned tournaments');
@@ -109,7 +116,7 @@ test.describe('Order form (client-side)', () => {
     await page.route('**/api/orders/form', (route) => route.fulfill({ status: 503, body: 'closed' }));
     await page.route('**/api/orders', (route) => route.abort());
   });
-  test('submit is disabled until both boxes are ticked', async ({ page }) => {
+  test('submit is disabled until all three boxes are ticked', async ({ page }) => {
     await page.goto('/#order');
     const submit = page.getByRole('button', { name: 'Submit for review' });
     await expect(submit).toBeDisabled();
@@ -120,9 +127,14 @@ test.describe('Order form (client-side)', () => {
     await page.check('#tournamentAck');
     await expect(submit).toBeDisabled();
     await page.check('#consent');
+    await expect(submit).toBeDisabled(); // the artwork box is still open (SCRUM-104)
+    await page.check('#artworkAck');
     await expect(submit).toBeEnabled();
     await expect(page.locator('#submit-hint')).toBeHidden();
     await page.uncheck('#tournamentAck');
+    await expect(submit).toBeDisabled();
+    await page.check('#tournamentAck');
+    await page.uncheck('#artworkAck');
     await expect(submit).toBeDisabled();
   });
 
@@ -130,6 +142,7 @@ test.describe('Order form (client-side)', () => {
     await page.goto('/#order');
     await page.check('#consent');
     await page.check('#tournamentAck');
+    await page.check('#artworkAck');
     await page.getByRole('button', { name: 'Submit for review' }).click();
     await expect(page.locator('#form-status')).toContainText('Please fix');
     await expect(page.locator('#name')).toBeFocused();
@@ -163,6 +176,7 @@ test.describe('Order form (client-side)', () => {
     await page.setInputFiles('#paddles-0-back', png);
     await page.check('#consent');
     await page.check('#tournamentAck');
+    await page.check('#artworkAck');
     await page.getByRole('button', { name: 'Submit for review' }).click();
     await expect(page.locator('#form-status')).not.toContainText('Please fix');
     await expect(page.locator('[aria-invalid="true"]')).toHaveCount(0);

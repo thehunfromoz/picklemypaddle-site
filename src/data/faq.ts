@@ -30,6 +30,10 @@ export const faq: { q: string; a: string }[] = [
     a: "No. Re-gritted paddles aren't approved for sanctioned tournaments, because the surface no longer matches the paddle's certification. Re-gritting is for social, club and practice play. If you play sanctioned events, keep a tournament-legal paddle for those.",
   },
   {
+    q: 'Will the re-grit cover my paddle’s logos and artwork?',
+    a: 'Yes. The new grit layer is black and not see-through, so any logo, brand name or artwork on the paddle faces is hidden by it. Re-gritting restores grip and spin, not the look of the face. Your order form asks you to confirm you understand this before you send a paddle. If the artwork matters to you, please think twice before ordering.',
+  },
+  {
     q: 'How much does it cost?',
     a: `A$${pricing.regritPerPaddle} per paddle, ${pricing.covers}, plus return postage, which depends on how many paddles you send. You only pay after we have checked your photos and accepted the paddle.${pricing.gstRegistered ? '' : ' We are not registered for GST, so no GST is charged.'}`,
   },

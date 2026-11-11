@@ -44,6 +44,7 @@ test.describe('FAQ', () => {
     expect(covers(/postage/i), 'postage').toBe(true);
     expect(covers(/track/i), 'private status link').toBe(true);
     expect(covers(/tournament/i), 'tournament legality').toBe(true);
+    expect(covers(/logos and artwork/i), 'artwork is covered by the grit (SCRUM-104)').toBe(true);
     expect(covers(/can.t be re-gritted/i), 'paddle that cannot be re-gritted').toBe(true);
   });
 

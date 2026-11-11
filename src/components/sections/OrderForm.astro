@@ -165,11 +165,20 @@ const err = 'mt-1 text-sm font-medium text-[#A12B2B]';
           </label>
         </div>
         <p id="tournamentAck-error" class={err} hidden></p>
+
+        <div class="mt-4 flex items-start gap-3">
+          <input id="artworkAck" name="artworkAck" type="checkbox" value="yes" required class="mt-1 size-5 shrink-0 accent-primary" aria-describedby="artworkAck-error" />
+          <label for="artworkAck" class="text-sm leading-relaxed">
+            I understand that the new grit is black and not see-through, so any logo or artwork on my paddle faces
+            will be hidden by the re-grit.
+          </label>
+        </div>
+        <p id="artworkAck-error" class={err} hidden></p>
       </div>
 
       <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
         <button type="submit" id="order-submit" class="btn-primary w-full disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto" aria-describedby="submit-hint">Submit for review</button>
-        <p id="submit-hint" class="text-sm text-text-muted" hidden>Tick both boxes above to submit.</p>
+        <p id="submit-hint" class="text-sm text-text-muted" hidden>Tick all three boxes above to submit.</p>
       </div>
     </form>
 

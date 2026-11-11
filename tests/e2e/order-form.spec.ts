@@ -37,6 +37,7 @@ test.describe('Order form → /api/orders', () => {
     expect(field('idempotencyKey')!.data.toString()).toMatch(/^[A-Za-z0-9_-]{16,64}$/);
     expect(field('website')!.data.toString()).toBe('');
     expect(field('consent')!.data.toString()).toBe('yes');
+    expect(field('artworkAck')!.data.toString()).toBe('yes'); // SCRUM-104
 
     await expect(page.getByTestId('done-reference')).toHaveText('PMP-ABCDE');
     await expect(page.getByTestId('done-test')).toBeVisible();
