@@ -114,6 +114,10 @@ Content-Security-Policy and other security headers. Runtime settings: `SITE_ADDR
   truth for the suburb list) and `src/lib/service-area.ts`, and the map `public/images/service-area.svg`.
   Integrations holds byte-identical copies of the two `src/lib` files (`src/clubs/`) and checks them
   against this repo's `main`: change them here first, then copy to integrations. Don't hand-edit the list in code.
+  The live list and map are the smaller LAUNCH area (about 35 minutes off-peak; list version `2026-11-11-launch-35`).
+  The wider original, kept for a possible later pickup area, is `service-area-suburbs-wide.json` and
+  `public/images/service-area-wide.svg`: nothing imports or serves them at launch. The map and list name
+  suburbs only, never a starting point or an address.
 - Validation rules: `src/lib/order-rules.ts` is a byte-identical copy of integrations
   `src/orders/rules.ts`; `tests/unit/order-rules-parity.test.ts` compares them (always in CI).
   Change the rules in integrations first, then copy the file here.

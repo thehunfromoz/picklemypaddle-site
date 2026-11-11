@@ -22,6 +22,8 @@ built for home-server's amd64 in CI.
 - Staging-only behaviour lives in the infra gateway (`/env.css`), never in the build.
 - `src/lib/service-area.ts` and `service-area-suburbs.json` are OWNED here and copied byte-for-byte into
   integrations `src/clubs/` (its parity test checks against this repo's `main`): change them here first.
+  They hold the smaller launch area; the wider originals are kept as `*-wide.*` and are not used.
+  Never put a drive-time starting point, home suburb or address in code, copy, comments or commits.
 - `src/lib/order-rules.ts` is a byte-identical copy of integrations `src/orders/rules.ts`; the parity
   test compares it with integrations `main`, so merge the integrations change first.
 - Copy: Claude drafts, Attila approves on staging; unknown facts are `[To confirm: …]`.

@@ -94,14 +94,17 @@ test.describe('Clubs page', () => {
     await expect(page.getByRole('heading', { name: 'Local pickup and drop-off area' })).toBeVisible();
     const map = page.getByTestId('service-area-map');
     await expect(map).toHaveAttribute('src', '/images/service-area.svg');
-    await expect(map).toHaveAttribute('alt', 'Map of the PickleMyPaddle local pickup and drop-off area, covering most of Sydney and the southern Central Coast, from Terrigal and Bateau Bay to the Sutherland Shire, Liverpool and Penrith.');
+    await expect(map).toHaveAttribute('alt', 'Map of the PickleMyPaddle local pickup and drop-off area, covering northern and central Sydney, including the north shore, the northern beaches and the Hills.');
     await expect(map).toHaveAttribute('width', '1000');
     await expect(map).toHaveAttribute('height', '940');
     await expect(map).toHaveAttribute('loading', 'lazy');
     await map.scrollIntoViewIfNeeded();
     expect(await map.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
-    await expect(page.getByTestId('service-area-suburbs').locator('li').filter({ hasText: 'Milperra 2214' })).toHaveCount(1);
+    await expect(page.getByTestId('service-area-suburbs').locator('li').filter({ hasText: 'Hornsby 2077' })).toHaveCount(1);
     await expect(page.locator('main')).toContainText('Clubs outside it use post');
+    // The postage allowance is for the club's postage TO us, shown with posting, not with the return.
+    await expect(page.locator('main')).toContainText('On boxes of 6 paddles or more, we take the standard cost of that postage off your invoice.');
+    await expect(page.locator('main')).toContainText('The standard cost of posting to us off your invoice');
     await expect(page.locator('main')).toContainText('Get in touch anyway');
   });
 
